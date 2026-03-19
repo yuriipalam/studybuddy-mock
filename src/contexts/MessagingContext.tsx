@@ -11,6 +11,7 @@ export interface DbMessage {
   content: string;
   created_at: string;
   read_at: string | null;
+  edited_at: string | null;
 }
 
 export interface Participant {
