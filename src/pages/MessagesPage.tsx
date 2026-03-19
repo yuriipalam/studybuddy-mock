@@ -410,7 +410,7 @@ export default function MessagesPage() {
   // Find ChatFile matching a file message content
   const findFileForMessage = useCallback((msgContent: string): ChatFile | undefined => {
     if (!msgContent.startsWith("📎")) return undefined;
-    const fileName = msgContent.slice(2);
+    const fileName = msgContent.slice(2).trim();
     return convFiles.find((f) => f.file_name === fileName);
   }, [convFiles]);
 
