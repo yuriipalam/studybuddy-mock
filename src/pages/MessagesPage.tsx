@@ -41,6 +41,12 @@ function formatDate(dateStr: string) {
   return d.toLocaleDateString([], { month: "short", day: "numeric" });
 }
 
+function formatDuration(s: number) {
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  return `${m.toString().padStart(2, "0")}:${sec.toString().padStart(2, "0")}`;
+}
+
 function ReadReceipt({ isMe, readAt }: { isMe: boolean; readAt: string | null }) {
   if (!isMe) return null;
   return readAt ? (
