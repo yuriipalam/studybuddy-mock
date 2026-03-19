@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { MessageSquare, Send, Check, CheckCheck } from "lucide-react";
+import { MessageSquare, Send, Check, CheckCheck, Pencil, X } from "lucide-react";
 import { useMessaging } from "@/contexts/MessagingContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
@@ -54,6 +54,7 @@ export default function MessagesPage() {
     setActiveConversationId,
     messages,
     sendMessage,
+    editMessage,
     markAsRead,
     setTyping,
     typingUsers,
@@ -62,6 +63,8 @@ export default function MessagesPage() {
 
   const [search, setSearch] = useState("");
   const [input, setInput] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editInput, setEditInput] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
@@ -274,7 +277,7 @@ export default function MessagesPage() {
                           (i === 0 || group.msgs[i - 1].sender_id !== msg.sender_id);
 
                         return (
-                          <div key={msg.id} className={cn("flex", isMe ? "justify-end" : "justify-start")}>
+                          <div key={msg.id} className={cn("flex group", isMe ? "justify-end" : "justify-start")}>
                             {!isMe && (
                               <div className="w-7 mr-2 shrink-0">
                                 {showAvatar && (
@@ -287,27 +290,78 @@ export default function MessagesPage() {
                                 )}
                               </div>
                             )}
-                            <div
-                              className={cn(
-                                "max-w-[75%] rounded-2xl px-3.5 py-2 text-sm",
-                                isMe
-                                  ? "bg-primary text-primary-foreground rounded-br-md"
-                                  : "bg-muted rounded-bl-md"
-                              )}
-                            >
-                              {msg.content}
-                              <div className={cn(
-                                "flex items-center gap-1 mt-0.5",
-                                isMe ? "justify-end" : "justify-start"
-                              )}>
-                                <span className={cn(
-                                  "text-[10px]",
-                                  isMe ? "text-primary-foreground/60" : "text-muted-foreground"
+                            <div className={cn("flex items-center gap-1", isMe && "flex-row-reverse")}>
+                              <div
+                                className={cn(
+                                  "max-w-[75%] rounded-2xl px-3.5 py-2 text-sm",
+                                  isMe
+                                    ? "bg-primary text-primary-foreground rounded-br-md"
+                                    : "bg-muted rounded-bl-md"
+                                )}
+                              >
+                                {editingId === msg.id ? (
+                                  <form
+                                    className="flex items-center gap-1.5"
+                                    onSubmit={(e) => {
+                                      e.preventDefault();
+                                      if (editInput.trim() && editInput.trim() !== msg.content) {
+                                        editMessage(msg.id, editInput.trim());
+                                      }
+                                      setEditingId(null);
+                                    }}
+                                  >
+                                    <input
+                                      autoFocus
+                                      className="bg-transparent outline-none flex-1 min-w-0 text-sm"
+                                      value={editInput}
+                                      onChange={(e) => setEditInput(e.target.value)}
+                                      onKeyDown={(e) => {
+                                        if (e.key === "Escape") setEditingId(null);
+                                      }}
+                                    />
+                                    <Button type="submit" size="icon" variant="ghost" className="h-5 w-5 shrink-0">
+                                      <Check className="h-3 w-3" />
+                                    </Button>
+                                    <Button type="button" size="icon" variant="ghost" className="h-5 w-5 shrink-0" onClick={() => setEditingId(null)}>
+                                      <X className="h-3 w-3" />
+                                    </Button>
+                                  </form>
+                                ) : (
+                                  msg.content
+                                )}
+                                <div className={cn(
+                                  "flex items-center gap-1 mt-0.5",
+                                  isMe ? "justify-end" : "justify-start"
                                 )}>
-                                  {formatTime(msg.created_at)}
-                                </span>
-                                <ReadReceipt isMe={isMe} readAt={msg.read_at} />
+                                  {msg.edited_at && (
+                                    <span className={cn(
+                                      "text-[10px] italic",
+                                      isMe ? "text-primary-foreground/40" : "text-muted-foreground/60"
+                                    )}>
+                                      edited
+                                    </span>
+                                  )}
+                                  <span className={cn(
+                                    "text-[10px]",
+                                    isMe ? "text-primary-foreground/60" : "text-muted-foreground"
+                                  )}>
+                                    {formatTime(msg.created_at)}
+                                  </span>
+                                  <ReadReceipt isMe={isMe} readAt={msg.read_at} />
+                                </div>
                               </div>
+                              {/* Edit button - only for own messages */}
+                              {isMe && !msg.id.startsWith("temp-") && editingId !== msg.id && (
+                                <button
+                                  className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-muted"
+                                  onClick={() => {
+                                    setEditingId(msg.id);
+                                    setEditInput(msg.content);
+                                  }}
+                                >
+                                  <Pencil className="h-3 w-3 text-muted-foreground" />
+                                </button>
+                              )}
                             </div>
                           </div>
                         );

@@ -11,6 +11,7 @@ export interface DbMessage {
   content: string;
   created_at: string;
   read_at: string | null;
+  edited_at: string | null;
 }
 
 export interface Participant {
@@ -38,6 +39,7 @@ interface MessagingContextType {
   setActiveConversationId: (id: string | null) => void;
   messages: DbMessage[];
   sendMessage: (conversationId: string, content: string) => Promise<void>;
+  editMessage: (messageId: string, newContent: string) => Promise<void>;
   startConversation: (contact: { id: string; name: string; role: string; avatar?: string }) => Promise<string>;
   getConversationByContact: (contactId: string) => Conversation | undefined;
   markAsRead: (conversationId: string) => Promise<void>;
@@ -308,6 +310,7 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
         content,
         created_at: new Date().toISOString(),
         read_at: null,
+        edited_at: null,
       };
 
       // Add to messages immediately
@@ -436,6 +439,34 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
     [userId]
   );
 
+  const editMessage = useCallback(
+    async (messageId: string, newContent: string) => {
+      if (!userId) return;
+
+      const editedAt = new Date().toISOString();
+
+      // Optimistic update
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === messageId ? { ...m, content: newContent, edited_at: editedAt } : m
+        )
+      );
+
+      const { error } = await supabase
+        .from("messages")
+        .update({ content: newContent, edited_at: editedAt })
+        .eq("id", messageId)
+        .eq("sender_id", userId);
+
+      if (error) {
+        toast.error("Failed to edit message");
+        // Reload to restore original
+        loadMessages();
+      }
+    },
+    [userId, loadMessages]
+  );
+
   return (
     <MessagingContext.Provider
       value={{
@@ -444,6 +475,7 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
         setActiveConversationId,
         messages,
         sendMessage,
+        editMessage,
         startConversation,
         getConversationByContact,
         markAsRead,
