@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Users, BookOpen } from "lucide-react";
 
 export default function CompaniesPage() {
+  const navigate = useNavigate();
   const [companyList, setCompanies] = useState<Company[]>([]);
   const [search, setSearch] = useState("");
   const [domainFilter, setDomainFilter] = useState("all");
