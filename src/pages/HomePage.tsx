@@ -45,7 +45,7 @@ export default function HomePage() {
         {actionCards.map((card) => (
           <Card
             key={card.title}
-            className="hover:shadow-md transition-shadow cursor-pointer group"
+            className="hover:shadow-md transition-shadow cursor-pointer group w-40 flex-shrink-0 flex-grow-0"
             onClick={() => handleCardClick(card)}
           >
             <CardContent className="p-5 flex flex-col items-center text-center gap-3">
