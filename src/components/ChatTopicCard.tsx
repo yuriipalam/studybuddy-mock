@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Building2, GraduationCap, MapPin, Briefcase, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import type { SupervisorCardData } from "@/components/ChatSupervisorCard";
 
 export interface TopicCardData {
   id: string;
@@ -102,46 +103,48 @@ export function ChatTopicCard({ topic }: { topic: TopicCardData }) {
   );
 }
 
+export type ChatSegment =
+  | { type: "text"; content: string }
+  | { type: "topics"; topics: TopicCardData[] }
+  | { type: "supervisors"; supervisors: SupervisorCardData[] };
+
 /**
- * Parse a message content string and extract :::topics blocks.
- * Returns an array of segments: either { type: "text", content } or { type: "topics", topics }.
+ * Parse a message content string and extract :::topics and :::supervisors blocks.
  */
-export function parseTopicBlocks(content: string): Array<
-  { type: "text"; content: string } | { type: "topics"; topics: TopicCardData[] }
-> {
-  const regex = /:::topics\s*\n([\s\S]*?)\n:::/g;
-  const segments: Array<{ type: "text"; content: string } | { type: "topics"; topics: TopicCardData[] }> = [];
+export function parseChatBlocks(content: string): ChatSegment[] {
+  const regex = /:::(topics|supervisors)\s*\n([\s\S]*?)\n:::/g;
+  const segments: ChatSegment[] = [];
   let lastIndex = 0;
   let match: RegExpExecArray | null;
 
   while ((match = regex.exec(content)) !== null) {
-    // Text before the block
     if (match.index > lastIndex) {
       const text = content.slice(lastIndex, match.index).trim();
       if (text) segments.push({ type: "text", content: text });
     }
 
-    // Parse JSON
+    const blockType = match[1] as "topics" | "supervisors";
     try {
-      const topics = JSON.parse(match[1].trim()) as TopicCardData[];
-      if (Array.isArray(topics) && topics.length > 0) {
-        segments.push({ type: "topics", topics });
+      const parsed = JSON.parse(match[2].trim());
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        if (blockType === "topics") {
+          segments.push({ type: "topics", topics: parsed as TopicCardData[] });
+        } else {
+          segments.push({ type: "supervisors", supervisors: parsed as SupervisorCardData[] });
+        }
       }
     } catch {
-      // If JSON is malformed (streaming in progress), show as text
       segments.push({ type: "text", content: match[0] });
     }
 
     lastIndex = match.index + match[0].length;
   }
 
-  // Remaining text
   if (lastIndex < content.length) {
     const text = content.slice(lastIndex).trim();
     if (text) segments.push({ type: "text", content: text });
   }
 
-  // If no topic blocks found, return the whole content as text
   if (segments.length === 0 && content.trim()) {
     segments.push({ type: "text", content: content.trim() });
   }
