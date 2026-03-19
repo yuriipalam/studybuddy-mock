@@ -34,6 +34,7 @@ const INTERNSHIP_OPTIONS = [
 
 export default function SettingsPage() {
   const { profile, updateProfile } = useUserProfile();
+  const { currentUser } = useAuth();
   const p = profile;
   const set = updateProfile;
 
