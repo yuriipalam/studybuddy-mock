@@ -48,6 +48,7 @@ export default function StudentsPage() {
               subtitle={`${uni?.name ?? ""} · ${program?.name ?? ""}`}
               secondaryText={student.degree.toUpperCase()}
               tags={fieldNames}
+              onClick={() => navigate(`/people/students/${student.id}`)}
             />
           );
         })}
