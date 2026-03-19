@@ -73,17 +73,37 @@ function OnlineIndicator({ size = "md" }: { size?: "sm" | "md" }) {
   );
 }
 
-// Simulate online status — in production this would come from presence channels
+// Real online status based on last_seen_at (online if seen within 5 minutes)
 function useOnlineStatus(userIds: string[]) {
-  // Deterministic: hash the user_id to decide online/offline for demo
-  const onlineSet = new Set(
-    userIds.filter((id) => {
-      let h = 0;
-      for (let i = 0; i < id.length; i++) h = ((h << 5) - h + id.charCodeAt(i)) | 0;
-      return Math.abs(h) % 3 !== 0; // ~66% online
-    })
-  );
-  return (userId: string) => onlineSet.has(userId);
+  const [onlineMap, setOnlineMap] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    if (userIds.length === 0) return;
+
+    const fetchStatus = async () => {
+      const { data } = await supabase
+        .from("user_accounts")
+        .select("id, last_seen_at")
+        .in("id", userIds);
+
+      if (data) {
+        const now = Date.now();
+        const map: Record<string, boolean> = {};
+        for (const u of data) {
+          map[u.id] = u.last_seen_at
+            ? now - new Date(u.last_seen_at).getTime() < 5 * 60 * 1000
+            : false;
+        }
+        setOnlineMap(map);
+      }
+    };
+
+    fetchStatus();
+    const interval = setInterval(fetchStatus, 30_000); // refresh every 30s
+    return () => clearInterval(interval);
+  }, [userIds.join(",")]);
+
+  return (userId: string) => !!onlineMap[userId];
 }
 
 export default function MessagesPage() {
