@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Users } from "lucide-react";
 
 export default function StudyProgramsPage() {
+  const navigate = useNavigate();
   const [programs, setPrograms] = useState<StudyProgram[]>([]);
   const [search, setSearch] = useState("");
   const [degreeFilter, setDegreeFilter] = useState("all");
