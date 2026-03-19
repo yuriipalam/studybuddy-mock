@@ -29,6 +29,7 @@ import StudyProgramDetailPage from "@/pages/StudyProgramDetailPage";
 import RankingPage from "@/pages/RankingPage";
 import SettingsPage from "@/pages/SettingsPage";
 import OnboardingPage from "@/pages/OnboardingPage";
+import RegisterPage from "@/pages/RegisterPage";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
