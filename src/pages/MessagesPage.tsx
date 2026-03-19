@@ -1164,7 +1164,7 @@ export default function MessagesPage() {
                       </Button>
                     </div>
                   ) : input.trim().length > 2 ? (
-                    <div className="flex justify-end px-1">
+                    <div className="flex justify-start px-1">
                       <Button
                         type="button"
                         variant="ghost"
