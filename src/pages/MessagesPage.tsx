@@ -276,10 +276,10 @@ export default function MessagesPage() {
   }, [activeConversationId, getConversationFiles]);
 
   useEffect(() => {
-    if (chatTab === "files" && activeConversationId) {
+    if (activeConversationId) {
       loadFiles();
     }
-  }, [chatTab, activeConversationId, loadFiles]);
+  }, [activeConversationId, loadFiles]);
 
   // Reset tab when switching conversations
   useEffect(() => {
@@ -296,11 +296,12 @@ export default function MessagesPage() {
     return mimeType.startsWith("image/");
   };
 
-  const getFileIcon = (mimeType: string) => {
-    if (mimeType.startsWith("image/")) return <ImageIcon className="h-4 w-4 text-primary" />;
-    if (mimeType.includes("pdf")) return <FileText className="h-4 w-4 text-destructive" />;
-    if (mimeType.startsWith("text/")) return <FileText className="h-4 w-4 text-accent-foreground" />;
-    return <FileIcon className="h-4 w-4 text-muted-foreground" />;
+  const getFileIcon = (mimeType: string, size: "sm" | "lg" = "sm") => {
+    const cls = size === "lg" ? "h-8 w-8" : "h-4 w-4";
+    if (mimeType.startsWith("image/")) return <ImageIcon className={cn(cls, "text-primary")} />;
+    if (mimeType.includes("pdf")) return <FileText className={cn(cls, "text-destructive")} />;
+    if (mimeType.startsWith("text/")) return <FileText className={cn(cls, "text-accent-foreground")} />;
+    return <FileIcon className={cn(cls, "text-muted-foreground")} />;
   };
 
   const formatFileSize = (bytes: number) => {
@@ -310,19 +311,28 @@ export default function MessagesPage() {
   };
 
   const handleFileClick = (f: ChatFile) => {
-    const url = getFileUrl(f.file_path);
     if (f.mime_type.startsWith("image/")) {
       setPreviewFile(f);
-    } else if (f.mime_type === "application/pdf") {
-      window.open(url, "_blank", "noopener,noreferrer");
     } else {
-      // Download non-previewable files
+      // Download file directly to avoid ad-blocker issues with window.open
+      const url = getFileUrl(f.file_path);
       const a = document.createElement("a");
       a.href = url;
       a.download = f.file_name;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      document.body.appendChild(a);
       a.click();
+      document.body.removeChild(a);
     }
   };
+
+  // Find ChatFile matching a file message content
+  const findFileForMessage = useCallback((msgContent: string): ChatFile | undefined => {
+    if (!msgContent.startsWith("📎")) return undefined;
+    const fileName = msgContent.slice(2);
+    return convFiles.find((f) => f.file_name === fileName);
+  }, [convFiles]);
 
   // Group files by date
   const groupedFiles: { date: string; files: ChatFile[] }[] = [];
@@ -666,10 +676,23 @@ export default function MessagesPage() {
                                         </Button>
                                       </form>
                                     ) : isFileMsg ? (
-                                      <div className="flex items-center gap-1.5">
-                                        <Paperclip className="h-3.5 w-3.5 shrink-0" />
-                                        <span>{msg.content.slice(2)}</span>
-                                      </div>
+                                      (() => {
+                                        const chatFile = findFileForMessage(msg.content);
+                                        return (
+                                          <div
+                                            className={cn("flex items-center gap-1.5", chatFile && "cursor-pointer hover:underline")}
+                                            onClick={(e) => {
+                                              if (chatFile) {
+                                                e.stopPropagation();
+                                                handleFileClick(chatFile);
+                                              }
+                                            }}
+                                          >
+                                            <Paperclip className="h-3.5 w-3.5 shrink-0" />
+                                            <span>{msg.content.slice(2)}</span>
+                                          </div>
+                                        );
+                                      })()
                                     ) : (
                                       msg.content
                                     )}
@@ -860,9 +883,9 @@ export default function MessagesPage() {
                                   <img src={getFileUrl(f.file_path)} alt={f.file_name} className="h-full w-full object-cover" />
                                 </div>
                               ) : (
-                                <div className="aspect-square bg-muted flex flex-col items-center justify-center gap-1">
-                                  {getFileIcon(f.mime_type)}
-                                  <span className="text-[10px] text-muted-foreground uppercase font-medium">
+                              <div className="aspect-square bg-muted flex flex-col items-center justify-center gap-2">
+                                  {getFileIcon(f.mime_type, "lg")}
+                                  <span className="text-xs text-muted-foreground uppercase font-medium">
                                     {f.file_name.split(".").pop()}
                                   </span>
                                 </div>
