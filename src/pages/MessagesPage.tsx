@@ -945,9 +945,7 @@ export default function MessagesPage() {
                                   </button>
                                   <button
                                     className="p-1 rounded hover:bg-destructive/10"
-                                    onClick={() =>
-                                      setMilestones((prev) => prev.filter((item) => item.id !== m.id))
-                                    }
+                                    onClick={() => dbDeleteMilestone(m.id)}
                                   >
                                     <Trash2 className="h-3 w-3 text-destructive" />
                                   </button>
