@@ -582,6 +582,7 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
         setTyping,
         typingUsers,
         loading,
+        messagesLoading,
       }}
     >
       {children}
