@@ -33,34 +33,15 @@ const INTERNSHIP_OPTIONS = [
 ];
 
 export default function SettingsPage() {
-  const [firstName, setFirstName] = useState("Luca");
-  const [lastName, setLastName] = useState("Meier");
-  const [selectedFields, setSelectedFields] = useState<string[]>(["field-02"]);
-  const [about, setAbout] = useState("");
-  const [degree, setDegree] = useState("msc");
-  const [studyProgram, setStudyProgram] = useState("Computer Science");
-  const [startMonth, setStartMonth] = useState("Sep");
-  const [startYear, setStartYear] = useState("2023");
-  const [skills, setSkills] = useState("Python, machine learning, distributed systems, Kubernetes");
-
-  // Signals
-  const [topicSignal, setTopicSignal] = useState(true);
-  const [supervisionSignal, setSupervisionSignal] = useState(true);
-  const [careerStartSignal, setCareerStartSignal] = useState(true);
-  const [internship, setInternship] = useState("yes");
-  const [profileVisible, setProfileVisible] = useState(true);
-
-  // Preferences
-  const [notifyNewTopic, setNotifyNewTopic] = useState(true);
-  const [notifyNewJob, setNotifyNewJob] = useState(true);
+  const { profile, updateProfile } = useUserProfile();
 
   const addField = (fieldId: string) => {
-    if (selectedFields.length >= 3 || selectedFields.includes(fieldId)) return;
-    setSelectedFields([...selectedFields, fieldId]);
+    if (profile.fieldIds.length >= 3 || profile.fieldIds.includes(fieldId)) return;
+    updateProfile({ fieldIds: [...profile.fieldIds, fieldId] });
   };
 
   const removeField = (fieldId: string) => {
-    setSelectedFields(selectedFields.filter((f) => f !== fieldId));
+    updateProfile({ fieldIds: profile.fieldIds.filter((f) => f !== fieldId) });
   };
 
   const handleSave = () => {
