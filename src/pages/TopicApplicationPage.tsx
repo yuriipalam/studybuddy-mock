@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { topics, getFieldNames, getCompany, getUniversity } from "@/data";
-import type { Topic, ThesisProject } from "@/data/types";
+import type { Topic } from "@/data/types";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
