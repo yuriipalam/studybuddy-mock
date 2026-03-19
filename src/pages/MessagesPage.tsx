@@ -251,8 +251,10 @@ export default function MessagesPage() {
     });
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages.length]);
+    if (chatTab === "messages") {
+      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages.length, chatTab]);
 
   useEffect(() => {
     if (activeConversationId) {
