@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { useUserProfile } from "@/contexts/UserProfileContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
+import { useXpEngine, XP_TRIGGERS } from "@/hooks/useXpEngine";
 
 const DEGREE_OPTIONS = [
   { value: "bsc", label: "Bachelor" },
@@ -37,6 +38,7 @@ export default function SettingsPage() {
   const { profile, updateProfile } = useUserProfile();
   const { currentUser } = useAuth();
   const { theme, setTheme } = useTheme();
+  const { awardXp } = useXpEngine();
   const p = profile;
   const set = updateProfile;
 
@@ -50,6 +52,18 @@ export default function SettingsPage() {
   };
 
   const handleSave = () => {
+    // Check if profile is "complete" (mandatory fields filled)
+    const isComplete = !!(p.firstName && p.lastName && p.email && p.university && p.fieldIds.length > 0 && p.about && p.degree && p.studyProgram);
+    
+    // Check if we already awarded profile completion XP
+    const xpKey = `studyond-xp-profile-complete-${currentUser?.id}`;
+    const alreadyAwarded = localStorage.getItem(xpKey);
+    
+    if (isComplete && !alreadyAwarded) {
+      awardXp(XP_TRIGGERS.PROFILE_COMPLETION);
+      localStorage.setItem(xpKey, "true");
+    }
+    
     toast.success("Settings saved successfully");
   };
 

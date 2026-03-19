@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { Bell, MessageCircle, UserPlus } from "lucide-react";
+import { Bell, MessageCircle, UserPlus, CheckCheck } from "lucide-react";
+import { useXpEngine, XP_TRIGGERS } from "@/hooks/useXpEngine";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -16,6 +17,9 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useLocation } from "react-router-dom";
+import { useNotifications } from "@/hooks/useNotifications";
+import { cn } from "@/lib/utils";
+import { formatDistanceToNow } from "date-fns";
 
 const routeLabels: Record<string, string> = {
   "/": "Home",
@@ -32,22 +36,21 @@ const routeLabels: Record<string, string> = {
   "/settings": "My Settings",
 };
 
-const mockNotifications = [
-  { id: 1, text: "New topic suggestion available", time: "2m ago", read: false },
-  { id: 2, text: "Prof. Schmidt commented on your proposal", time: "1h ago", read: false },
-  { id: 3, text: "Your thesis topic was approved", time: "3h ago", read: true },
-];
-
 export function TopBar({ onToggleChat, chatOpen }: { onToggleChat: () => void; chatOpen: boolean }) {
   const location = useLocation();
   const path = location.pathname;
   const label = routeLabels[path] || "Page";
   const [notifOpen, setNotifOpen] = useState(false);
+  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
+  const { awardXp } = useXpEngine();
+
+  const handleInvite = () => {
+    // For demo: award student referral XP
+    awardXp(XP_TRIGGERS.STUDENT_REFERRAL);
+  };
 
   const segments = path.split("/").filter(Boolean);
   const parentLabel = segments.length > 1 ? routeLabels["/" + segments[0]] || segments[0] : null;
-
-  const unreadCount = mockNotifications.filter((n) => !n.read).length;
 
   return (
     <header className="h-14 border-b border-border bg-card flex items-center justify-between px-4 shrink-0">
@@ -80,23 +83,63 @@ export function TopBar({ onToggleChat, chatOpen }: { onToggleChat: () => void; c
             </Button>
           </PopoverTrigger>
           <PopoverContent align="end" className="w-80 p-0">
-            <div className="px-4 py-3 border-b border-border">
+            <div className="px-4 py-3 border-b border-border flex items-center justify-between">
               <p className="text-sm font-semibold">Notifications</p>
-            </div>
-            <div className="max-h-64 overflow-auto">
-              {mockNotifications.map((n) => (
-                <div
-                  key={n.id}
-                  className={`px-4 py-3 border-b border-border last:border-0 text-sm ${!n.read ? "bg-accent/50" : ""}`}
+              {unreadCount > 0 && (
+                <button
+                  onClick={() => markAllAsRead()}
+                  className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
                 >
-                  <p className="text-foreground">{n.text}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{n.time}</p>
+                  <CheckCheck className="h-3 w-3" />
+                  Mark all read
+                </button>
+              )}
+            </div>
+            <div className="max-h-80 overflow-auto">
+              {notifications.length === 0 ? (
+                <div className="px-4 py-8 text-center text-sm text-muted-foreground">
+                  No notifications yet
                 </div>
-              ))}
+              ) : (
+                notifications.map((n) => (
+                  <div
+                    key={n.id}
+                    onClick={() => !n.read && markAsRead(n.id)}
+                    className={cn(
+                      "px-4 py-3 border-b border-border last:border-0 text-sm cursor-pointer transition-colors",
+                      !n.read && "bg-accent/30"
+                    )}
+                  >
+                    <div className="flex items-start gap-2">
+                      <div
+                        className={cn(
+                          "mt-0.5 shrink-0 h-2 w-2 rounded-full",
+                          n.type === "success" ? "bg-emerald-500" : "bg-destructive"
+                        )}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p
+                          className={cn(
+                            "font-medium text-xs px-2 py-0.5 rounded-md inline-block",
+                            n.type === "success"
+                              ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
+                              : "bg-destructive/15 text-destructive"
+                          )}
+                        >
+                          {n.title}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {formatDistanceToNow(new Date(n.created_at), { addSuffix: true })}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </PopoverContent>
         </Popover>
-        <Button variant="outline" size="sm" className="gap-1.5">
+        <Button variant="outline" size="sm" className="gap-1.5" onClick={handleInvite}>
           <UserPlus className="h-3.5 w-3.5" />
           Invite
         </Button>

@@ -197,6 +197,39 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          read: boolean
+          title: string
+          type: string
+          user_id: string
+          xp_amount: number
+        }
+        Insert: {
+          created_at?: string
+          description?: string
+          id?: string
+          read?: boolean
+          title: string
+          type?: string
+          user_id: string
+          xp_amount?: number
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          read?: boolean
+          title?: string
+          type?: string
+          user_id?: string
+          xp_amount?: number
+        }
+        Relationships: []
+      }
       pinned_conversations: {
         Row: {
           conversation_id: string
@@ -322,6 +355,33 @@ export type Database = {
           id?: string
           last_name?: string
           role?: string
+        }
+        Relationships: []
+      }
+      xp_activity_log: {
+        Row: {
+          action: string
+          category: string
+          created_at: string
+          id: string
+          user_id: string
+          xp_amount: number
+        }
+        Insert: {
+          action: string
+          category?: string
+          created_at?: string
+          id?: string
+          user_id: string
+          xp_amount: number
+        }
+        Update: {
+          action?: string
+          category?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+          xp_amount?: number
         }
         Relationships: []
       }

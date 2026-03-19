@@ -8,6 +8,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Bookmark, BookmarkCheck, Sparkles, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useXpEngine, XP_TRIGGERS } from "@/hooks/useXpEngine";
+import { toast } from "sonner";
 
 export default function TopicsPage() {
   const [topicList, setTopics] = useState<Topic[]>([]);
@@ -16,6 +18,12 @@ export default function TopicsPage() {
   const [fieldFilter, setFieldFilter] = useState("all");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [bookmarked, setBookmarked] = useState<Set<string>>(new Set());
+  const { awardXp } = useXpEngine();
+
+  const handleProposeTopic = () => {
+    awardXp(XP_TRIGGERS.SUBMIT_TOPIC);
+    toast.success("Topic proposed successfully!");
+  };
 
   useEffect(() => {
     fetchTopics().then(setTopics);
@@ -78,7 +86,7 @@ export default function TopicsPage() {
               <Sparkles className="size-3.5" />
               Get Suggestions
             </Button>
-            <Button size="sm" className="gap-1.5">
+            <Button size="sm" className="gap-1.5" onClick={handleProposeTopic}>
               <Plus className="size-3.5" />
               Propose Topic
             </Button>
