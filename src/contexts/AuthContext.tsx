@@ -62,11 +62,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return null;
   });
 
-  const login = useCallback((accountId: string) => {
+  const login = useCallback(async (accountId: string) => {
     const account = PREDEFINED_ACCOUNTS.find((a) => a.id === accountId);
     if (account) {
       setCurrentUser(account);
       localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({ id: account.id }));
+
+      // Check if there's a pending onboarding stage to save
+      const onboardingStage = localStorage.getItem("onboarding_stage");
+      if (onboardingStage && account.role === "student") {
+        try {
+          const stages = buildStagesFromOnboarding(onboardingStage);
+          const currentStage = stages.find((s: any) => s.status === "in_progress")?.id ?? "topic_selection";
+          await supabase.from("thesis_journeys").upsert({
+            user_id: account.id,
+            current_stage: currentStage,
+            stages: stages as any,
+          }, { onConflict: "user_id" });
+          localStorage.removeItem("onboarding_stage");
+        } catch (e) {
+          console.error("Failed to save journey:", e);
+        }
+      }
     }
   }, []);
 
