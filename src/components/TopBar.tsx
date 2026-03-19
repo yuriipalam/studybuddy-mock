@@ -2,6 +2,7 @@ import { useState } from "react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Bell, MessageCircle, UserPlus, CheckCheck } from "lucide-react";
+import { useXpEngine, XP_TRIGGERS } from "@/hooks/useXpEngine";
 import {
   Breadcrumb,
   BreadcrumbItem,
