@@ -270,7 +270,7 @@ export default function TopicApplicationPage() {
       const { error } = await supabase
         .from("topic_applications")
         .upsert(payload as any, { onConflict: "user_id,topic_id" } as any);
-
+      if (error) throw error;
       toast.success(status === "draft" ? "Draft saved" : "Application submitted!");
       if (status === "submitted") {
         navigate("/topics");
