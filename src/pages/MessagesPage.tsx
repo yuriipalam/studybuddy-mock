@@ -284,6 +284,14 @@ export default function MessagesPage() {
 
             {/* Messages */}
             <ScrollArea className="flex-1 px-4 py-3">
+              {messagesLoading ? (
+                <div className="flex items-center justify-center h-full py-16">
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="h-6 w-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                    <span className="text-sm text-muted-foreground">Loading messages...</span>
+                  </div>
+                </div>
+              ) : (
               <div className="space-y-1 max-w-2xl mx-auto">
                 {groupedMessages.map((group) => (
                   <div key={group.date}>
