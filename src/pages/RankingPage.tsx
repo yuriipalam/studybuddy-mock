@@ -195,7 +195,7 @@ function LeaderboardTable({ users, currentStudentId }: { users: RankedStudent[];
 
       {/* You row */}
       {youUser && (
-        <div className="grid grid-cols-[48px_1fr_100px_60px] items-center px-4 py-3 bg-primary/5 border-t border-primary/20">
+        <div onClick={() => navigate(`/people/students/${youUser.studentId}`)} className="grid grid-cols-[48px_1fr_100px_60px] items-center px-4 py-3 bg-primary/5 border-t border-primary/20 cursor-pointer hover:bg-primary/10 transition-colors">
           <span className="text-sm font-bold text-primary">#{youUser.rank}</span>
           <div className="flex items-center gap-3 min-w-0">
             <Avatar className="h-8 w-8 shrink-0 ring-2 ring-primary ring-offset-1 ring-offset-background">
