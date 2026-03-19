@@ -28,6 +28,7 @@ const routeLabels: Record<string, string> = {
   "/people/supervisors": "Supervisors",
   "/organizations/companies": "Industry Partners",
   "/organizations/study-programs": "Study Programs",
+  "/ranking": "Rankings",
   "/settings": "My Settings",
 };
 
