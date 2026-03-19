@@ -1082,7 +1082,7 @@ export default function MessagesPage() {
                                 value={editMilestoneDesc}
                                 onChange={(e) => setEditMilestoneDesc(e.target.value.slice(0, 300))}
                                 className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-xs text-foreground resize-none focus:outline-none focus:ring-1 focus:ring-ring"
-                                placeholder="Description (max 300 chars)"
+                                placeholder="Description"
                                 maxLength={300}
                                 rows={2}
                               />
