@@ -578,6 +578,64 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
     },
     [userId, activeConversationId, loadConversations]
   );
+  const uploadFile = useCallback(
+    async (conversationId: string, file: File) => {
+      if (!userId) return;
+
+      const filePath = `${conversationId}/${crypto.randomUUID()}-${file.name}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("chat-files")
+        .upload(filePath, file);
+
+      if (uploadError) {
+        toast.error("Failed to upload file");
+        return;
+      }
+
+      // Send a message referencing the file
+      const { data: msgData } = await supabase
+        .from("messages")
+        .insert({
+          conversation_id: conversationId,
+          sender_id: userId,
+          content: `📎 ${file.name}`,
+        })
+        .select()
+        .single();
+
+      // Track in chat_files table
+      await supabase.from("chat_files").insert({
+        conversation_id: conversationId,
+        message_id: msgData?.id || null,
+        sender_id: userId,
+        file_name: file.name,
+        file_path: filePath,
+        file_size: file.size,
+        mime_type: file.type || "application/octet-stream",
+      } as any);
+
+      loadConversations();
+    },
+    [userId, loadConversations]
+  );
+
+  const getConversationFiles = useCallback(
+    async (conversationId: string): Promise<ChatFile[]> => {
+      const { data, error } = await supabase
+        .from("chat_files")
+        .select("*")
+        .eq("conversation_id", conversationId)
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        toast.error("Failed to load files");
+        return [];
+      }
+      return (data as any as ChatFile[]) || [];
+    },
+    []
+  );
 
   return (
     <MessagingContext.Provider
@@ -597,6 +655,8 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
         typingUsers,
         loading,
         messagesLoading,
+        uploadFile,
+        getConversationFiles,
       }}
     >
       {children}
