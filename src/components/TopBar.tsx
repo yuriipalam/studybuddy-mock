@@ -25,7 +25,7 @@ const routeLabels: Record<string, string> = {
   "/settings": "My Settings",
 };
 
-export function TopBar() {
+export function TopBar({ onToggleChat, chatOpen }: { onToggleChat: () => void; chatOpen: boolean }) {
   const location = useLocation();
   const path = location.pathname;
   const label = routeLabels[path] || "Page";
@@ -62,7 +62,11 @@ export function TopBar() {
           <UserPlus className="h-3.5 w-3.5" />
           Invite
         </Button>
-        <Button variant="ghost" size="icon">
+        <Button
+          variant={chatOpen ? "default" : "ghost"}
+          size="icon"
+          onClick={onToggleChat}
+        >
           <MessageCircle className="h-4 w-4" />
         </Button>
       </div>
