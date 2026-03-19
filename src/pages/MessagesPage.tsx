@@ -751,7 +751,7 @@ export default function MessagesPage() {
                                     )}
                                   </div>
                                 )}
-                                <div className={cn("flex items-center gap-1 max-w-[40%]", isMe && "flex-row-reverse")}>
+                                <div className={cn("flex items-center gap-1 max-w-[40%] min-w-0", isMe && "flex-row-reverse")}>
                                   <div
                                     className={cn(
                                       "rounded-2xl px-3.5 py-2 text-sm break-words",
