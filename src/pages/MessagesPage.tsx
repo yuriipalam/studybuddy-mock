@@ -408,6 +408,19 @@ export default function MessagesPage() {
     toast.success("File deleted");
   };
 
+  // Extract the file name from a 📎 message (first line only, ignoring accompanying text)
+  const getFileNameFromMsg = (content: string) => {
+    const firstLine = content.split("\n")[0];
+    return firstLine.slice(2).trim();
+  };
+
+  // Extract accompanying text from a file message (everything after the first line)
+  const getFileMessageText = (content: string) => {
+    const lines = content.split("\n");
+    if (lines.length <= 1) return "";
+    return lines.slice(1).join("\n").trim();
+  };
+
   // Find ChatFile matching a file message content
   const findFileForMessage = useCallback((msgContent: string, messageId?: string): ChatFile | undefined => {
     if (!msgContent.startsWith("📎")) return undefined;
@@ -416,7 +429,7 @@ export default function MessagesPage() {
       const byId = convFiles.find((f) => f.message_id === messageId);
       if (byId) return byId;
     }
-    const fileName = msgContent.slice(2).trim();
+    const fileName = getFileNameFromMsg(msgContent);
     return convFiles.find((f) => f.file_name === fileName);
   }, [convFiles]);
 
