@@ -65,6 +65,21 @@ const RankingPage = () => {
               <Trophy className="h-28 w-28 text-white/10" strokeWidth={1} />
             </div>
           </div>
+
+          {/* Next step card */}
+          <div className="flex items-center gap-4 rounded-xl border border-border bg-card p-4 shadow-sm">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-[hsl(260,60%,22%)]/10">
+              <Gift className="h-5 w-5 text-[hsl(260,55%,50%)]" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-foreground">Next Step: Earn +200 XP</p>
+              <p className="text-xs text-muted-foreground">Invite your mentor or professor to unlock bonus points.</p>
+            </div>
+            <div className="flex shrink-0 items-center gap-1.5 text-sm font-semibold text-foreground">
+              +200 XP
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            </div>
+          </div>
         </div>
       )}
 
