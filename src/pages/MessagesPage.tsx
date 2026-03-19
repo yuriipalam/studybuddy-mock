@@ -210,7 +210,14 @@ export default function MessagesPage() {
                     </Avatar>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between">
-                        <p className="text-sm font-medium truncate">{convContact?.user_name}</p>
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <p className="text-sm font-medium truncate">{convContact?.user_name}</p>
+                          {convContact?.user_role === "supervisor" && (
+                            <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 leading-none shrink-0">
+                              Your Supervisor
+                            </Badge>
+                          )}
+                        </div>
                         <div className="flex items-center gap-1.5 shrink-0">
                           {conv.lastMessage && (
                             <span className="text-xs text-muted-foreground whitespace-nowrap">
@@ -279,7 +286,7 @@ export default function MessagesPage() {
                   <p className="text-sm font-medium">{contact?.user_name || "Unknown"}</p>
                   {contact?.user_role === "supervisor" && (
                     <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 leading-none">
-                      Supervisor
+                      Your Supervisor
                     </Badge>
                   )}
                 </div>
