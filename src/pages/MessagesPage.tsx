@@ -163,6 +163,30 @@ export default function MessagesPage() {
   const [improvedText, setImprovedText] = useState<string | null>(null);
   const [originalText, setOriginalText] = useState<string | null>(null);
 
+  // Auto-open conversation from URL params (e.g. ?contact=supervisor-01&role=supervisor)
+  useEffect(() => {
+    const contactId = searchParams.get("contact");
+    const contactRole = searchParams.get("role") || "supervisor";
+    if (!contactId || !currentUser || loading) return;
+
+    // Check if conversation already exists
+    const existing = getConversationByContact(contactId);
+    if (existing) {
+      setActiveConversationId(existing.id);
+    } else {
+      // Look up name from data
+      const lookup = contactRole === "supervisor"
+        ? getSupervisor(contactId)
+        : contactRole === "expert"
+          ? getExpert(contactId)
+          : getStudent(contactId);
+      const name = lookup ? `${(lookup as any).firstName} ${(lookup as any).lastName}` : contactId;
+      startConversation({ id: contactId, name, role: contactRole });
+    }
+    // Clear the URL params
+    window.history.replaceState({}, "", "/messages");
+  }, [loading, currentUser]);
+
   // Load milestones from DB when conversation changes; seed defaults if empty
   useEffect(() => {
     if (!activeConversationId) { setMilestones([]); return; }
