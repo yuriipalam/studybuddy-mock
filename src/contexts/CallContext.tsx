@@ -294,9 +294,18 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
       callType: video ? "video" : "voice",
     };
 
-    // No ringtone for the caller — only the receiver hears it
+    // Always request both audio and video so we can toggle video on later
+    const stream = await navigator.mediaDevices.getUserMedia({
+      audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+      video: { facingMode: "user" },
+    });
 
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video });
+    // For voice-only calls, disable the video track (camera light off) but keep the track
+    if (!video) {
+      stream.getVideoTracks().forEach((t) => { t.enabled = false; });
+      setIsCameraOff(true);
+    }
+
     localStreamRef.current = stream;
     if (localVideoRef.current) localVideoRef.current.srcObject = stream;
 
