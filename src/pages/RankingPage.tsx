@@ -154,7 +154,8 @@ function LeaderboardTable({ users, currentStudentId }: { users: RankedStudent[];
       {regularUsers.map((user) => (
         <div
           key={user.studentId}
-          className="grid grid-cols-[48px_1fr_100px_60px] items-center px-4 py-3 border-b border-border/50 last:border-b-0 hover:bg-muted/20 transition-colors"
+          onClick={() => navigate(`/people/students/${user.studentId}`)}
+          className="grid grid-cols-[48px_1fr_100px_60px] items-center px-4 py-3 border-b border-border/50 last:border-b-0 hover:bg-muted/20 transition-colors cursor-pointer"
         >
           <span className="text-sm font-medium text-muted-foreground">#{user.rank}</span>
           <div className="flex items-center gap-3 min-w-0">
