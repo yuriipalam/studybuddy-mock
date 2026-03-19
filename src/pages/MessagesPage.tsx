@@ -683,9 +683,6 @@ export default function MessagesPage() {
               </div>
             </div>
 
-            {chatTab === "milestones" && (
-              <p className="text-sm text-foreground px-4 py-2">Break your goal into milestones</p>
-            )}
 
             {chatTab === "messages" ? (
               <div
@@ -1055,7 +1052,8 @@ export default function MessagesPage() {
               <div className="flex-1 flex flex-col overflow-hidden">
                 <ScrollArea className="flex-1 px-3 py-3">
                   {/* Edit toggle */}
-                  <div className="flex justify-end px-1 pb-2">
+                  <div className="flex items-center justify-between px-1 pb-2">
+                    <p className="text-sm text-foreground">Break your goal into milestones</p>
                     <Button
                       variant={milestonesEditMode ? "default" : "ghost"}
                       size="sm"
