@@ -400,9 +400,11 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
       const channel = supabase.channel(`call-signal-${convId}`, {
         config: { broadcast: { self: false } },
       });
-      channel.subscribe().then(() => {
-        channel.send({ type: "broadcast", event: "call-rejected", payload: {} });
-        setTimeout(() => supabase.removeChannel(channel), 1000);
+      channel.subscribe((status) => {
+        if (status === "SUBSCRIBED") {
+          channel.send({ type: "broadcast", event: "call-rejected", payload: {} });
+          setTimeout(() => supabase.removeChannel(channel), 1000);
+        }
       });
     }
 
