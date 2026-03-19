@@ -377,20 +377,31 @@ export default function MessagesPage() {
   };
 
   const handleFileClick = (f: ChatFile) => {
-    if (f.mime_type.startsWith("image/")) {
+    if (f.mime_type.startsWith("image/") || f.mime_type.includes("pdf")) {
       setPreviewFile(f);
     } else {
-      // Download file directly to avoid ad-blocker issues with window.open
-      const url = getFileUrl(f.file_path);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = f.file_name;
-      a.target = "_blank";
-      a.rel = "noopener noreferrer";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      downloadFile(f);
     }
+  };
+
+  const downloadFile = (f: ChatFile) => {
+    const url = getFileUrl(f.file_path);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = f.file_name;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
+  const handleDeleteFile = async (f: ChatFile) => {
+    const { error: storageError } = await supabase.storage.from("chat-files").remove([f.file_path]);
+    if (storageError) { toast.error("Failed to delete file"); return; }
+    await supabase.from("chat_files").delete().eq("id", f.id);
+    setConvFiles((prev) => prev.filter((cf) => cf.id !== f.id));
+    toast.success("File deleted");
   };
 
   // Find ChatFile matching a file message content
