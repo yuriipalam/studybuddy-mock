@@ -833,26 +833,27 @@ export default function MessagesPage() {
                                                   return (
                                                     <div
                                                       key={chatFile.id}
-                                                      className={cn("rounded-lg overflow-hidden cursor-pointer border border-border", isImage ? "max-w-[220px]" : "w-44")}
+                                                      className={cn(
+                                                        "rounded-lg overflow-hidden cursor-pointer border border-border",
+                                                        isImage ? "w-20 h-20" : "w-44"
+                                                      )}
                                                       onClick={(e) => { e.stopPropagation(); handleFileClick(chatFile); }}
                                                     >
                                                       {isImage ? (
-                                                        <div className="overflow-hidden bg-muted">
-                                                          <img src={getFileUrl(chatFile.file_path)} alt={chatFile.file_name} className="w-full h-auto object-contain max-h-[280px]" />
-                                                        </div>
+                                                        <img src={getFileUrl(chatFile.file_path)} alt={chatFile.file_name} className="w-full h-full object-cover" />
                                                       ) : (
-                                                        <div className="aspect-square bg-muted/50 flex flex-col items-center justify-center gap-2">
-                                                          {getFileIcon(chatFile.mime_type, "lg")}
-                                                          <span className="text-xs text-muted-foreground uppercase font-medium">
-                                                            {chatFile.file_name.split(".").pop()}
-                                                          </span>
-                                                        </div>
-                                                      )}
-                                                      {!isImage && (
-                                                        <div className="p-2 min-w-0">
-                                                          <p className={cn("text-xs font-medium truncate", isMe ? "text-primary-foreground" : "text-foreground")}>{chatFile.file_name}</p>
-                                                          <p className={cn("text-[10px]", isMe ? "text-primary-foreground/60" : "text-muted-foreground")}>{formatFileSize(chatFile.file_size)}</p>
-                                                        </div>
+                                                        <>
+                                                          <div className="aspect-square bg-muted/50 flex flex-col items-center justify-center gap-2">
+                                                            {getFileIcon(chatFile.mime_type, "lg")}
+                                                            <span className="text-xs text-muted-foreground uppercase font-medium">
+                                                              {chatFile.file_name.split(".").pop()}
+                                                            </span>
+                                                          </div>
+                                                          <div className="p-2 min-w-0">
+                                                            <p className={cn("text-xs font-medium truncate", isMe ? "text-primary-foreground" : "text-foreground")}>{chatFile.file_name}</p>
+                                                            <p className={cn("text-[10px]", isMe ? "text-primary-foreground/60" : "text-muted-foreground")}>{formatFileSize(chatFile.file_size)}</p>
+                                                          </div>
+                                                        </>
                                                       )}
                                                     </div>
                                                   );
