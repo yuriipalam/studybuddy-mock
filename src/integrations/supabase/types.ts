@@ -226,6 +226,48 @@ export type Database = {
           },
         ]
       }
+      student_xp: {
+        Row: {
+          created_at: string
+          id: string
+          rank_change: number
+          student_id: string
+          total_xp: number
+          university_id: string
+          updated_at: string
+          xp_profile: number
+          xp_referrals: number
+          xp_research: number
+          xp_supervisor: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          rank_change?: number
+          student_id: string
+          total_xp?: number
+          university_id: string
+          updated_at?: string
+          xp_profile?: number
+          xp_referrals?: number
+          xp_research?: number
+          xp_supervisor?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          rank_change?: number
+          student_id?: string
+          total_xp?: number
+          university_id?: string
+          updated_at?: string
+          xp_profile?: number
+          xp_referrals?: number
+          xp_research?: number
+          xp_supervisor?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
