@@ -377,20 +377,31 @@ export default function MessagesPage() {
   };
 
   const handleFileClick = (f: ChatFile) => {
-    if (f.mime_type.startsWith("image/")) {
+    if (f.mime_type.startsWith("image/") || f.mime_type.includes("pdf")) {
       setPreviewFile(f);
     } else {
-      // Download file directly to avoid ad-blocker issues with window.open
-      const url = getFileUrl(f.file_path);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = f.file_name;
-      a.target = "_blank";
-      a.rel = "noopener noreferrer";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      downloadFile(f);
     }
+  };
+
+  const downloadFile = (f: ChatFile) => {
+    const url = getFileUrl(f.file_path);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = f.file_name;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
+  const handleDeleteFile = async (f: ChatFile) => {
+    const { error: storageError } = await supabase.storage.from("chat-files").remove([f.file_path]);
+    if (storageError) { toast.error("Failed to delete file"); return; }
+    await supabase.from("chat_files").delete().eq("id", f.id);
+    setConvFiles((prev) => prev.filter((cf) => cf.id !== f.id));
+    toast.success("File deleted");
   };
 
   // Find ChatFile matching a file message content
@@ -775,8 +786,8 @@ export default function MessagesPage() {
                                         if (chatFile) {
                                           const isImage = chatFile.mime_type.startsWith("image/");
                                           return (
-                                            <div
-                                              className="w-44 -mx-1 -my-0.5 rounded-lg overflow-hidden cursor-pointer"
+                                             <div
+                                              className="w-44 -mx-1 -my-0.5 rounded-lg overflow-hidden cursor-pointer border border-border"
                                               onClick={(e) => { e.stopPropagation(); handleFileClick(chatFile); }}
                                             >
                                               {isImage ? (
@@ -792,8 +803,8 @@ export default function MessagesPage() {
                                                 </div>
                                               )}
                                               <div className="p-2 min-w-0">
-                                                <p className="text-xs font-medium truncate">{chatFile.file_name}</p>
-                                                <p className="text-[10px] text-muted-foreground">{formatFileSize(chatFile.file_size)}</p>
+                                                <p className={cn("text-xs font-medium truncate", isMe ? "text-primary-foreground" : "text-foreground")}>{chatFile.file_name}</p>
+                                                <p className={cn("text-[10px]", isMe ? "text-primary-foreground/60" : "text-muted-foreground")}>{formatFileSize(chatFile.file_size)}</p>
                                               </div>
                                             </div>
                                           );
@@ -986,9 +997,26 @@ export default function MessagesPage() {
                           {group.files.map((f) => (
                             <div
                               key={f.id}
-                              className="flex flex-col rounded-lg border border-border hover:bg-muted/50 transition-colors cursor-pointer overflow-hidden group"
+                              className="relative flex flex-col rounded-lg border border-border hover:bg-muted/50 transition-colors cursor-pointer overflow-hidden group/file"
                               onClick={() => handleFileClick(f)}
                             >
+                              {/* Download/Delete buttons */}
+                              <div className="absolute top-1 right-1 z-10 flex items-center gap-0.5 opacity-0 group-hover/file:opacity-100 transition-opacity">
+                                <button
+                                  className="p-1 rounded bg-background/80 hover:bg-background shadow-sm"
+                                  onClick={(e) => { e.stopPropagation(); downloadFile(f); }}
+                                  title="Download"
+                                >
+                                  <Download className="h-3.5 w-3.5 text-foreground" />
+                                </button>
+                                <button
+                                  className="p-1 rounded bg-background/80 hover:bg-destructive/10 shadow-sm"
+                                  onClick={(e) => { e.stopPropagation(); handleDeleteFile(f); }}
+                                  title="Delete"
+                                >
+                                  <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                                </button>
+                              </div>
                               {/* Thumbnail / icon area */}
                               {f.mime_type.startsWith("image/") ? (
                                 <div className="aspect-square overflow-hidden bg-muted">
@@ -1249,12 +1277,19 @@ export default function MessagesPage() {
               <span className="truncate">{previewFile?.file_name}</span>
             </AlertDialogTitle>
           </AlertDialogHeader>
-          <div className="flex-1 overflow-auto min-h-0">
+          <div className="flex-1 overflow-auto min-h-0 flex items-center justify-center">
             {previewFile?.mime_type.startsWith("image/") && (
               <img
                 src={getFileUrl(previewFile.file_path)}
                 alt={previewFile.file_name}
-                className="w-full h-auto rounded-md"
+                className="max-w-full max-h-[60vh] object-contain rounded-md"
+              />
+            )}
+            {previewFile?.mime_type.includes("pdf") && (
+              <iframe
+                src={getFileUrl(previewFile.file_path)}
+                className="w-full h-[60vh] rounded-md border-0"
+                title={previewFile.file_name}
               />
             )}
           </div>
