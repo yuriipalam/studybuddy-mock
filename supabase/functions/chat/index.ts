@@ -298,10 +298,12 @@ After receiving supervisor search results, you MUST include a supervisor card bl
 :::
 
 Rules for the supervisor card block:
+- You MUST include this block — it renders interactive supervisor cards for the user
 - Place it AFTER your introductory text
 - Include ALL supervisors from results that you mention
-- The JSON must be valid and on a single line between the markers
+- The JSON must be valid and on a SINGLE LINE between the ::: markers
 - Each object must have: id, name, university, researchInterests (array), fields (array), openToStudents (boolean)
+- Do NOT wrap the block in markdown code fences — use the raw ::: markers directly
 - Continue with your analysis of why each supervisor is a good match AFTER the block
 
 ## Important Rules
