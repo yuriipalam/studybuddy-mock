@@ -739,7 +739,7 @@ export default function MessagesPage() {
                     </Button>
                   </form>
                 </div>
-              </>
+              </div>
             ) : chatTab === "files" ? (
               /* Files tab */
               <ScrollArea className="flex-1 px-4 py-3">
