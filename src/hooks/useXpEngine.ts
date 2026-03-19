@@ -25,12 +25,26 @@ export const XP_TRIGGERS = {
   UNANSWERED_MENTOR_MSG: { action: "unanswered_mentor_msg", xp: -20, category: "supervisor" as XpCategory, title: "Unanswered Mentor Message" },
 } as const;
 
-const categoryToColumn: Record<XpCategory, string> = {
+const categoryToColumn: Record<XpCategory, keyof StudentXpUpsert> = {
   profile: "xp_profile",
   referrals: "xp_referrals",
   supervisor: "xp_supervisor",
   research: "xp_research",
 };
+
+type StudentXpUpsert = {
+  student_id: string;
+  university_id: string;
+  total_xp: number;
+  xp_supervisor: number;
+  xp_research: number;
+  xp_referrals: number;
+  xp_profile: number;
+  rank_change?: number;
+  updated_at: string;
+};
+
+const DEFAULT_UNIVERSITY_ID = "uni-01";
 
 export function useXpEngine() {
   const { currentUser } = useAuth();
@@ -42,7 +56,6 @@ export function useXpEngine() {
     const isPositive = trigger.xp > 0;
 
     try {
-      // 1. Log the activity
       await supabase.from("xp_activity_log").insert({
         user_id: userId,
         action: trigger.action,
@@ -50,7 +63,6 @@ export function useXpEngine() {
         category: trigger.category,
       });
 
-      // 2. Create notification
       await supabase.from("notifications").insert({
         user_id: userId,
         title: `${isPositive ? "+" : ""}${trigger.xp} XP: ${trigger.title}`,
@@ -59,22 +71,21 @@ export function useXpEngine() {
         type: isPositive ? "success" : "warning",
       });
 
-      // 3. Update student_xp table
       const colName = categoryToColumn[trigger.category];
-      
-      // Fetch current XP row
-      const { data: existing } = await supabase
+      const { data: existing, error: existingError } = await supabase
         .from("student_xp")
         .select("*")
         .eq("student_id", userId)
         .maybeSingle();
 
+      if (existingError) throw existingError;
+
       if (existing) {
-        const currentCategoryXp = (existing as any)[colName] ?? 0;
+        const currentCategoryXp = existing[colName] ?? 0;
         const newCategoryXp = Math.max(0, currentCategoryXp + trigger.xp);
         const newTotal = Math.max(0, existing.total_xp + trigger.xp);
 
-        await supabase
+        const { error: updateError } = await supabase
           .from("student_xp")
           .update({
             [colName]: newCategoryXp,
@@ -82,14 +93,31 @@ export function useXpEngine() {
             updated_at: new Date().toISOString(),
           })
           .eq("id", existing.id);
+
+        if (updateError) throw updateError;
+      } else {
+        const baseRow: StudentXpUpsert = {
+          student_id: userId,
+          university_id: DEFAULT_UNIVERSITY_ID,
+          total_xp: Math.max(0, trigger.xp),
+          xp_supervisor: 0,
+          xp_research: 0,
+          xp_referrals: 0,
+          xp_profile: 0,
+          rank_change: 0,
+          updated_at: new Date().toISOString(),
+        };
+
+        baseRow[colName] = Math.max(0, trigger.xp);
+
+        const { error: insertError } = await supabase.from("student_xp").insert(baseRow);
+        if (insertError) throw insertError;
       }
 
-      // 4. Invalidate queries
       queryClient.invalidateQueries({ queryKey: ["student_xp"] });
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
       queryClient.invalidateQueries({ queryKey: ["xp_activity"] });
 
-      // 5. Show toast only if awarding to the current user
       const isOwnXp = userId === currentUser?.id;
       if (isOwnXp) {
         if (isPositive) {
