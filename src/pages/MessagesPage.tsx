@@ -93,6 +93,9 @@ export default function MessagesPage() {
   const [milestones, setMilestones] = useState<{ id: string; text: string; completed: boolean }[]>([]);
   const [newMilestoneText, setNewMilestoneText] = useState("");
   const [addingMilestone, setAddingMilestone] = useState(false);
+  const [milestonesEditMode, setMilestonesEditMode] = useState(false);
+  const [editingMilestoneId, setEditingMilestoneId] = useState<string | null>(null);
+  const [editMilestoneText, setEditMilestoneText] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
