@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { Flame, Trophy, Shield, ArrowUp, ArrowDown, Gift, ChevronRight, CheckCircle, Zap, FileText, UserPlus, MessageCircle, Crown, Medal, Loader2 } from "lucide-react";
+import { Flame, Trophy, Shield, ArrowUp, ArrowDown, Gift, ChevronRight, Zap, Crown, Medal, Loader2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { useStudentXp, StudentXpRow } from "@/hooks/useStudentXp";
