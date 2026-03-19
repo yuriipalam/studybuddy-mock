@@ -51,6 +51,14 @@ export default function OnboardingPage() {
   const { login } = useAuth();
   const createJourney = useCreateJourney();
 
+  // Guard: only accessible after registration
+  useEffect(() => {
+    const pendingUser = localStorage.getItem("studyond-pending-user");
+    if (!pendingUser) {
+      navigate("/login", { replace: true });
+    }
+  }, [navigate]);
+
   const handleContinue = async () => {
     if (!selected) return;
     setIsSaving(true);
