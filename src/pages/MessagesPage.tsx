@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { MessageSquare, Send, Check, CheckCheck, Pencil, X } from "lucide-react";
+import { MessageSquare, Send, Check, CheckCheck, Pencil, X, Trash2 } from "lucide-react";
 import { useMessaging } from "@/contexts/MessagingContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
@@ -55,6 +55,7 @@ export default function MessagesPage() {
     messages,
     sendMessage,
     editMessage,
+    deleteMessage,
     markAsRead,
     setTyping,
     typingUsers,
@@ -352,15 +353,23 @@ export default function MessagesPage() {
                               </div>
                               {/* Edit button - only for own messages */}
                               {isMe && !msg.id.startsWith("temp-") && editingId !== msg.id && (
-                                <button
-                                  className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-muted"
-                                  onClick={() => {
-                                    setEditingId(msg.id);
-                                    setEditInput(msg.content);
-                                  }}
-                                >
-                                  <Pencil className="h-3 w-3 text-muted-foreground" />
-                                </button>
+                                <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5">
+                                  <button
+                                    className="p-1 rounded hover:bg-muted"
+                                    onClick={() => {
+                                      setEditingId(msg.id);
+                                      setEditInput(msg.content);
+                                    }}
+                                  >
+                                    <Pencil className="h-3 w-3 text-muted-foreground" />
+                                  </button>
+                                  <button
+                                    className="p-1 rounded hover:bg-destructive/10"
+                                    onClick={() => deleteMessage(msg.id)}
+                                  >
+                                    <Trash2 className="h-3 w-3 text-destructive" />
+                                  </button>
+                                </div>
                               )}
                             </div>
                           </div>

@@ -40,6 +40,7 @@ interface MessagingContextType {
   messages: DbMessage[];
   sendMessage: (conversationId: string, content: string) => Promise<void>;
   editMessage: (messageId: string, newContent: string) => Promise<void>;
+  deleteMessage: (messageId: string) => Promise<void>;
   startConversation: (contact: { id: string; name: string; role: string; avatar?: string }) => Promise<string>;
   getConversationByContact: (contactId: string) => Conversation | undefined;
   markAsRead: (conversationId: string) => Promise<void>;
@@ -467,6 +468,33 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
     [userId, loadMessages]
   );
 
+  const deleteMessage = useCallback(
+    async (messageId: string) => {
+      if (!userId) return;
+
+      // Store for rollback
+      const backup = messages;
+
+      // Optimistic remove
+      setMessages((prev) => prev.filter((m) => m.id !== messageId));
+
+      const { error } = await supabase
+        .from("messages")
+        .delete()
+        .eq("id", messageId)
+        .eq("sender_id", userId);
+
+      if (error) {
+        toast.error("Failed to delete message");
+        setMessages(backup);
+      } else {
+        // Refresh conversations to update lastMessage
+        loadConversations();
+      }
+    },
+    [userId, messages, loadConversations]
+  );
+
   return (
     <MessagingContext.Provider
       value={{
@@ -476,6 +504,7 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
         messages,
         sendMessage,
         editMessage,
+        deleteMessage,
         startConversation,
         getConversationByContact,
         markAsRead,
