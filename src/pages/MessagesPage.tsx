@@ -319,15 +319,19 @@ export default function MessagesPage() {
                 {/* Typing indicator */}
                 {activeTyping.length > 0 && (() => {
                   const lastMsg = messages[messages.length - 1];
-                  const lastSenderIsContact = lastMsg && lastMsg.sender_id !== userId;
+                  const showAvatar = !lastMsg || lastMsg.sender_id === userId;
                   return (
                     <div className="flex items-center gap-2 pt-1">
-                      {!lastSenderIsContact && (
-                        <div className="w-7 mr-0 shrink-0" />
-                      )}
-                      {lastSenderIsContact && (
-                        <div className="w-7 mr-0 shrink-0" />
-                      )}
+                      <div className="w-7 mr-2 shrink-0">
+                        {showAvatar && (
+                          <Avatar className="h-7 w-7">
+                            {contact?.user_avatar && <AvatarImage src={contact.user_avatar} />}
+                            <AvatarFallback className="text-[10px]">
+                              {contact?.user_name?.split(" ").map((w) => w[0]).join("").slice(0, 2)}
+                            </AvatarFallback>
+                          </Avatar>
+                        )}
+                      </div>
                       <div className="bg-muted rounded-2xl rounded-bl-md px-4 py-2.5">
                         <TypingIndicator />
                       </div>
