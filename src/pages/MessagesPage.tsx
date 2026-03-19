@@ -1277,12 +1277,19 @@ export default function MessagesPage() {
               <span className="truncate">{previewFile?.file_name}</span>
             </AlertDialogTitle>
           </AlertDialogHeader>
-          <div className="flex-1 overflow-auto min-h-0">
+          <div className="flex-1 overflow-auto min-h-0 flex items-center justify-center">
             {previewFile?.mime_type.startsWith("image/") && (
               <img
                 src={getFileUrl(previewFile.file_path)}
                 alt={previewFile.file_name}
-                className="w-full h-auto rounded-md"
+                className="max-w-full max-h-[60vh] object-contain rounded-md"
+              />
+            )}
+            {previewFile?.mime_type.includes("pdf") && (
+              <iframe
+                src={getFileUrl(previewFile.file_path)}
+                className="w-full h-[60vh] rounded-md border-0"
+                title={previewFile.file_name}
               />
             )}
           </div>
