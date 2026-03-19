@@ -1073,7 +1073,7 @@ export default function MessagesPage() {
                     const total = milestones.length;
                     const pct = Math.round((completed / total) * 100);
                     return (
-                      <div className="flex items-center gap-2 px-1 pb-3">
+                      <div className="flex items-center gap-2 pl-8 pr-1 pb-3">
                         <Progress value={pct} className="flex-1 h-2" />
                         <span className="text-xs text-muted-foreground shrink-0">{pct}%</span>
                       </div>
