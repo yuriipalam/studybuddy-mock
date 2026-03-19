@@ -661,7 +661,7 @@ export default function MessagesPage() {
                 </button>
                 <button
                   className={cn(
-                    "pb-2 text-sm font-medium border-b-2 transition-colors",
+                    "pb-2 text-xs font-medium border-b-2 transition-colors",
                     chatTab === "files"
                       ? "border-primary text-foreground"
                       : "border-transparent text-muted-foreground hover:text-foreground"
