@@ -997,9 +997,26 @@ export default function MessagesPage() {
                           {group.files.map((f) => (
                             <div
                               key={f.id}
-                              className="flex flex-col rounded-lg border border-border hover:bg-muted/50 transition-colors cursor-pointer overflow-hidden group"
+                              className="relative flex flex-col rounded-lg border border-border hover:bg-muted/50 transition-colors cursor-pointer overflow-hidden group/file"
                               onClick={() => handleFileClick(f)}
                             >
+                              {/* Download/Delete buttons */}
+                              <div className="absolute top-1 right-1 z-10 flex items-center gap-0.5 opacity-0 group-hover/file:opacity-100 transition-opacity">
+                                <button
+                                  className="p-1 rounded bg-background/80 hover:bg-background shadow-sm"
+                                  onClick={(e) => { e.stopPropagation(); downloadFile(f); }}
+                                  title="Download"
+                                >
+                                  <Download className="h-3.5 w-3.5 text-foreground" />
+                                </button>
+                                <button
+                                  className="p-1 rounded bg-background/80 hover:bg-destructive/10 shadow-sm"
+                                  onClick={(e) => { e.stopPropagation(); handleDeleteFile(f); }}
+                                  title="Delete"
+                                >
+                                  <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                                </button>
+                              </div>
                               {/* Thumbnail / icon area */}
                               {f.mime_type.startsWith("image/") ? (
                                 <div className="aspect-square overflow-hidden bg-muted">
