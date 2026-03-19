@@ -26,8 +26,7 @@ export default function FloatingAdvice() {
   const dismissTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const idleSecondsRef = useRef(0);
 
-  // Only show for students
-  if (currentUser?.role !== "student") return null;
+  const isStudent = currentUser?.role === "student";
 
   const fetchAdvice = useCallback(async () => {
     if (cooldownRef.current || loading) return;
