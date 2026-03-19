@@ -276,10 +276,10 @@ export default function MessagesPage() {
   }, [activeConversationId, getConversationFiles]);
 
   useEffect(() => {
-    if (chatTab === "files" && activeConversationId) {
+    if (activeConversationId) {
       loadFiles();
     }
-  }, [chatTab, activeConversationId, loadFiles]);
+  }, [activeConversationId, loadFiles]);
 
   // Reset tab when switching conversations
   useEffect(() => {
