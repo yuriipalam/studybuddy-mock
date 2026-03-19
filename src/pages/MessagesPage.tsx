@@ -980,7 +980,7 @@ export default function MessagesPage() {
                   </Button>
                 </div>
                 <ScrollArea className="flex-1 px-3 py-3">
-                  <div className="max-w-md mx-auto py-2">
+                  <div className="py-2">
                     {milestones.map((m, i) => (
                       <div key={m.id} className="flex items-stretch">
                         {/* Timeline column */}
