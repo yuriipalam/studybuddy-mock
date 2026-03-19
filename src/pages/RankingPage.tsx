@@ -373,7 +373,7 @@ const RankingPage = () => {
       </div>
 
       {/* My Status */}
-      {activeTab === "my-status" && me && (
+      {activeTab === "my-status" && (
         <div className="flex flex-col gap-6">
           {/* Hero points card */}
           <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[hsl(260,60%,22%)] via-[hsl(240,50%,20%)] to-[hsl(220,55%,18%)] p-8 shadow-xl">
