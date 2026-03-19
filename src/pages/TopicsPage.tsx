@@ -78,6 +78,12 @@ export default function TopicsPage() {
     return "";
   };
 
+  const getContactProfileUrl = (t: Topic): string | null => {
+    if (t.expertIds.length > 0) return `/people/experts/${t.expertIds[0]}`;
+    if (t.supervisorIds.length > 0) return `/people/supervisors/${t.supervisorIds[0]}`;
+    return null;
+  };
+
   return (
     <div className="flex flex-col h-[calc(100vh-3.5rem)]">
       <div className="p-4 border-b border-border space-y-3">
