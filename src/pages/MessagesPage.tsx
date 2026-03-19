@@ -388,16 +388,22 @@ export default function MessagesPage() {
     }
   };
 
-  const downloadFile = (f: ChatFile) => {
-    const url = getFileUrl(f.file_path);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = f.file_name;
-    a.target = "_blank";
-    a.rel = "noopener noreferrer";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+  const downloadFile = async (f: ChatFile) => {
+    try {
+      const url = getFileUrl(f.file_path);
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = f.file_name;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(blobUrl);
+    } catch {
+      toast.error("Failed to download file");
+    }
   };
 
   const handleDeleteFile = async (f: ChatFile) => {
