@@ -41,11 +41,11 @@ export default function HomePage() {
         <p className="text-muted-foreground mt-1">What would you like to do today?</p>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+      <div className="flex flex-wrap gap-4">
         {actionCards.map((card) => (
           <Card
             key={card.title}
-            className="hover:shadow-md transition-shadow cursor-pointer group"
+            className="hover:shadow-md transition-shadow cursor-pointer group w-40 flex-shrink-0 flex-grow-0"
             onClick={() => handleCardClick(card)}
           >
             <CardContent className="p-5 flex flex-col items-center text-center gap-3">
