@@ -81,7 +81,7 @@ export function useXpEngine() {
       if (existingError) throw existingError;
 
       if (existing) {
-        const currentCategoryXp = existing[colName] ?? 0;
+        const currentCategoryXp = Number(existing[colName] ?? 0);
         const newCategoryXp = Math.max(0, currentCategoryXp + trigger.xp);
         const newTotal = Math.max(0, existing.total_xp + trigger.xp);
 
@@ -96,21 +96,20 @@ export function useXpEngine() {
 
         if (updateError) throw updateError;
       } else {
-        const baseRow: StudentXpUpsert = {
+        const categoryXp = Math.max(0, trigger.xp);
+        const insertRow = {
           student_id: userId,
           university_id: DEFAULT_UNIVERSITY_ID,
-          total_xp: Math.max(0, trigger.xp),
-          xp_supervisor: 0,
-          xp_research: 0,
-          xp_referrals: 0,
-          xp_profile: 0,
+          total_xp: categoryXp,
+          xp_supervisor: colName === "xp_supervisor" ? categoryXp : 0,
+          xp_research: colName === "xp_research" ? categoryXp : 0,
+          xp_referrals: colName === "xp_referrals" ? categoryXp : 0,
+          xp_profile: colName === "xp_profile" ? categoryXp : 0,
           rank_change: 0,
           updated_at: new Date().toISOString(),
         };
 
-        baseRow[colName] = Math.max(0, trigger.xp);
-
-        const { error: insertError } = await supabase.from("student_xp").insert(baseRow);
+        const { error: insertError } = await supabase.from("student_xp").insert(insertRow);
         if (insertError) throw insertError;
       }
 
