@@ -484,9 +484,10 @@ export default function MessagesPage() {
 
                             // Check if message is a file attachment
                             const isFileMsg = msg.content.startsWith("📎 ");
+                            const senderChanged = i > 0 && group.msgs[i - 1].sender_id !== msg.sender_id;
 
                             return (
-                              <div key={msg.id} className={cn("flex group", isMe ? "justify-end" : "justify-start")}>
+                              <div key={msg.id} className={cn("flex group", isMe ? "justify-end" : "justify-start", senderChanged && "mt-3")}>
                                 {!isMe && (
                                   <div className="w-7 mr-2 shrink-0">
                                     {showAvatar && (
