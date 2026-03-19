@@ -144,8 +144,8 @@
       "field-02"
     ],
     "companyId": "company-04",
-    "universityId": null,
-    "supervisorIds": [],
+    "universityId": "uni-01",
+    "supervisorIds": ["supervisor-01"],
     "expertIds": [
       "expert-07"
     ]
