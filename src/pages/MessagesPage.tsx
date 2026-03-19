@@ -57,6 +57,26 @@ function TypingIndicator() {
   );
 }
 
+function OnlineIndicator({ size = "md" }: { size?: "sm" | "md" }) {
+  const s = size === "sm" ? "h-2.5 w-2.5 border-[1.5px]" : "h-3 w-3 border-2";
+  return (
+    <span className={cn("absolute bottom-0 right-0 rounded-full bg-green-500 border-background", s)} />
+  );
+}
+
+// Simulate online status — in production this would come from presence channels
+function useOnlineStatus(userIds: string[]) {
+  // Deterministic: hash the user_id to decide online/offline for demo
+  const onlineSet = new Set(
+    userIds.filter((id) => {
+      let h = 0;
+      for (let i = 0; i < id.length; i++) h = ((h << 5) - h + id.charCodeAt(i)) | 0;
+      return Math.abs(h) % 3 !== 0; // ~66% online
+    })
+  );
+  return (userId: string) => onlineSet.has(userId);
+}
+
 export default function MessagesPage() {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
@@ -78,6 +98,12 @@ export default function MessagesPage() {
     uploadFile,
     getConversationFiles,
   } = useMessaging();
+
+  const allContactIds = conversations.map((c) => {
+    const ct = c.participants.find((p: any) => p.user_id !== currentUser?.id);
+    return ct?.user_id || "";
+  }).filter(Boolean);
+  const isOnline = useOnlineStatus(allContactIds);
 
   const [search, setSearch] = useState("");
   const [input, setInput] = useState("");
@@ -463,12 +489,15 @@ export default function MessagesPage() {
                     )}
                     onClick={() => setActiveConversationId(conv.id)}
                   >
-                    <Avatar className="h-10 w-10 shrink-0">
-                      {convContact?.user_avatar && (
-                        <AvatarImage src={convContact.user_avatar} />
-                      )}
-                      <AvatarFallback className="text-xs font-semibold">{initials}</AvatarFallback>
-                    </Avatar>
+                    <div className="relative shrink-0">
+                      <Avatar className="h-10 w-10">
+                        {convContact?.user_avatar && (
+                          <AvatarImage src={convContact.user_avatar} />
+                        )}
+                        <AvatarFallback className="text-xs font-semibold">{initials}</AvatarFallback>
+                      </Avatar>
+                      {convContact && isOnline(convContact.user_id) && <OnlineIndicator size="sm" />}
+                    </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-1.5 min-w-0">
@@ -553,12 +582,15 @@ export default function MessagesPage() {
             <div className="border-b border-border">
               <div className="flex items-center gap-3 px-4 py-3">
                 {contact?.user_avatar && (
-                  <Avatar className="h-9 w-9">
-                    <AvatarImage src={contact.user_avatar} />
-                    <AvatarFallback className="text-xs font-semibold">
-                      {contactInitials}
-                    </AvatarFallback>
-                  </Avatar>
+                  <div className="relative">
+                    <Avatar className="h-9 w-9">
+                      <AvatarImage src={contact.user_avatar} />
+                      <AvatarFallback className="text-xs font-semibold">
+                        {contactInitials}
+                      </AvatarFallback>
+                    </Avatar>
+                    {isOnline(contact.user_id) && <OnlineIndicator size="sm" />}
+                  </div>
                 )}
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
