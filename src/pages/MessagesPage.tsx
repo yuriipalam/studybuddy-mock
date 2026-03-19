@@ -782,20 +782,6 @@ export default function MessagesPage() {
                 className="w-full h-auto rounded-md"
               />
             )}
-            {previewFile?.mime_type === "application/pdf" && (
-              <iframe
-                src={getFileUrl(previewFile.file_path)}
-                className="w-full h-[60vh] rounded-md border border-border"
-                title={previewFile.file_name}
-              />
-            )}
-            {previewFile?.mime_type.startsWith("text/") && (
-              <iframe
-                src={getFileUrl(previewFile.file_path)}
-                className="w-full h-[60vh] rounded-md border border-border bg-background"
-                title={previewFile.file_name}
-              />
-            )}
           </div>
           <AlertDialogFooter>
             <AlertDialogCancel>Close</AlertDialogCancel>
