@@ -246,11 +246,7 @@ export default function MessagesPage() {
 
   const activeContact = activeConv ? getContact(activeConv) : null;
 
-  const webrtc = useWebRTC({
-    conversationId: activeConversationId,
-    userId,
-    contactName: activeContact?.user_name,
-  });
+  const { startCall } = useCall();
 
   const filteredConvs = conversations
     .filter((c) => {
