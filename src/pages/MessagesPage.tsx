@@ -475,6 +475,53 @@ export default function MessagesPage() {
     }
   }
 
+  // Fetch call history for active conversation
+  const [callHistory, setCallHistory] = useState<any[]>([]);
+  useEffect(() => {
+    if (!activeConversationId) { setCallHistory([]); return; }
+    let cancelled = false;
+    supabase
+      .from("call_history")
+      .select("*")
+      .eq("conversation_id", activeConversationId)
+      .order("started_at", { ascending: true })
+      .then(({ data }) => {
+        if (!cancelled && data) setCallHistory(data);
+      });
+    // Subscribe to new call history entries
+    const channel = supabase.channel(`call-history-${activeConversationId}`)
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "call_history", filter: `conversation_id=eq.${activeConversationId}` }, (payload) => {
+        setCallHistory((prev) => [...prev, payload.new]);
+      })
+      .subscribe();
+    return () => { cancelled = true; supabase.removeChannel(channel); };
+  }, [activeConversationId]);
+
+  // Merge messages and call history for display
+  type TimelineItem = { type: "message"; data: typeof messages[0] } | { type: "call"; data: any };
+  const timeline: TimelineItem[] = [
+    ...messages.map((m) => ({ type: "message" as const, data: m })),
+    ...callHistory.map((c) => ({ type: "call" as const, data: c })),
+  ].sort((a, b) => {
+    const aTime = a.type === "message" ? a.data.created_at : a.data.started_at;
+    const bTime = b.type === "message" ? b.data.created_at : b.data.started_at;
+    return new Date(aTime).getTime() - new Date(bTime).getTime();
+  });
+
+  // Group timeline by date
+  const groupedTimeline: { date: string; items: TimelineItem[] }[] = [];
+  let currentTimelineDate = "";
+  for (const item of timeline) {
+    const time = item.type === "message" ? item.data.created_at : item.data.started_at;
+    const d = formatDate(time);
+    if (d !== currentTimelineDate) {
+      currentTimelineDate = d;
+      groupedTimeline.push({ date: d, items: [item] });
+    } else {
+      groupedTimeline[groupedTimeline.length - 1].items.push(item);
+    }
+  }
+
   const handleImproveMessage = async () => {
     if (!input.trim() || improving) return;
     setImproving(true);
