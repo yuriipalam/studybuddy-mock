@@ -42,6 +42,7 @@ const peopleSubItems = [
 const orgSubItems = [
   { title: "Industry Partners", url: "/organizations/companies", icon: Building2 },
   { title: "Study Programs", url: "/organizations/study-programs", icon: GraduationCap },
+  { title: "Universities", url: "/organizations/universities", icon: School },
 ];
 
 export function AppSidebar() {
