@@ -1072,7 +1072,7 @@ export default function MessagesPage() {
                                 value={editMilestoneText}
                                 onChange={(e) => setEditMilestoneText(e.target.value.slice(0, 150))}
                                 className="h-7 text-sm"
-                                placeholder="Milestone name (max 150 chars)"
+                                 placeholder="Milestone name"
                                 maxLength={150}
                                 onKeyDown={(e) => {
                                   if (e.key === "Escape") setEditingMilestoneId(null);
