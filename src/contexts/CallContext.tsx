@@ -294,8 +294,7 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
       callType: video ? "video" : "voice",
     };
 
-    // Start ringtone for caller too (ringing sound)
-    ringtoneRef.current.start();
+    // No ringtone for the caller — only the receiver hears it
 
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video });
     localStreamRef.current = stream;
