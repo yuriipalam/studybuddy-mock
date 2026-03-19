@@ -1,4 +1,4 @@
-import { Home, MessageSquare, FolderKanban, BookOpen, Briefcase, Users, Building2, Settings, GraduationCap, UserCheck, User, School, LogOut, Trophy } from "lucide-react";
+import { Home, MessageSquare, FolderKanban, BookOpen, Briefcase, Users, Building2, Settings, GraduationCap, UserCheck, User, School, LogOut, Trophy, ClipboardList } from "lucide-react";
 import studyondLogo from "@/assets/studyond.svg";
 import studyondLogoLight from "@/assets/studyond-light.svg";
 import { NavLink } from "@/components/NavLink";
