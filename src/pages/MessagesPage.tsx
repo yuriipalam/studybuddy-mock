@@ -877,7 +877,7 @@ export default function MessagesPage() {
                       const lastMsg = messages[messages.length - 1];
                       const showAvatar = !lastMsg || lastMsg.sender_id === userId;
                       return (
-                        <div className="flex items-center gap-2 pt-1">
+                        <div className="flex w-full items-center gap-2 pt-1">
                           <div className="w-7 mr-2 shrink-0">
                             {showAvatar && (
                               <Avatar className="h-7 w-7">
