@@ -432,9 +432,28 @@ export function AiChatPanel({
                               </div>
                             );
                           }
+                          // Pre-process markdown: ensure headers, lists, etc. start on new lines
+                          const processed = seg.content
+                            .replace(/([^\n])(#{1,6}\s)/g, '$1\n\n$2')
+                            .replace(/([^\n])(\n?)(- )/g, (match, before, nl, dash) => {
+                              return nl ? match : `${before}\n${dash}`;
+                            })
+                            .replace(/([^\n])(\n?)(\d+\.\s)/g, (match, before, nl, num) => {
+                              return nl ? match : `${before}\n${num}`;
+                            });
                           return (
-                            <div key={si} className="prose prose-sm dark:prose-invert max-w-none prose-p:my-1.5 prose-headings:my-2 prose-ul:my-1.5 prose-ol:my-1.5 prose-li:my-0.5 prose-pre:my-2 prose-blockquote:my-2 [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
-                              <ReactMarkdown>{seg.content}</ReactMarkdown>
+                            <div key={si} className="prose prose-sm dark:prose-invert max-w-none 
+                              prose-p:my-1.5 prose-p:leading-relaxed
+                              prose-headings:my-3 prose-headings:font-semibold
+                              prose-h2:text-base prose-h3:text-sm
+                              prose-ul:my-1.5 prose-ol:my-1.5 prose-li:my-0.5
+                              prose-pre:my-2 prose-pre:rounded-lg prose-pre:bg-muted
+                              prose-blockquote:my-2 prose-blockquote:border-primary/30
+                              prose-strong:text-foreground prose-strong:font-semibold
+                              prose-code:text-primary prose-code:bg-muted prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-xs prose-code:before:content-none prose-code:after:content-none
+                              [&>*:first-child]:mt-0 [&>*:last-child]:mb-0
+                              [overflow-wrap:anywhere]">
+                              <ReactMarkdown>{processed}</ReactMarkdown>
                             </div>
                           );
                         });
