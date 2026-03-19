@@ -31,6 +31,7 @@ import SettingsPage from "@/pages/SettingsPage";
 import StudentRequestsPage from "@/pages/StudentRequestsPage";
 import OnboardingPage from "@/pages/OnboardingPage";
 import RegisterPage from "@/pages/RegisterPage";
+import TopicApplicationPage from "@/pages/TopicApplicationPage";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
