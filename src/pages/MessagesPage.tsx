@@ -185,6 +185,7 @@ export default function MessagesPage() {
   // Reset tab when switching conversations
   useEffect(() => {
     setChatTab("messages");
+    setPendingFiles([]);
   }, [activeConversationId]);
 
   const getFileUrl = (filePath: string) => {
