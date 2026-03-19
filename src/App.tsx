@@ -16,6 +16,7 @@ import CompaniesPage from "@/pages/CompaniesPage";
 import CompanyDetailPage from "@/pages/CompanyDetailPage";
 import UniversitiesPage from "@/pages/UniversitiesPage";
 import StudyProgramsPage from "@/pages/StudyProgramsPage";
+import StudyProgramDetailPage from "@/pages/StudyProgramDetailPage";
 import SettingsPage from "@/pages/SettingsPage";
 import NotFound from "@/pages/NotFound";
 
