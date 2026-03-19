@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { Flame, Trophy, Shield, ArrowUp, ArrowDown, Gift, ChevronRight, CheckCircle, Zap, FileText, UserPlus, MessageCircle, Crown, Medal } from "lucide-react";
+import { Flame, Trophy, Shield, ArrowUp, ArrowDown, Gift, ChevronRight, CheckCircle, Zap, FileText, UserPlus, MessageCircle, Crown, Medal, Loader2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
+import { useStudentXp, StudentXpRow } from "@/hooks/useStudentXp";
+import { students as jsonStudents, getUniversity } from "@/data";
 
 type RankingTab = "my-status" | "global" | "institute";
 
@@ -13,53 +15,48 @@ const tabs: { id: RankingTab; label: string; icon: React.ElementType }[] = [
   { id: "institute", label: "Institute Ranking", icon: Shield },
 ];
 
-interface PodiumUser {
-  name: string;
-  avatar: string;
-  xp: number;
-  institute?: string;
+function getStudentName(studentId: string): string {
+  const s = jsonStudents.find((st) => st.id === studentId);
+  return s ? `${s.firstName} ${s.lastName}` : studentId;
 }
 
-interface LeaderboardUser extends PodiumUser {
-  rank: number;
-  change: number;
+function getStudentAvatar(studentId: string): string {
+  const s = jsonStudents.find((st) => st.id === studentId);
+  const name = s ? s.firstName : studentId.replace("student-", "");
+  return `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`;
 }
-
-const globalTop3: PodiumUser[] = [
-  { name: "Priya Kapoor", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Priya", xp: 2750, institute: "ETH Zürich" },
-  { name: "Alex Müller", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex", xp: 3800, institute: "TU Munich" },
-  { name: "Liam Chen", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Liam", xp: 2720, institute: "KIT Karlsruhe" },
-];
-
-const instituteTop3: PodiumUser[] = [
-  { name: "Elena Fischer", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Elena", xp: 2400, institute: "TU Munich" },
-  { name: "Alex Müller", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex", xp: 3800, institute: "TU Munich" },
-  { name: "Jonas Weber", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Jonas", xp: 2310, institute: "TU Munich" },
-];
-
-const globalLeaderboard: LeaderboardUser[] = [
-  { rank: 4, name: "Sophie Laurent", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sophie", xp: 2680, change: 2, institute: "EPFL" },
-  { rank: 5, name: "Marco Rossi", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Marco", xp: 2540, change: -1, institute: "Politecnico di Milano" },
-  { rank: 6, name: "Emma Johansson", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Emma", xp: 2490, change: 0, institute: "KTH Stockholm" },
-  { rank: 7, name: "Yuki Tanaka", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Yuki", xp: 2350, change: 3, institute: "U of Tokyo" },
-  { rank: 8, name: "David Kim", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=David", xp: 2280, change: -2, institute: "KAIST" },
-  { rank: 9, name: "Anna Novak", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Anna", xp: 2210, change: 1, institute: "Charles University" },
-  { rank: 10, name: "Lucas Bernard", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Lucas", xp: 2150, change: -1, institute: "Sorbonne" },
-  { rank: 39, name: "Sarah Brunner", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah", xp: 1250, change: 4, institute: "TU Munich" },
-];
-
-const instituteLeaderboard: LeaderboardUser[] = [
-  { rank: 4, name: "Maria Schneider", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Maria", xp: 2180, change: 1, institute: "TU Munich" },
-  { rank: 5, name: "Tobias Braun", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Tobias", xp: 2050, change: -1, institute: "TU Munich" },
-  { rank: 6, name: "Lena Hoffmann", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Lena", xp: 1980, change: 2, institute: "TU Munich" },
-  { rank: 7, name: "Felix Wagner", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix", xp: 1890, change: 0, institute: "TU Munich" },
-  { rank: 8, name: "Nina Becker", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Nina", xp: 1750, change: -2, institute: "TU Munich" },
-  { rank: 9, name: "Paul Richter", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Paul", xp: 1620, change: 1, institute: "TU Munich" },
-  { rank: 10, name: "Sarah Brunner", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah", xp: 1250, change: 3, institute: "TU Munich" },
-];
 
 function getInitials(name: string) {
   return name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+}
+
+interface RankedStudent {
+  rank: number;
+  name: string;
+  avatar: string;
+  xp: number;
+  institute: string;
+  change: number;
+  studentId: string;
+  xpBreakdown: { supervisor: number; research: number; referrals: number; profile: number };
+}
+
+function buildRankedList(rows: StudentXpRow[]): RankedStudent[] {
+  return rows.map((row, i) => ({
+    rank: i + 1,
+    name: getStudentName(row.student_id),
+    avatar: getStudentAvatar(row.student_id),
+    xp: row.total_xp,
+    institute: getUniversity(row.university_id)?.name ?? row.university_id,
+    change: row.rank_change,
+    studentId: row.student_id,
+    xpBreakdown: {
+      supervisor: row.xp_supervisor,
+      research: row.xp_research,
+      referrals: row.xp_referrals,
+      profile: row.xp_profile,
+    },
+  }));
 }
 
 const podiumConfig = [
@@ -95,46 +92,40 @@ const podiumConfig = [
   },
 ];
 
-function Podium({ top3 }: { top3: PodiumUser[] }) {
+function Podium({ top3 }: { top3: RankedStudent[] }) {
+  // Reorder: 2nd, 1st, 3rd
+  const ordered = top3.length >= 3 ? [top3[1], top3[0], top3[2]] : top3;
+
   return (
     <div className="relative overflow-hidden p-6 pb-4">
-
       <div className="relative flex items-end justify-center gap-3 pt-4">
-        {top3.map((user, i) => {
+        {ordered.map((user, i) => {
           const config = podiumConfig[i];
           const isFirst = i === 1;
           return (
-            <div key={user.name} className={cn("flex flex-col items-center gap-2", isFirst ? "-mt-4" : "mt-4")}>
-              {/* Crown / Medal */}
+            <div key={user.studentId} className={cn("flex flex-col items-center gap-2", isFirst ? "-mt-4" : "mt-4")}>
               <div className="relative">
                 {isFirst && <Crown className={cn("h-6 w-6 absolute -top-5 left-1/2 -translate-x-1/2", config.iconColor)} />}
                 {!isFirst && <Medal className={cn("h-5 w-5 absolute -top-4 left-1/2 -translate-x-1/2", config.iconColor)} />}
                 <Avatar className={cn(
                   isFirst ? "h-[72px] w-[72px]" : i === 0 ? "h-14 w-14" : "h-12 w-12",
                   "border-2 ring-2 ring-offset-2 ring-offset-transparent",
-                  config.border,
-                  config.glow
+                  config.border, config.glow
                 )}>
                   <AvatarImage src={user.avatar} />
                   <AvatarFallback className="text-xs font-bold text-white bg-white/10">{getInitials(user.name)}</AvatarFallback>
                 </Avatar>
               </div>
-
-              {/* Name & XP */}
               <div className="text-center">
-                <p className="text-xs font-semibold text-white truncate max-w-[90px]">{user.name}</p>
-                {user.institute && <p className="text-[10px] text-white/40 truncate max-w-[90px]">{user.institute}</p>}
+                <p className="text-xs font-semibold text-foreground truncate max-w-[90px]">{user.name}</p>
+                <p className="text-[10px] text-muted-foreground truncate max-w-[90px]">{user.institute}</p>
                 <p className={cn("text-sm font-bold mt-0.5", config.xpColor)}>{user.xp.toLocaleString()} XP</p>
               </div>
-
-              {/* Pedestal */}
               <div className={cn(
                 "w-24 rounded-t-xl bg-gradient-to-t border border-b-0 backdrop-blur-sm flex items-start justify-center pt-3",
-                config.height,
-                config.pedestalBg,
-                config.pedestalBorder
+                config.height, config.pedestalBg, config.pedestalBorder
               )}>
-                <span className="text-2xl font-black text-white/20">#{config.rank}</span>
+                <span className="text-2xl font-black text-muted-foreground/20">#{config.rank}</span>
               </div>
             </div>
           );
@@ -144,14 +135,13 @@ function Podium({ top3 }: { top3: PodiumUser[] }) {
   );
 }
 
-function LeaderboardTable({ users }: { users: LeaderboardUser[] }) {
-  const isYou = (u: LeaderboardUser) => u.name === "Sarah Brunner";
+function LeaderboardTable({ users, currentStudentId }: { users: RankedStudent[]; currentStudentId: string }) {
+  const isYou = (u: RankedStudent) => u.studentId === currentStudentId;
   const regularUsers = users.filter((u) => !isYou(u));
   const youUser = users.find(isYou);
 
   return (
     <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
-      {/* Header */}
       <div className="grid grid-cols-[48px_1fr_100px_60px] px-4 py-2.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border bg-muted/30">
         <span>Rank</span>
         <span>Student</span>
@@ -161,7 +151,7 @@ function LeaderboardTable({ users }: { users: LeaderboardUser[] }) {
 
       {regularUsers.map((user) => (
         <div
-          key={user.rank}
+          key={user.studentId}
           className="grid grid-cols-[48px_1fr_100px_60px] items-center px-4 py-3 border-b border-border/50 last:border-b-0 hover:bg-muted/20 transition-colors"
         >
           <span className="text-sm font-medium text-muted-foreground">#{user.rank}</span>
@@ -172,11 +162,9 @@ function LeaderboardTable({ users }: { users: LeaderboardUser[] }) {
             </Avatar>
             <div className="flex items-center gap-2 min-w-0">
               <p className="text-sm font-semibold text-foreground truncate">{user.name}</p>
-              {user.institute && (
-                <span className="shrink-0 text-[10px] font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border/50">
-                  {user.institute}
-                </span>
-              )}
+              <span className="shrink-0 text-[10px] font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border/50">
+                {user.institute}
+              </span>
             </div>
           </div>
           <span className="text-sm font-bold text-foreground text-right">{user.xp.toLocaleString()} <span className="text-xs font-medium text-muted-foreground">XP</span></span>
@@ -213,11 +201,9 @@ function LeaderboardTable({ users }: { users: LeaderboardUser[] }) {
             </Avatar>
             <div className="flex items-center gap-2 min-w-0">
               <p className="text-sm font-semibold text-primary truncate">{youUser.name} <span className="text-xs font-normal text-primary/60">(You)</span></p>
-              {youUser.institute && (
-                <span className="shrink-0 text-[10px] font-medium px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
-                  {youUser.institute}
-                </span>
-              )}
+              <span className="shrink-0 text-[10px] font-medium px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+                {youUser.institute}
+              </span>
             </div>
           </div>
           <span className="text-sm font-bold text-primary text-right">{youUser.xp.toLocaleString()} <span className="text-xs font-medium text-primary/60">XP</span></span>
@@ -238,9 +224,65 @@ function LeaderboardTable({ users }: { users: LeaderboardUser[] }) {
 const RankingPage = () => {
   const { currentUser } = useAuth();
   const [activeTab, setActiveTab] = useState<RankingTab>("my-status");
+  const { data: xpRows, isLoading } = useStudentXp();
+
+  const currentStudentId = "student-02"; // Sarah Brunner (mock logged-in student)
+  const currentUniId = "uni-01";
+
+  const globalRanked = useMemo(() => buildRankedList(xpRows ?? []), [xpRows]);
+
+  const instituteRanked = useMemo(() => {
+    const filtered = (xpRows ?? []).filter((r) => r.university_id === currentUniId);
+    return buildRankedList(filtered);
+  }, [xpRows, currentUniId]);
+
+  const me = useMemo(() => globalRanked.find((r) => r.studentId === currentStudentId), [globalRanked, currentStudentId]);
+
+  const globalTop3 = globalRanked.slice(0, 3);
+  const globalLeaderboard = globalRanked.slice(3, 10);
+  // Append "you" if not already in top 10
+  const meInGlobalTop10 = globalRanked.slice(0, 10).some((r) => r.studentId === currentStudentId);
+  const globalLeaderboardWithYou = meInGlobalTop10
+    ? globalLeaderboard
+    : me
+      ? [...globalLeaderboard, me]
+      : globalLeaderboard;
+
+  const instituteTop3 = instituteRanked.slice(0, 3);
+  const instituteLeaderboard = instituteRanked.slice(3, 10);
+  const meInInstTop10 = instituteRanked.slice(0, 10).some((r) => r.studentId === currentStudentId);
+  const instituteLeaderboardWithYou = meInInstTop10
+    ? instituteLeaderboard
+    : me
+      ? [...instituteLeaderboard, { ...me, rank: (instituteRanked.findIndex((r) => r.studentId === currentStudentId) + 1) || me.rank }]
+      : instituteLeaderboard;
+
+  const uniName = getUniversity(currentUniId)?.name ?? "Your University";
+  const totalInstStudents = instituteRanked.length;
+  // Find institute's global rank by average XP
+  const uniXpTotals = useMemo(() => {
+    const map: Record<string, { sum: number; count: number }> = {};
+    (xpRows ?? []).forEach((r) => {
+      if (!map[r.university_id]) map[r.university_id] = { sum: 0, count: 0 };
+      map[r.university_id].sum += r.total_xp;
+      map[r.university_id].count += 1;
+    });
+    return Object.entries(map)
+      .map(([id, v]) => ({ id, avg: v.sum / v.count }))
+      .sort((a, b) => b.avg - a.avg);
+  }, [xpRows]);
+  const uniGlobalRank = uniXpTotals.findIndex((u) => u.id === currentUniId) + 1;
 
   if (currentUser?.role !== "student") {
     return <Navigate to="/" replace />;
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
   }
 
   return (
@@ -268,8 +310,8 @@ const RankingPage = () => {
         })}
       </div>
 
-      {/* Tab content */}
-      {activeTab === "my-status" && (
+      {/* My Status */}
+      {activeTab === "my-status" && me && (
         <div className="flex flex-col gap-6">
           {/* Hero points card */}
           <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[hsl(260,60%,22%)] via-[hsl(240,50%,20%)] to-[hsl(220,55%,18%)] p-8 shadow-xl">
@@ -279,7 +321,7 @@ const RankingPage = () => {
                   Total Points
                 </span>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-5xl font-extrabold text-white">1,250</span>
+                  <span className="text-5xl font-extrabold text-white">{me.xp.toLocaleString()}</span>
                   <span className="text-lg font-medium text-white/60">XP</span>
                 </div>
                 <div className="mt-1 flex items-center gap-3">
@@ -287,7 +329,7 @@ const RankingPage = () => {
                     <ArrowUp className="h-3 w-3" />
                     +195 this week
                   </span>
-                  <span className="text-sm text-white/40">Rank #39 globally</span>
+                  <span className="text-sm text-white/40">Rank #{me.rank} globally</span>
                 </div>
               </div>
               <Trophy className="h-28 w-28 text-white/10" strokeWidth={1} />
@@ -340,15 +382,15 @@ const RankingPage = () => {
             </div>
           </div>
 
-          {/* XP Breakdown */}
+          {/* XP Breakdown - from DB */}
           <div className="flex flex-col gap-3">
             <h2 className="text-base font-semibold text-foreground">XP Breakdown</h2>
             <div className="rounded-xl border border-border bg-card shadow-sm p-4 flex flex-col gap-4">
               {[
-                { label: "Supervisor Interactions", xp: 480, max: 600, color: "bg-[hsl(260,55%,50%)]" },
-                { label: "Research Progress", xp: 350, max: 600, color: "bg-[hsl(215,70%,50%)]" },
-                { label: "Referrals & Community", xp: 250, max: 600, color: "bg-emerald-500" },
-                { label: "Profile & Setup", xp: 170, max: 600, color: "bg-orange-500" },
+                { label: "Supervisor Interactions", xp: me.xpBreakdown.supervisor, max: 600, color: "bg-[hsl(260,55%,50%)]" },
+                { label: "Research Progress", xp: me.xpBreakdown.research, max: 600, color: "bg-[hsl(215,70%,50%)]" },
+                { label: "Referrals & Community", xp: me.xpBreakdown.referrals, max: 600, color: "bg-emerald-500" },
+                { label: "Profile & Setup", xp: me.xpBreakdown.profile, max: 600, color: "bg-orange-500" },
               ].map((item, i) => (
                 <div key={i} className="flex flex-col gap-1.5">
                   <div className="flex items-center justify-between">
@@ -368,16 +410,18 @@ const RankingPage = () => {
         </div>
       )}
 
+      {/* Global Ranking */}
       {activeTab === "global" && (
         <div className="flex flex-col gap-6">
-          <Podium top3={globalTop3} />
+          {globalTop3.length >= 3 && <Podium top3={globalTop3} />}
           <div className="flex flex-col gap-3">
             <h2 className="text-base font-semibold text-foreground">Leaderboard</h2>
-            <LeaderboardTable users={globalLeaderboard} />
+            <LeaderboardTable users={globalLeaderboardWithYou} currentStudentId={currentStudentId} />
           </div>
         </div>
       )}
 
+      {/* Institute Ranking */}
       {activeTab === "institute" && (
         <div className="flex flex-col gap-6">
           <div className="flex items-center gap-3 rounded-xl border border-border bg-card p-4 shadow-sm">
@@ -385,15 +429,15 @@ const RankingPage = () => {
               <Shield className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-foreground">TU Munich</p>
-              <p className="text-xs text-muted-foreground">127 active students · Ranked #3 globally</p>
+              <p className="text-sm font-semibold text-foreground">{uniName}</p>
+              <p className="text-xs text-muted-foreground">{totalInstStudents} active students · Ranked #{uniGlobalRank} globally</p>
             </div>
           </div>
 
-          <Podium top3={instituteTop3} />
+          {instituteTop3.length >= 3 && <Podium top3={instituteTop3} />}
           <div className="flex flex-col gap-3">
             <h2 className="text-base font-semibold text-foreground">Institute Leaderboard</h2>
-            <LeaderboardTable users={instituteLeaderboard} />
+            <LeaderboardTable users={instituteLeaderboardWithYou} currentStudentId={currentStudentId} />
           </div>
         </div>
       )}
