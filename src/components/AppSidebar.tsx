@@ -1,4 +1,4 @@
-import { Home, MessageSquare, FolderKanban, BookOpen, Briefcase, Users, Building2, Settings, GraduationCap, UserCheck, User } from "lucide-react";
+import { Home, MessageSquare, FolderKanban, BookOpen, Briefcase, Users, Building2, Settings, GraduationCap, UserCheck, User, School } from "lucide-react";
 import studyondLogo from "@/assets/studyond.svg";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -42,6 +42,7 @@ const peopleSubItems = [
 const orgSubItems = [
   { title: "Industry Partners", url: "/organizations/companies", icon: Building2 },
   { title: "Study Programs", url: "/organizations/study-programs", icon: GraduationCap },
+  { title: "Universities", url: "/organizations/universities", icon: School },
 ];
 
 export function AppSidebar() {
@@ -50,9 +51,9 @@ export function AppSidebar() {
   const location = useLocation();
   const currentPath = location.pathname;
 
-  const isActive = (path: string) => currentPath === path;
-  const isPeopleActive = peopleSubItems.some((i) => isActive(i.url));
-  const isOrgActive = orgSubItems.some((i) => isActive(i.url));
+  const isActive = (path: string) => currentPath === path || currentPath.startsWith(path + "/");
+  const isPeopleActive = peopleSubItems.some((i) => currentPath === i.url || currentPath.startsWith(i.url + "/"));
+  const isOrgActive = orgSubItems.some((i) => currentPath === i.url || currentPath.startsWith(i.url + "/"));
 
   return (
     <Sidebar collapsible="icon">
