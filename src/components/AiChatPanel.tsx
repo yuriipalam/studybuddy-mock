@@ -28,6 +28,7 @@ export function AiChatPanel({
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const { getProfileSummaryForAI } = useUserProfile();
 
   useEffect(() => {
     if (open) textareaRef.current?.focus();
