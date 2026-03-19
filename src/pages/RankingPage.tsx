@@ -139,8 +139,53 @@ function Podium({ top3 }: { top3: RankedStudent[] }) {
 function LeaderboardTable({ users, currentStudentId }: { users: RankedStudent[]; currentStudentId: string }) {
   const navigate = useNavigate();
   const isYou = (u: RankedStudent) => u.studentId === currentStudentId;
-  const regularUsers = users.filter((u) => !isYou(u));
-  const youUser = users.find(isYou);
+  const youInList = users.some(isYou);
+  const youUser = !youInList ? users.find(isYou) : null;
+
+  const renderRow = (user: RankedStudent) => {
+    const you = isYou(user);
+    return (
+      <div
+        key={user.studentId}
+        onClick={() => navigate(`/people/students/${user.studentId}`)}
+        className={cn(
+          "grid grid-cols-[48px_1fr_100px_60px] items-center px-4 py-3 border-b border-border/50 last:border-b-0 transition-colors cursor-pointer",
+          you ? "bg-primary/5 hover:bg-primary/10" : "hover:bg-muted/20"
+        )}
+      >
+        <span className={cn("text-sm font-medium", you ? "font-bold text-primary" : "text-muted-foreground")}>#{user.rank}</span>
+        <div className="flex items-center gap-3 min-w-0">
+          <Avatar className={cn("h-8 w-8 shrink-0", you && "ring-2 ring-primary ring-offset-1 ring-offset-background")}>
+            <AvatarImage src={user.avatar} />
+            <AvatarFallback className="text-[10px] font-semibold">{getInitials(user.name)}</AvatarFallback>
+          </Avatar>
+          <div className="flex items-center gap-2 min-w-0">
+            <p className={cn("text-sm font-semibold truncate", you ? "text-primary" : "text-foreground")}>
+              {user.name}
+              {you && <span className="text-xs font-normal text-primary/60"> (You)</span>}
+            </p>
+            <span className={cn(
+              "shrink-0 text-[10px] font-medium px-2 py-0.5 rounded-full border",
+              you ? "bg-primary/10 text-primary border-primary/20" : "bg-muted text-muted-foreground border-border/50"
+            )}>
+              {user.institute}
+            </span>
+          </div>
+        </div>
+        <span className={cn("text-sm font-bold text-right", you ? "text-primary" : "text-foreground")}>
+          {user.xp.toLocaleString()} <span className={cn("text-xs font-medium", you ? "text-primary/60" : "text-muted-foreground")}>XP</span>
+        </span>
+        <span className={cn(
+          "text-xs font-semibold text-right flex items-center justify-end gap-0.5",
+          user.change > 0 ? "text-emerald-500" : user.change < 0 ? "text-destructive" : "text-muted-foreground"
+        )}>
+          {user.change > 0 && <ArrowUp className="h-3 w-3" />}
+          {user.change < 0 && <ArrowDown className="h-3 w-3" />}
+          {user.change === 0 ? "—" : Math.abs(user.change)}
+        </span>
+      </div>
+    );
+  };
 
   return (
     <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
@@ -151,74 +196,20 @@ function LeaderboardTable({ users, currentStudentId }: { users: RankedStudent[];
         <span className="text-right">Change</span>
       </div>
 
-      {regularUsers.map((user) => (
-        <div
-          key={user.studentId}
-          onClick={() => navigate(`/people/students/${user.studentId}`)}
-          className="grid grid-cols-[48px_1fr_100px_60px] items-center px-4 py-3 border-b border-border/50 last:border-b-0 hover:bg-muted/20 transition-colors cursor-pointer"
-        >
-          <span className="text-sm font-medium text-muted-foreground">#{user.rank}</span>
-          <div className="flex items-center gap-3 min-w-0">
-            <Avatar className="h-8 w-8 shrink-0">
-              <AvatarImage src={user.avatar} />
-              <AvatarFallback className="text-[10px] font-semibold">{getInitials(user.name)}</AvatarFallback>
-            </Avatar>
-            <div className="flex items-center gap-2 min-w-0">
-              <p className="text-sm font-semibold text-foreground truncate">{user.name}</p>
-              <span className="shrink-0 text-[10px] font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border/50">
-                {user.institute}
-              </span>
-            </div>
-          </div>
-          <span className="text-sm font-bold text-foreground text-right">{user.xp.toLocaleString()} <span className="text-xs font-medium text-muted-foreground">XP</span></span>
-          <span className={cn(
-            "text-xs font-semibold text-right flex items-center justify-end gap-0.5",
-            user.change > 0 ? "text-emerald-500" : user.change < 0 ? "text-destructive" : "text-muted-foreground"
-          )}>
-            {user.change > 0 && <ArrowUp className="h-3 w-3" />}
-            {user.change < 0 && <ArrowDown className="h-3 w-3" />}
-            {user.change === 0 ? "—" : Math.abs(user.change)}
-          </span>
-        </div>
-      ))}
+      {users.map(renderRow)}
 
-      {/* Gap indicator */}
-      {youUser && regularUsers.length > 0 && youUser.rank - regularUsers[regularUsers.length - 1].rank > 1 && (
-        <div className="flex items-center justify-center py-2 border-b border-border">
-          <div className="flex gap-1">
-            <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
-            <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
-            <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
-          </div>
-        </div>
-      )}
-
-      {/* You row */}
+      {/* Show "you" at bottom only if not already in the list */}
       {youUser && (
-        <div onClick={() => navigate(`/people/students/${youUser.studentId}`)} className="grid grid-cols-[48px_1fr_100px_60px] items-center px-4 py-3 bg-primary/5 border-t border-primary/20 cursor-pointer hover:bg-primary/10 transition-colors">
-          <span className="text-sm font-bold text-primary">#{youUser.rank}</span>
-          <div className="flex items-center gap-3 min-w-0">
-            <Avatar className="h-8 w-8 shrink-0 ring-2 ring-primary ring-offset-1 ring-offset-background">
-              <AvatarImage src={youUser.avatar} />
-              <AvatarFallback className="text-[10px] font-semibold">{getInitials(youUser.name)}</AvatarFallback>
-            </Avatar>
-            <div className="flex items-center gap-2 min-w-0">
-              <p className="text-sm font-semibold text-primary truncate">{youUser.name} <span className="text-xs font-normal text-primary/60">(You)</span></p>
-              <span className="shrink-0 text-[10px] font-medium px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
-                {youUser.institute}
-              </span>
+        <>
+          <div className="flex items-center justify-center py-2 border-b border-border">
+            <div className="flex gap-1">
+              <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
+              <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
+              <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
             </div>
           </div>
-          <span className="text-sm font-bold text-primary text-right">{youUser.xp.toLocaleString()} <span className="text-xs font-medium text-primary/60">XP</span></span>
-          <span className={cn(
-            "text-xs font-semibold text-right flex items-center justify-end gap-0.5",
-            youUser.change > 0 ? "text-emerald-500" : youUser.change < 0 ? "text-destructive" : "text-muted-foreground"
-          )}>
-            {youUser.change > 0 && <ArrowUp className="h-3 w-3" />}
-            {youUser.change < 0 && <ArrowDown className="h-3 w-3" />}
-            {youUser.change === 0 ? "—" : Math.abs(youUser.change)}
-          </span>
-        </div>
+          {renderRow(youUser)}
+        </>
       )}
     </div>
   );
