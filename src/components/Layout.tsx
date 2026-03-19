@@ -18,11 +18,11 @@ export function Layout({ children }: LayoutProps) {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full">
+      <div className="h-screen flex w-full overflow-hidden">
         <AppSidebar />
-        <div className="flex-1 flex flex-col min-w-0">
+        <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
           <TopBar onToggleChat={() => setChatOpen((v) => !v)} chatOpen={chatOpen} />
-          <div className="flex-1 overflow-hidden">
+          <div className="flex-1 min-h-0 overflow-hidden">
             {chatOpen ? (
               <ResizablePanelGroup direction="horizontal" className="h-full">
                 <ResizablePanel defaultSize={70} minSize={40}>
