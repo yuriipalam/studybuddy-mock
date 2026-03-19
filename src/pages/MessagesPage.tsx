@@ -1224,7 +1224,10 @@ export default function MessagesPage() {
                         }
                         // Auto-resize
                         e.target.style.height = "auto";
-                        e.target.style.height = Math.min(e.target.scrollHeight, 96) + "px";
+                        const maxH = 96;
+                        const newHeight = Math.min(e.target.scrollHeight, maxH);
+                        e.target.style.height = newHeight + "px";
+                        e.target.style.overflowY = e.target.scrollHeight > maxH ? "auto" : "hidden";
                       }}
                       onKeyDown={(e) => {
                         if (e.key === "Enter" && !e.shiftKey) {
@@ -1235,8 +1238,8 @@ export default function MessagesPage() {
                       }}
                       placeholder="Type a message..."
                       rows={1}
-                      className="flex-1 resize-none overflow-y-auto rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                      style={{ maxHeight: "96px" }}
+                      className="flex-1 resize-none rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      style={{ maxHeight: "96px", overflowY: "hidden" }}
                     />
                     <Button type="submit" size="icon" disabled={!input.trim() && pendingFiles.length === 0} className="shrink-0 mb-0.5">
                       <Send className="h-4 w-4" />
