@@ -11,6 +11,7 @@ import { useMessaging } from "@/contexts/MessagingContext";
 export default function StudentDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { startConversation } = useMessaging();
   const student = getStudent(id || "");
   const university = student ? getUniversity(student.universityId) : undefined;
   const program = student ? getStudyProgram(student.studyProgramId) : undefined;

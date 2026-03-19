@@ -69,7 +69,10 @@ export default function ExpertDetailPage() {
                   )}
                 </div>
               </div>
-              <Button size="sm" className="gap-1.5">
+              <Button size="sm" className="gap-1.5" onClick={() => {
+                startConversation({ id: expert.id, name: fullName, role: "expert", title: expert.title });
+                navigate("/messages");
+              }}>
                 <MessageSquare className="size-3.5" /> Get in touch
               </Button>
             </div>
