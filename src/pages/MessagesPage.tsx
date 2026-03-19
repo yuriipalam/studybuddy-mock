@@ -176,6 +176,28 @@ export default function MessagesPage() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
+  const addValidFiles = (fileList: FileList | File[]) => {
+    const validFiles = Array.from(fileList).filter((file) => {
+      if (file.size > MAX_FILE_SIZE) {
+        toast.error(`"${file.name}" exceeds 100MB limit`);
+        return false;
+      }
+      return true;
+    });
+    if (validFiles.length > 0) {
+      setPendingFiles((prev) => [...prev, ...validFiles]);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragging(false);
+    dragCounterRef.current = 0;
+    if (!activeConversationId || !e.dataTransfer.files.length) return;
+    addValidFiles(e.dataTransfer.files);
+  };
+
   const loadFiles = useCallback(async () => {
     if (!activeConversationId) return;
     setFilesLoading(true);
