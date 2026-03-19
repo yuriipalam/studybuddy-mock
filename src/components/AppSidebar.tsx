@@ -1,4 +1,4 @@
-import { Home, MessageSquare, FolderKanban, BookOpen, Briefcase, Users, Building2, Settings, GraduationCap, UserCheck, User, School, LogOut } from "lucide-react";
+import { Home, MessageSquare, FolderKanban, BookOpen, Briefcase, Users, Building2, Settings, GraduationCap, UserCheck, User, School, LogOut, Trophy } from "lucide-react";
 import studyondLogo from "@/assets/studyond.svg";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -168,6 +168,14 @@ export function AppSidebar() {
 
       <SidebarFooter>
         <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={isActive("/ranking")}>
+              <NavLink to="/ranking">
+                <Trophy className="h-4 w-4" />
+                <span>My Ranking</span>
+              </NavLink>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton asChild isActive={isActive("/settings")}>
               <NavLink to="/settings">

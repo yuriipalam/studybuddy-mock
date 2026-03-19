@@ -26,6 +26,7 @@ import UniversitiesPage from "@/pages/UniversitiesPage";
 import UniversityDetailPage from "@/pages/UniversityDetailPage";
 import StudyProgramsPage from "@/pages/StudyProgramsPage";
 import StudyProgramDetailPage from "@/pages/StudyProgramDetailPage";
+import RankingPage from "@/pages/RankingPage";
 import SettingsPage from "@/pages/SettingsPage";
 import NotFound from "@/pages/NotFound";
 
@@ -57,6 +58,7 @@ function ProtectedRoutes() {
             <Route path="/organizations/study-programs/:id" element={<StudyProgramDetailPage />} />
             <Route path="/organizations/universities" element={<UniversitiesPage />} />
             <Route path="/organizations/universities/:id" element={<UniversityDetailPage />} />
+            <Route path="/ranking" element={<RankingPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
