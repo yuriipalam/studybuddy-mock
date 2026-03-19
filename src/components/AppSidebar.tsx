@@ -172,14 +172,16 @@ export function AppSidebar() {
 
       <SidebarFooter>
         <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={isActive("/ranking")}>
-              <NavLink to="/ranking">
-                <Trophy className="h-4 w-4" />
-                <span>My Ranking</span>
-              </NavLink>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+          {currentUser?.role === "student" && (
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild isActive={isActive("/ranking")}>
+                <NavLink to="/ranking">
+                  <Trophy className="h-4 w-4" />
+                  <span>My Ranking</span>
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
           <SidebarMenuItem>
             <SidebarMenuButton asChild isActive={isActive("/settings")}>
               <NavLink to="/settings">
