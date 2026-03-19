@@ -50,7 +50,14 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
+  const navigate = useNavigate();
   const currentPath = location.pathname;
+  const { currentUser, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
 
   const isActive = (path: string) => currentPath === path || currentPath.startsWith(path + "/");
   const isPeopleActive = peopleSubItems.some((i) => currentPath === i.url || currentPath.startsWith(i.url + "/"));
