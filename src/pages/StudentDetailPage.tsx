@@ -85,7 +85,7 @@ export default function StudentDetailPage() {
                 </div>
               </div>
               <Button size="sm" className="gap-1.5" onClick={() => {
-                startConversation({ id: student.id, name: fullName, role: "student", title: program?.name ?? "Student" });
+                startConversation({ id: student.id, name: fullName, role: "student" });
                 navigate("/messages");
               }}>
                 <MessageSquare className="size-3.5" /> Get in touch

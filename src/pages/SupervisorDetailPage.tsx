@@ -70,7 +70,7 @@ export default function SupervisorDetailPage() {
                 </div>
               </div>
               <Button size="sm" className="gap-1.5" onClick={() => {
-                startConversation({ id: supervisor.id, name: fullName, role: "supervisor", title: supervisor.title });
+                startConversation({ id: supervisor.id, name: fullName, role: "supervisor" });
                 navigate("/messages");
               }}>
                 <MessageSquare className="size-3.5" /> Get in touch

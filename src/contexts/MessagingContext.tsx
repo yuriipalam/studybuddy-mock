@@ -1,150 +1,406 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
+import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { RealtimeChannel } from "@supabase/supabase-js";
 
-export interface ChatMessage {
+export interface DbMessage {
   id: string;
-  senderId: string;
+  conversation_id: string;
+  sender_id: string;
   content: string;
-  timestamp: string;
+  created_at: string;
+  read_at: string | null;
+}
+
+export interface Participant {
+  user_id: string;
+  user_name: string;
+  user_avatar: string | null;
+  user_role: string | null;
 }
 
 export interface Conversation {
   id: string;
-  contactId: string;
-  contactName: string;
-  contactRole: "expert" | "supervisor" | "student";
-  contactTitle: string;
-  messages: ChatMessage[];
-  createdAt: string;
+  created_at: string;
+  participants: Participant[];
+  lastMessage?: DbMessage;
+  unreadCount: number;
+}
+
+interface TypingState {
+  [conversationId: string]: { userId: string; userName: string; timestamp: number }[];
 }
 
 interface MessagingContextType {
   conversations: Conversation[];
   activeConversationId: string | null;
   setActiveConversationId: (id: string | null) => void;
-  startConversation: (contact: { id: string; name: string; role: "expert" | "supervisor" | "student"; title: string }) => string;
-  sendMessage: (conversationId: string, content: string) => void;
-  getConversation: (id: string) => Conversation | undefined;
+  messages: DbMessage[];
+  sendMessage: (conversationId: string, content: string) => Promise<void>;
+  startConversation: (contact: { id: string; name: string; role: string; avatar?: string }) => Promise<string>;
   getConversationByContact: (contactId: string) => Conversation | undefined;
-}
-
-const AUTO_REPLIES = [
-  "Thanks for reaching out! I'd be happy to discuss this further.",
-  "That sounds very interesting. Could you tell me more about your background?",
-  "Great question! Let me think about that and get back to you with more details.",
-  "I appreciate your interest. Would you like to schedule a call to discuss this in more detail?",
-  "Absolutely, I think there could be a great fit here. What's your timeline for the thesis?",
-  "Thanks for your message! I'm currently supervising a few students on similar topics.",
-  "That's a really relevant area of research. Have you looked into the latest publications on this?",
-  "I'd recommend starting with a literature review in this area. Happy to point you to some key papers.",
-  "Wonderful! Let's set up a short meeting to discuss the scope and expectations.",
-  "I'm glad you're interested in this topic. We have some exciting data you could work with.",
-  "Sure, I can provide more context about the project. When would be a good time to chat?",
-  "Thanks! I'll share some relevant materials with you shortly.",
-];
-
-const STORAGE_KEY = "studyond-conversations";
-
-function loadConversations(): Conversation[] {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : [];
-  } catch {
-    return [];
-  }
-}
-
-function saveConversations(conversations: Conversation[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(conversations));
+  markAsRead: (conversationId: string) => Promise<void>;
+  setTyping: (conversationId: string, isTyping: boolean) => void;
+  typingUsers: TypingState;
+  loading: boolean;
 }
 
 const MessagingContext = createContext<MessagingContextType | null>(null);
 
 export function MessagingProvider({ children }: { children: React.ReactNode }) {
-  const [conversations, setConversations] = useState<Conversation[]>(loadConversations);
+  const { currentUser } = useAuth();
+  const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
+  const [messages, setMessages] = useState<DbMessage[]>([]);
+  const [typingUsers, setTypingUsers] = useState<TypingState>({});
+  const [loading, setLoading] = useState(true);
+  const channelRef = useRef<RealtimeChannel | null>(null);
+  const typingChannelsRef = useRef<Map<string, RealtimeChannel>>(new Map());
+
+  const userId = currentUser?.id;
+
+  // Load conversations for the current user
+  const loadConversations = useCallback(async () => {
+    if (!userId) return;
+    setLoading(true);
+
+    // Get all conversation IDs where current user is a participant
+    const { data: participations } = await supabase
+      .from("conversation_participants")
+      .select("conversation_id")
+      .eq("user_id", userId);
+
+    if (!participations || participations.length === 0) {
+      setConversations([]);
+      setLoading(false);
+      return;
+    }
+
+    const convIds = participations.map((p: any) => p.conversation_id);
+
+    // Get conversations with participants
+    const { data: convs } = await supabase
+      .from("conversations")
+      .select("*")
+      .in("id", convIds)
+      .order("created_at", { ascending: false });
+
+    const { data: allParticipants } = await supabase
+      .from("conversation_participants")
+      .select("*")
+      .in("conversation_id", convIds);
+
+    // Get last message per conversation and unread counts
+    const conversationsWithMeta: Conversation[] = [];
+
+    for (const conv of convs || []) {
+      const { data: lastMsgs } = await supabase
+        .from("messages")
+        .select("*")
+        .eq("conversation_id", conv.id)
+        .order("created_at", { ascending: false })
+        .limit(1);
+
+      const { count } = await supabase
+        .from("messages")
+        .select("*", { count: "exact", head: true })
+        .eq("conversation_id", conv.id)
+        .neq("sender_id", userId)
+        .is("read_at", null);
+
+      const participants = (allParticipants || [])
+        .filter((p: any) => p.conversation_id === conv.id)
+        .map((p: any) => ({
+          user_id: p.user_id,
+          user_name: p.user_name,
+          user_avatar: p.user_avatar,
+          user_role: p.user_role,
+        }));
+
+      conversationsWithMeta.push({
+        id: conv.id,
+        created_at: conv.created_at,
+        participants,
+        lastMessage: lastMsgs?.[0] || undefined,
+        unreadCount: count || 0,
+      });
+    }
+
+    // Sort by last message time
+    conversationsWithMeta.sort((a, b) => {
+      const aTime = a.lastMessage?.created_at || a.created_at;
+      const bTime = b.lastMessage?.created_at || b.created_at;
+      return new Date(bTime).getTime() - new Date(aTime).getTime();
+    });
+
+    setConversations(conversationsWithMeta);
+    setLoading(false);
+  }, [userId]);
+
+  // Load messages for active conversation
+  const loadMessages = useCallback(async () => {
+    if (!activeConversationId) {
+      setMessages([]);
+      return;
+    }
+
+    const { data } = await supabase
+      .from("messages")
+      .select("*")
+      .eq("conversation_id", activeConversationId)
+      .order("created_at", { ascending: true });
+
+    setMessages((data as DbMessage[]) || []);
+  }, [activeConversationId]);
 
   useEffect(() => {
-    saveConversations(conversations);
-  }, [conversations]);
+    loadConversations();
+  }, [loadConversations]);
 
-  const getConversation = useCallback(
-    (id: string) => conversations.find((c) => c.id === id),
-    [conversations]
+  useEffect(() => {
+    loadMessages();
+  }, [loadMessages]);
+
+  // Subscribe to realtime message changes
+  useEffect(() => {
+    if (!userId) return;
+
+    channelRef.current = supabase
+      .channel("messages-realtime")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "messages" },
+        (payload) => {
+          if (payload.eventType === "INSERT") {
+            const newMsg = payload.new as DbMessage;
+
+            // If it's in the active conversation, add to messages
+            setMessages((prev) => {
+              if (prev.length > 0 && prev[0].conversation_id === newMsg.conversation_id) {
+                // Avoid duplicates
+                if (prev.find((m) => m.id === newMsg.id)) return prev;
+                return [...prev, newMsg];
+              }
+              if (prev.length === 0 && activeConversationId === newMsg.conversation_id) {
+                return [newMsg];
+              }
+              return prev;
+            });
+
+            // Update conversation list
+            loadConversations();
+          } else if (payload.eventType === "UPDATE") {
+            const updated = payload.new as DbMessage;
+            setMessages((prev) =>
+              prev.map((m) => (m.id === updated.id ? updated : m))
+            );
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      channelRef.current?.unsubscribe();
+    };
+  }, [userId, activeConversationId, loadConversations]);
+
+  // Typing indicator channels per conversation
+  const setTyping = useCallback(
+    (conversationId: string, isTyping: boolean) => {
+      if (!userId || !currentUser) return;
+
+      let channel = typingChannelsRef.current.get(conversationId);
+      if (!channel) {
+        channel = supabase.channel(`typing-${conversationId}`);
+
+        channel.on("broadcast", { event: "typing" }, (payload: any) => {
+          const { userId: typerId, userName, isTyping: typing } = payload.payload;
+          if (typerId === userId) return;
+
+          setTypingUsers((prev) => {
+            const current = prev[conversationId] || [];
+            if (typing) {
+              const exists = current.find((t) => t.userId === typerId);
+              if (exists) {
+                return {
+                  ...prev,
+                  [conversationId]: current.map((t) =>
+                    t.userId === typerId ? { ...t, timestamp: Date.now() } : t
+                  ),
+                };
+              }
+              return {
+                ...prev,
+                [conversationId]: [...current, { userId: typerId, userName, timestamp: Date.now() }],
+              };
+            }
+            return {
+              ...prev,
+              [conversationId]: current.filter((t) => t.userId !== typerId),
+            };
+          });
+        });
+
+        channel.subscribe();
+        typingChannelsRef.current.set(conversationId, channel);
+      }
+
+      channel.send({
+        type: "broadcast",
+        event: "typing",
+        payload: { userId, userName: `${currentUser.firstName} ${currentUser.lastName}`, isTyping },
+      });
+    },
+    [userId, currentUser]
   );
 
-  const getConversationByContact = useCallback(
-    (contactId: string) => conversations.find((c) => c.contactId === contactId),
-    [conversations]
+  // Clean up stale typing indicators
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTypingUsers((prev) => {
+        const now = Date.now();
+        const updated: TypingState = {};
+        let changed = false;
+        for (const [convId, users] of Object.entries(prev)) {
+          const fresh = users.filter((t) => now - t.timestamp < 5000);
+          if (fresh.length !== users.length) changed = true;
+          if (fresh.length > 0) updated[convId] = fresh;
+        }
+        return changed ? updated : prev;
+      });
+    }, 2000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Cleanup typing channels
+  useEffect(() => {
+    return () => {
+      typingChannelsRef.current.forEach((ch) => ch.unsubscribe());
+      typingChannelsRef.current.clear();
+    };
+  }, []);
+
+  const sendMessage = useCallback(
+    async (conversationId: string, content: string) => {
+      if (!userId) return;
+
+      await supabase.from("messages").insert({
+        conversation_id: conversationId,
+        sender_id: userId,
+        content,
+      });
+
+      // Stop typing indicator
+      setTyping(conversationId, false);
+    },
+    [userId, setTyping]
   );
 
   const startConversation = useCallback(
-    (contact: { id: string; name: string; role: "expert" | "supervisor" | "student"; title: string }) => {
-      const existing = conversations.find((c) => c.contactId === contact.id);
-      if (existing) {
-        setActiveConversationId(existing.id);
-        return existing.id;
+    async (contact: { id: string; name: string; role: string; avatar?: string }) => {
+      if (!userId || !currentUser) return "";
+
+      // Check if conversation already exists between these two users
+      const { data: myParticipations } = await supabase
+        .from("conversation_participants")
+        .select("conversation_id")
+        .eq("user_id", userId);
+
+      if (myParticipations) {
+        for (const p of myParticipations) {
+          const { data: otherP } = await supabase
+            .from("conversation_participants")
+            .select("user_id")
+            .eq("conversation_id", p.conversation_id)
+            .eq("user_id", contact.id);
+
+          if (otherP && otherP.length > 0) {
+            setActiveConversationId(p.conversation_id);
+            return p.conversation_id;
+          }
+        }
       }
 
-      const newConv: Conversation = {
-        id: `conv-${Date.now()}`,
-        contactId: contact.id,
-        contactName: contact.name,
-        contactRole: contact.role,
-        contactTitle: contact.title,
-        messages: [
-          {
-            id: `msg-${Date.now()}`,
-            senderId: contact.id,
-            content: `Hi! Thanks for connecting with me on Studyond. How can I help you?`,
-            timestamp: new Date().toISOString(),
-          },
-        ],
-        createdAt: new Date().toISOString(),
-      };
+      // Create new conversation
+      const { data: conv } = await supabase
+        .from("conversations")
+        .insert({})
+        .select()
+        .single();
 
-      setConversations((prev) => [newConv, ...prev]);
-      setActiveConversationId(newConv.id);
-      return newConv.id;
+      if (!conv) return "";
+
+      // Add both participants
+      await supabase.from("conversation_participants").insert([
+        {
+          conversation_id: conv.id,
+          user_id: userId,
+          user_name: `${currentUser.firstName} ${currentUser.lastName}`,
+          user_avatar: currentUser.avatar,
+          user_role: currentUser.role,
+        },
+        {
+          conversation_id: conv.id,
+          user_id: contact.id,
+          user_name: contact.name,
+          user_avatar: contact.avatar || null,
+          user_role: contact.role,
+        },
+      ]);
+
+      // Send initial greeting from contact
+      await supabase.from("messages").insert({
+        conversation_id: conv.id,
+        sender_id: contact.id,
+        content: `Hi! Thanks for connecting with me on StudyOnd. How can I help you?`,
+      });
+
+      await loadConversations();
+      setActiveConversationId(conv.id);
+      return conv.id;
     },
+    [userId, currentUser, loadConversations]
+  );
+
+  const getConversationByContact = useCallback(
+    (contactId: string) =>
+      conversations.find((c) => c.participants.some((p) => p.user_id === contactId)),
     [conversations]
   );
 
-  const sendMessage = useCallback(
-    (conversationId: string, content: string) => {
-      const userMsg: ChatMessage = {
-        id: `msg-${Date.now()}`,
-        senderId: "student-01",
-        content,
-        timestamp: new Date().toISOString(),
-      };
+  const markAsRead = useCallback(
+    async (conversationId: string) => {
+      if (!userId) return;
 
-      setConversations((prev) =>
-        prev.map((c) =>
-          c.id === conversationId ? { ...c, messages: [...c.messages, userMsg] } : c
-        )
-      );
+      // Mark all unread messages from other users as read
+      const { data: unread } = await supabase
+        .from("messages")
+        .select("id")
+        .eq("conversation_id", conversationId)
+        .neq("sender_id", userId)
+        .is("read_at", null);
 
-      // Auto-reply after a short delay
-      setTimeout(() => {
-        setConversations((prev) => {
-          const conv = prev.find((c) => c.id === conversationId);
-          if (!conv) return prev;
+      if (unread && unread.length > 0) {
+        const ids = unread.map((m: any) => m.id);
+        await supabase
+          .from("messages")
+          .update({ read_at: new Date().toISOString() })
+          .in("id", ids);
 
-          const replyIndex = conv.messages.length % AUTO_REPLIES.length;
-          const reply: ChatMessage = {
-            id: `msg-${Date.now()}-reply`,
-            senderId: conv.contactId,
-            content: AUTO_REPLIES[replyIndex],
-            timestamp: new Date().toISOString(),
-          };
+        // Update local state
+        setMessages((prev) =>
+          prev.map((m) =>
+            ids.includes(m.id) ? { ...m, read_at: new Date().toISOString() } : m
+          )
+        );
 
-          return prev.map((c) =>
-            c.id === conversationId ? { ...c, messages: [...c.messages, reply] } : c
-          );
-        });
-      }, 1000 + Math.random() * 2000);
+        // Update conversation unread count
+        setConversations((prev) =>
+          prev.map((c) => (c.id === conversationId ? { ...c, unreadCount: 0 } : c))
+        );
+      }
     },
-    []
+    [userId]
   );
 
   return (
@@ -153,10 +409,14 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
         conversations,
         activeConversationId,
         setActiveConversationId,
-        startConversation,
+        messages,
         sendMessage,
-        getConversation,
+        startConversation,
         getConversationByContact,
+        markAsRead,
+        setTyping,
+        typingUsers,
+        loading,
       }}
     >
       {children}
