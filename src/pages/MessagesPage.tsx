@@ -291,7 +291,7 @@ export default function MessagesPage() {
       setUploading(true);
       await sendMessageWithFiles(activeConversationId, content, filesToSend);
       setUploading(false);
-      loadFiles();
+      await loadFiles();
     } else {
       await sendMessage(activeConversationId, content);
     }
