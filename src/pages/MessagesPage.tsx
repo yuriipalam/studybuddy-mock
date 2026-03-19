@@ -212,11 +212,17 @@ export default function MessagesPage() {
   const getContact = (conv: typeof conversations[0]) =>
     conv.participants.find((p) => p.user_id !== userId);
 
-  const filteredConvs = conversations.filter((c) => {
-    if (!search) return true;
-    const contact = getContact(c);
-    return contact?.user_name.toLowerCase().includes(search.toLowerCase());
-  });
+  const filteredConvs = conversations
+    .filter((c) => {
+      if (!search) return true;
+      const contact = getContact(c);
+      return contact?.user_name.toLowerCase().includes(search.toLowerCase());
+    })
+    .sort((a, b) => {
+      const aPinned = pinnedIds.has(a.id) ? 0 : 1;
+      const bPinned = pinnedIds.has(b.id) ? 0 : 1;
+      return aPinned - bPinned;
+    });
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
