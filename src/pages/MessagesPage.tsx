@@ -454,7 +454,7 @@ export default function MessagesPage() {
   return (
     <div className="flex h-[calc(100vh-3.5rem)]">
       {/* Left panel - conversation list */}
-      <div className="w-80 border-r border-border flex flex-col">
+      <div className="w-80 shrink-0 border-r border-border flex flex-col">
         <div className="p-3 border-b border-border">
           <Input
             placeholder="Search conversations..."
