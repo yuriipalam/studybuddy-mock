@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Flame, Trophy, Shield, ArrowUp, Gift, ChevronRight } from "lucide-react";
+import { Flame, Trophy, Shield, ArrowUp, ArrowDown, Gift, ChevronRight, CheckCircle, Zap, FileText, UserPlus, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type RankingTab = "my-status" | "global" | "institute";
