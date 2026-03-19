@@ -15,6 +15,7 @@ import SupervisorsPage from "@/pages/SupervisorsPage";
 import CompaniesPage from "@/pages/CompaniesPage";
 import CompanyDetailPage from "@/pages/CompanyDetailPage";
 import UniversitiesPage from "@/pages/UniversitiesPage";
+import UniversityDetailPage from "@/pages/UniversityDetailPage";
 import StudyProgramsPage from "@/pages/StudyProgramsPage";
 import StudyProgramDetailPage from "@/pages/StudyProgramDetailPage";
 import SettingsPage from "@/pages/SettingsPage";
