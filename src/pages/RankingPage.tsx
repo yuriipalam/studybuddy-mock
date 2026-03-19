@@ -111,6 +111,32 @@ const RankingPage = () => {
               ))}
             </div>
           </div>
+
+          {/* XP Breakdown */}
+          <div className="flex flex-col gap-3">
+            <h2 className="text-base font-semibold text-foreground">XP Breakdown</h2>
+            <div className="rounded-xl border border-border bg-card shadow-sm p-4 flex flex-col gap-4">
+              {[
+                { label: "Supervisor Interactions", xp: 480, max: 600, color: "bg-[hsl(260,55%,50%)]" },
+                { label: "Research Progress", xp: 350, max: 600, color: "bg-[hsl(215,70%,50%)]" },
+                { label: "Referrals & Community", xp: 250, max: 600, color: "bg-emerald-500" },
+                { label: "Profile & Setup", xp: 170, max: 600, color: "bg-orange-500" },
+              ].map((item, i) => (
+                <div key={i} className="flex flex-col gap-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-foreground">{item.label}</span>
+                    <span className="text-sm font-semibold text-foreground">{item.xp} XP</span>
+                  </div>
+                  <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
+                    <div
+                      className={cn("h-full rounded-full transition-all", item.color)}
+                      style={{ width: `${(item.xp / item.max) * 100}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       )}
 
