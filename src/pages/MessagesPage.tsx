@@ -735,7 +735,7 @@ export default function MessagesPage() {
                             const senderChanged = i > 0 && group.msgs[i - 1].sender_id !== msg.sender_id;
 
                             return (
-                              <div key={msg.id} className={cn("flex group", isMe ? "justify-end" : "justify-start", senderChanged && "mt-3")}>
+                              <div key={msg.id} className={cn("flex w-full group", isMe ? "justify-end" : "justify-start", senderChanged && "mt-3")}>
                                 {!isMe && (
                                   <div className="w-7 mr-2 shrink-0">
                                     {showAvatar && (
@@ -877,7 +877,7 @@ export default function MessagesPage() {
                       const lastMsg = messages[messages.length - 1];
                       const showAvatar = !lastMsg || lastMsg.sender_id === userId;
                       return (
-                        <div className="flex items-center gap-2 pt-1">
+                        <div className="flex w-full items-center gap-2 pt-1">
                           <div className="w-7 mr-2 shrink-0">
                             {showAvatar && (
                               <Avatar className="h-7 w-7">
