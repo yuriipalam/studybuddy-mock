@@ -273,29 +273,6 @@ export default function TopicApplicationPage() {
       if (error) throw error;
       toast.success(status === "draft" ? "Draft saved" : "Application submitted!");
       if (status === "submitted") {
-        // Create a project entry so it appears in supervisor's requests
-        const newProject: ThesisProject = {
-          id: `app-${currentUser.id}-${topicId}`,
-          title: topic?.title ?? "Untitled",
-          description: topic?.description ?? null,
-          motivation,
-          state: "applied",
-          studentId: currentUser.id,
-          topicId: topicId!,
-          companyId: topic?.companyId ?? null,
-          universityId: topic?.universityId ?? null,
-          supervisorIds: topic?.supervisorIds ?? [],
-          expertIds: topic?.expertIds ?? [],
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        };
-
-        // Store in localStorage for the supervisor's requests page
-        const existing = JSON.parse(localStorage.getItem("studyond-applied-projects") || "[]");
-        const filtered = existing.filter((p: ThesisProject) => p.id !== newProject.id);
-        filtered.push(newProject);
-        localStorage.setItem("studyond-applied-projects", JSON.stringify(filtered));
-
         // Notify each supervisor in real-time
         const studentName = `${currentUser.firstName} ${currentUser.lastName}`;
         const supervisorIds = topic?.supervisorIds ?? [];
