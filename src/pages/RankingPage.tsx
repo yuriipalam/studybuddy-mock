@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { Navigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import { Flame, Trophy, Shield, ArrowUp, ArrowDown, Gift, ChevronRight, CheckCircle, Zap, FileText, UserPlus, MessageCircle, Crown, Medal } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
@@ -237,7 +239,12 @@ function LeaderboardTable({ users }: { users: LeaderboardUser[] }) {
 }
 
 const RankingPage = () => {
+  const { currentUser } = useAuth();
   const [activeTab, setActiveTab] = useState<RankingTab>("my-status");
+
+  if (currentUser?.role !== "student") {
+    return <Navigate to="/" replace />;
+  }
 
   return (
     <div className="flex flex-col gap-6">
