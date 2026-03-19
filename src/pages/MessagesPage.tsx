@@ -489,12 +489,15 @@ export default function MessagesPage() {
                     )}
                     onClick={() => setActiveConversationId(conv.id)}
                   >
-                    <Avatar className="h-10 w-10 shrink-0">
-                      {convContact?.user_avatar && (
-                        <AvatarImage src={convContact.user_avatar} />
-                      )}
-                      <AvatarFallback className="text-xs font-semibold">{initials}</AvatarFallback>
-                    </Avatar>
+                    <div className="relative shrink-0">
+                      <Avatar className="h-10 w-10">
+                        {convContact?.user_avatar && (
+                          <AvatarImage src={convContact.user_avatar} />
+                        )}
+                        <AvatarFallback className="text-xs font-semibold">{initials}</AvatarFallback>
+                      </Avatar>
+                      {convContact && isOnline(convContact.user_id) && <OnlineIndicator size="sm" />}
+                    </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-1.5 min-w-0">
