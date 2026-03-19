@@ -47,9 +47,9 @@ export default function UniversitiesPage() {
                     <p className="ds-caption text-muted-foreground">{uni.country}</p>
                   </div>
                 </div>
-                <div className="flex gap-4 ds-caption text-muted-foreground">
-                  <span className="flex items-center gap-1"><GraduationCap className="size-3.5" /> {programCount} programs</span>
-                  <span className="flex items-center gap-1"><User className="size-3.5" /> {supervisorCount} supervisors</span>
+                <div className="flex flex-col gap-1 ds-caption text-muted-foreground">
+                  <span className="flex items-center gap-1.5"><User className="size-3.5" /> {supervisorCount} supervisors</span>
+                  <span className="flex items-center gap-1.5"><GraduationCap className="size-3.5" /> {programCount} study programs</span>
                 </div>
                 {uni.domains.length > 0 && (
                   <div className="flex flex-wrap gap-1">
