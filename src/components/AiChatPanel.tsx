@@ -515,7 +515,7 @@ export function AiChatPanel({
           >
             <Paperclip className="h-4 w-4" />
           </Button>
-          <div className="absolute right-2 bottom-1.5 flex items-center gap-1">
+          <div className="absolute right-2 bottom-2 flex items-center gap-1">
             {isLoading ? (
               <Button
                 size="icon"
