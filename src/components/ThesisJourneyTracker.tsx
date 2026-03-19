@@ -94,16 +94,27 @@ export function ThesisJourneyTracker({ stages, currentStage }: { stages: Journey
 
       {/* Progress bar */}
       <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
-        <div className="flex items-start">
-          {stages.map((stage, i) => {
-            const config = getStatusConfig(stage.status);
-            const Icon = config.icon;
-            const isLast = i === stages.length - 1;
-
-            return (
-              <div key={stage.id} className={cn("flex items-start", isLast ? "flex-shrink-0" : "flex-1")}>
-                {/* Step dot + label */}
-                <div className="flex flex-col items-center">
+        <div className="relative">
+          {/* Connector lines - absolutely positioned between circle centers */}
+          <div className="absolute top-[15px] pointer-events-none" style={{ left: `calc(${100 / stages.length / 2}%)`, right: `calc(${100 / stages.length / 2}%)` }}>
+            <div className="flex w-full">
+              {stages.slice(0, -1).map((stage, i) => {
+                const config = getStatusConfig(stage.status);
+                return (
+                  <div key={`line-${stage.id}`} className="flex-1">
+                    <div className={cn("h-0.5 w-full rounded-full transition-all duration-500", config.lineClass)} />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          {/* Stage dots + labels */}
+          <div className="flex items-start justify-between">
+            {stages.map((stage) => {
+              const config = getStatusConfig(stage.status);
+              const Icon = config.icon;
+              return (
+                <div key={stage.id} className="flex flex-col items-center relative z-10" style={{ width: `${100 / stages.length}%` }}>
                   <div
                     className={cn(
                       "flex h-8 w-8 items-center justify-center rounded-full transition-all duration-300",
@@ -124,21 +135,9 @@ export function ThesisJourneyTracker({ stages, currentStage }: { stages: Journey
                     {config.statusText}
                   </p>
                 </div>
-
-                {/* Connector line */}
-                {!isLast && (
-                  <div className="flex-1 flex items-center pt-4">
-                    <div
-                      className={cn(
-                        "h-0.5 w-full rounded-full transition-all duration-500",
-                        config.lineClass
-                      )}
-                    />
-                  </div>
-                )}
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </div>
 
