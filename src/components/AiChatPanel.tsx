@@ -219,7 +219,7 @@ export function AiChatPanel({
                             if (i === messages.length - 1) {
                               const prev = messages.slice(0, -1);
                               setMessages(prev);
-                              const lastUser = prev.findLast((m) => m.role === "user");
+                              const lastUser = [...prev].reverse().find((m) => m.role === "user");
                               if (lastUser) {
                                 setTimeout(() => send(lastUser.content), 50);
                               }
