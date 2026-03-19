@@ -870,9 +870,9 @@ export default function MessagesPage() {
                                   <img src={getFileUrl(f.file_path)} alt={f.file_name} className="h-full w-full object-cover" />
                                 </div>
                               ) : (
-                                <div className="aspect-square bg-muted flex flex-col items-center justify-center gap-1">
-                                  {getFileIcon(f.mime_type)}
-                                  <span className="text-[10px] text-muted-foreground uppercase font-medium">
+                              <div className="aspect-square bg-muted flex flex-col items-center justify-center gap-2">
+                                  {getFileIcon(f.mime_type, "lg")}
+                                  <span className="text-xs text-muted-foreground uppercase font-medium">
                                     {f.file_name.split(".").pop()}
                                   </span>
                                 </div>
