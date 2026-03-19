@@ -1,0 +1,1 @@
+ALTER TABLE public.topic_applications ADD CONSTRAINT topic_applications_user_topic_unique UNIQUE (user_id, topic_id);

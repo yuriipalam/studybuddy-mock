@@ -1,8 +1,7 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { projects as allProjects, getStudent, getUniversity, getStudyProgram, getField } from "@/data";
-import type { ThesisProject, ProjectState } from "@/data/types";
+import { topics, getStudent, getUniversity, getField } from "@/data";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,6 +10,8 @@ import { Check, X, Eye, Clock, User, BookOpen, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useXpEngine, XP_TRIGGERS } from "@/hooks/useXpEngine";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Dialog,
   DialogContent,
@@ -19,101 +20,150 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 
-const STORAGE_KEY = "studyond-project-decisions";
-
-function loadDecisions(): Record<string, ProjectState> {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-  } catch {
-    return {};
-  }
-}
-
-function saveDecision(projectId: string, state: ProjectState) {
-  const decisions = loadDecisions();
-  decisions[projectId] = state;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(decisions));
-}
-
 type TabId = "pending" | "accepted" | "rejected";
+
+interface ApplicationRow {
+  id: string;
+  user_id: string;
+  topic_id: string;
+  motivation: string | null;
+  availability: string | null;
+  scheduling_url: string | null;
+  cv_file_name: string | null;
+  status: string;
+  created_at: string;
+  updated_at: string;
+}
 
 export default function StudentRequestsPage() {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
   const { awardXp } = useXpEngine();
-  const [decisions, setDecisions] = useState(loadDecisions);
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<TabId>("pending");
-  const [viewProject, setViewProject] = useState<ThesisProject | null>(null);
+  const [viewApp, setViewApp] = useState<ApplicationRow | null>(null);
+  const [applications, setApplications] = useState<ApplicationRow[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const supervisorId = currentUser?.id ?? "";
 
-  // Merge static projects with dynamically applied projects from localStorage
-  const relevantProjects = useMemo(() => {
-    const appliedProjects: ThesisProject[] = (() => {
-      try {
-        return JSON.parse(localStorage.getItem("studyond-applied-projects") || "[]");
-      } catch {
-        return [];
-      }
-    })();
-
-    const combined = [...allProjects, ...appliedProjects.filter(
-      (ap) => !allProjects.some((p) => p.id === ap.id)
-    )];
-
-    return combined.filter((p) => {
-      // Projects directly assigned to this supervisor
-      if (p.supervisorIds.includes(supervisorId)) return true;
-      // Proposed projects at same university (supervisor can pick up)
-      if (p.state === "proposed" && p.universityId === "uni-01") return true;
-      // Applied projects at same university
-      if (p.state === "applied" && p.universityId === "uni-01") return true;
-      return false;
-    });
-  }, [supervisorId]);
-
-  const getEffectiveState = useCallback(
-    (project: ThesisProject): ProjectState => {
-      return decisions[project.id] ?? project.state;
-    },
-    [decisions]
+  // Get topic IDs this supervisor manages
+  const supervisorTopicIds = useMemo(
+    () => topics.filter((t) => t.supervisorIds.includes(supervisorId)).map((t) => t.id),
+    [supervisorId]
   );
 
-  const pending = useMemo(
-    () => relevantProjects.filter((p) => {
-      const state = getEffectiveState(p);
-      return state === "proposed" || state === "applied";
-    }),
-    [relevantProjects, getEffectiveState]
-  );
-
-  const accepted = useMemo(
-    () => relevantProjects.filter((p) => {
-      const state = getEffectiveState(p);
-      return state === "agreed" || state === "in_progress";
-    }),
-    [relevantProjects, getEffectiveState]
-  );
-
-  const rejected = useMemo(
-    () => relevantProjects.filter((p) => getEffectiveState(p) === "rejected"),
-    [relevantProjects, getEffectiveState]
-  );
-
-  const handleAccept = (project: ThesisProject) => {
-    saveDecision(project.id, "agreed");
-    setDecisions(loadDecisions());
-    // Award XP to the student, not the supervisor
-    if (project.studentId) {
-      awardXp(XP_TRIGGERS.SUPERVISOR_INTERACTION, project.studentId);
+  // Fetch applications from DB
+  const fetchApplications = useCallback(async () => {
+    if (supervisorTopicIds.length === 0) {
+      setApplications([]);
+      setIsLoading(false);
+      return;
     }
-    toast.success(`Accepted "${project.title}"`);
+    const { data, error } = await supabase
+      .from("topic_applications")
+      .select("*")
+      .in("topic_id", supervisorTopicIds)
+      .neq("status", "draft")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Failed to fetch applications:", error);
+    } else {
+      setApplications((data ?? []) as ApplicationRow[]);
+    }
+    setIsLoading(false);
+  }, [supervisorTopicIds]);
+
+  useEffect(() => {
+    fetchApplications();
+  }, [fetchApplications]);
+
+  // Real-time subscription
+  useEffect(() => {
+    if (supervisorTopicIds.length === 0) return;
+
+    const channel = supabase
+      .channel("supervisor-applications")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "topic_applications" },
+        (payload) => {
+          const row = (payload.new as ApplicationRow | undefined);
+          if (row && supervisorTopicIds.includes(row.topic_id) && row.status !== "draft") {
+            // Refresh the full list for simplicity
+            fetchApplications();
+          }
+          if (payload.eventType === "DELETE") {
+            fetchApplications();
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [supervisorTopicIds, fetchApplications]);
+
+  // Categorise applications
+  const pending = useMemo(
+    () => applications.filter((a) => a.status === "submitted"),
+    [applications]
+  );
+  const accepted = useMemo(
+    () => applications.filter((a) => a.status === "accepted"),
+    [applications]
+  );
+  const rejected = useMemo(
+    () => applications.filter((a) => a.status === "rejected"),
+    [applications]
+  );
+
+  const handleAccept = async (app: ApplicationRow) => {
+    const { error } = await supabase
+      .from("topic_applications")
+      .update({ status: "accepted", updated_at: new Date().toISOString() } as any)
+      .eq("id", app.id);
+    if (error) {
+      toast.error("Failed to accept request");
+      return;
+    }
+    // Award XP to the student
+    if (app.user_id) {
+      awardXp(XP_TRIGGERS.SUPERVISOR_INTERACTION, app.user_id);
+    }
+    // Notify the student
+    await supabase.from("notifications").insert({
+      user_id: app.user_id,
+      title: "Your thesis application was accepted!",
+      description: `Your application for "${topics.find((t) => t.id === app.topic_id)?.title ?? "a topic"}" has been accepted.`,
+      type: "success",
+      xp_amount: 0,
+    });
+    toast.success("Request accepted");
+    fetchApplications();
   };
 
-  const handleReject = (project: ThesisProject) => {
-    saveDecision(project.id, "rejected");
-    setDecisions(loadDecisions());
-    toast.info(`Declined "${project.title}"`);
+  const handleReject = async (app: ApplicationRow) => {
+    const { error } = await supabase
+      .from("topic_applications")
+      .update({ status: "rejected", updated_at: new Date().toISOString() } as any)
+      .eq("id", app.id);
+    if (error) {
+      toast.error("Failed to decline request");
+      return;
+    }
+    // Notify the student
+    await supabase.from("notifications").insert({
+      user_id: app.user_id,
+      title: "Your thesis application was declined",
+      description: `Your application for "${topics.find((t) => t.id === app.topic_id)?.title ?? "a topic"}" was declined.`,
+      type: "warning",
+      xp_amount: 0,
+    });
+    toast.info("Request declined");
+    fetchApplications();
   };
 
   const tabs: { id: TabId; label: string; count: number }[] = [
@@ -170,8 +220,12 @@ export default function StudentRequestsPage() {
         ))}
       </div>
 
-      {/* List */}
-      {currentList.length === 0 ? (
+      {/* Loading */}
+      {isLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
+      ) : currentList.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12 text-center">
             <Clock className="h-10 w-10 text-muted-foreground mb-3" />
@@ -183,13 +237,13 @@ export default function StudentRequestsPage() {
         </Card>
       ) : (
         <div className="space-y-3">
-          {currentList.map((project) => {
-            const student = getStudent(project.studentId);
-            const university = getUniversity(project.universityId ?? "");
-            const effectiveState = getEffectiveState(project);
+          {currentList.map((app) => {
+            const student = getStudent(app.user_id);
+            const topic = topics.find((t) => t.id === app.topic_id);
+            const university = getUniversity(topic?.universityId ?? "");
 
             return (
-              <Card key={project.id} className="overflow-hidden hover:shadow-md transition-shadow">
+              <Card key={app.id} className="overflow-hidden hover:shadow-md transition-shadow">
                 <CardContent className="p-5">
                   <div className="flex items-start gap-4">
                     <Avatar className="h-12 w-12 shrink-0">
@@ -201,7 +255,7 @@ export default function StudentRequestsPage() {
                       <div className="flex items-start justify-between gap-2">
                         <div>
                           <h3 className="text-sm font-semibold text-foreground leading-snug">
-                            {project.title}
+                            {topic?.title ?? "Unknown Topic"}
                           </h3>
                           <div className="flex items-center gap-2 mt-1">
                             {student && (
@@ -225,18 +279,18 @@ export default function StudentRequestsPage() {
                           variant="outline"
                           className={cn(
                             "shrink-0 capitalize text-xs",
-                            effectiveState === "agreed" && "border-emerald-500/30 text-emerald-600 bg-emerald-500/10",
-                            effectiveState === "rejected" && "border-destructive/30 text-destructive bg-destructive/10",
-                            (effectiveState === "proposed" || effectiveState === "applied") && "border-amber-500/30 text-amber-600 bg-amber-500/10"
+                            app.status === "accepted" && "border-emerald-500/30 text-emerald-600 bg-emerald-500/10",
+                            app.status === "rejected" && "border-destructive/30 text-destructive bg-destructive/10",
+                            app.status === "submitted" && "border-amber-500/30 text-amber-600 bg-amber-500/10"
                           )}
                         >
-                          {effectiveState === "agreed" ? "Accepted" : effectiveState}
+                          {app.status === "accepted" ? "Accepted" : app.status === "submitted" ? "Pending" : app.status}
                         </Badge>
                       </div>
 
-                      {project.motivation && (
+                      {app.motivation && (
                         <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                          "{project.motivation}"
+                          "{app.motivation}"
                         </p>
                       )}
 
@@ -258,7 +312,7 @@ export default function StudentRequestsPage() {
                           variant="ghost"
                           size="sm"
                           className="h-8 gap-1.5 text-xs"
-                          onClick={() => setViewProject(project)}
+                          onClick={() => setViewApp(app)}
                         >
                           <Eye className="h-3.5 w-3.5" />
                           View Details
@@ -268,7 +322,7 @@ export default function StudentRequestsPage() {
                             <Button
                               size="sm"
                               className="h-8 gap-1.5 text-xs bg-emerald-600 hover:bg-emerald-700 text-white"
-                              onClick={() => handleAccept(project)}
+                              onClick={() => handleAccept(app)}
                             >
                               <Check className="h-3.5 w-3.5" />
                               Accept
@@ -277,7 +331,7 @@ export default function StudentRequestsPage() {
                               variant="outline"
                               size="sm"
                               className="h-8 gap-1.5 text-xs text-destructive hover:bg-destructive/10"
-                              onClick={() => handleReject(project)}
+                              onClick={() => handleReject(app)}
                             >
                               <X className="h-3.5 w-3.5" />
                               Decline
@@ -295,41 +349,57 @@ export default function StudentRequestsPage() {
       )}
 
       {/* Detail dialog */}
-      <Dialog open={!!viewProject} onOpenChange={(o) => !o && setViewProject(null)}>
+      <Dialog open={!!viewApp} onOpenChange={(o) => !o && setViewApp(null)}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>{viewProject?.title}</DialogTitle>
+            <DialogTitle>{topics.find((t) => t.id === viewApp?.topic_id)?.title}</DialogTitle>
             <DialogDescription>
-              {viewProject?.studentId && (() => {
-                const s = getStudent(viewProject.studentId);
+              {viewApp?.user_id && (() => {
+                const s = getStudent(viewApp.user_id);
                 return s ? `By ${s.firstName} ${s.lastName}` : "";
               })()}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            {viewProject?.description && (
-              <div>
-                <p className="text-xs font-medium text-muted-foreground mb-1">Description</p>
-                <p className="text-sm leading-relaxed">{viewProject.description}</p>
-              </div>
-            )}
-            {viewProject?.motivation && (
+            {viewApp?.motivation && (
               <div>
                 <p className="text-xs font-medium text-muted-foreground mb-1">Student's Motivation</p>
-                <p className="text-sm leading-relaxed italic">"{viewProject.motivation}"</p>
+                <p className="text-sm leading-relaxed italic">"{viewApp.motivation}"</p>
               </div>
             )}
-            {viewProject && (
+            {viewApp?.availability && (
+              <div>
+                <p className="text-xs font-medium text-muted-foreground mb-1">Availability</p>
+                <p className="text-sm leading-relaxed">{viewApp.availability}</p>
+              </div>
+            )}
+            {viewApp?.scheduling_url && (
+              <div>
+                <p className="text-xs font-medium text-muted-foreground mb-1">Scheduling URL</p>
+                <a href={viewApp.scheduling_url} target="_blank" rel="noopener noreferrer" className="text-sm text-primary underline">
+                  {viewApp.scheduling_url}
+                </a>
+              </div>
+            )}
+            {viewApp?.cv_file_name && (
+              <div>
+                <p className="text-xs font-medium text-muted-foreground mb-1">CV</p>
+                <p className="text-sm">{viewApp.cv_file_name}</p>
+              </div>
+            )}
+            {viewApp && (
               <div className="flex items-center gap-2">
                 <p className="text-xs font-medium text-muted-foreground">Status:</p>
-                <Badge variant="outline" className="capitalize">{getEffectiveState(viewProject)}</Badge>
+                <Badge variant="outline" className="capitalize">
+                  {viewApp.status === "submitted" ? "Pending" : viewApp.status}
+                </Badge>
               </div>
             )}
-            {viewProject && activeTab === "pending" && (
+            {viewApp && viewApp.status === "submitted" && (
               <div className="flex gap-2 pt-2">
                 <Button
                   className="flex-1 gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white"
-                  onClick={() => { handleAccept(viewProject); setViewProject(null); }}
+                  onClick={() => { handleAccept(viewApp); setViewApp(null); }}
                 >
                   <Check className="h-4 w-4" />
                   Accept Request
@@ -337,7 +407,7 @@ export default function StudentRequestsPage() {
                 <Button
                   variant="outline"
                   className="flex-1 gap-1.5 text-destructive hover:bg-destructive/10"
-                  onClick={() => { handleReject(viewProject); setViewProject(null); }}
+                  onClick={() => { handleReject(viewApp); setViewApp(null); }}
                 >
                   <X className="h-4 w-4" />
                   Decline
