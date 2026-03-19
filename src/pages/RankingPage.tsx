@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Flame, Trophy, Shield, ArrowUp, Gift, ChevronRight } from "lucide-react";
+import { Flame, Trophy, Shield, ArrowUp, ArrowDown, Gift, ChevronRight, CheckCircle, Zap, FileText, UserPlus, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type RankingTab = "my-status" | "global" | "institute";
@@ -78,6 +78,37 @@ const RankingPage = () => {
             <div className="flex shrink-0 items-center gap-1.5 text-sm font-semibold text-foreground">
               +200 XP
               <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            </div>
+          </div>
+
+          {/* Recent Activity */}
+          <div className="flex flex-col gap-3">
+            <h2 className="text-base font-semibold text-foreground">Recent Activity</h2>
+            <div className="rounded-xl border border-border bg-card shadow-sm divide-y divide-border">
+              {[
+                { icon: CheckCircle, title: "Completed profile setup", time: "Today", xp: 50, positive: true },
+                { icon: Zap, title: "Replied to Supervisor", time: "Today", xp: 15, positive: true },
+                { icon: FileText, title: "Applied to Research Topic", time: "Yesterday", xp: 30, positive: true },
+                { icon: UserPlus, title: "Referred a fellow student", time: "Mar 17", xp: 100, positive: true },
+                { icon: MessageCircle, title: "Unanswered message from mentor", time: "Mar 16", xp: 20, positive: false },
+              ].map((item, i) => (
+                <div key={i} className="flex items-center gap-3 px-4 py-3">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted">
+                    <item.icon className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate">{item.title}</p>
+                    <p className="text-xs text-muted-foreground">{item.time}</p>
+                  </div>
+                  <span className={cn(
+                    "text-sm font-semibold flex items-center gap-0.5 shrink-0",
+                    item.positive ? "text-emerald-500" : "text-destructive"
+                  )}>
+                    {item.positive ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}
+                    {item.positive ? "+" : "-"}{item.xp} XP
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
