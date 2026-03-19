@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { useUserProfile } from "@/contexts/UserProfileContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
+import { useXpEngine, XP_TRIGGERS } from "@/hooks/useXpEngine";
 
 const DEGREE_OPTIONS = [
   { value: "bsc", label: "Bachelor" },
