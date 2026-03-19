@@ -52,6 +52,7 @@ export default function ExpertsPage() {
               avatar={`https://api.dicebear.com/7.x/avataaars/svg?seed=${expert.firstName}`}
               subtitle={`${company?.name ?? ""} · ${expert.title}`}
               tags={fieldNames}
+              onClick={() => navigate(`/people/experts/${expert.id}`)}
             />
           );
         })}
