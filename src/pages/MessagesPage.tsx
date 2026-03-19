@@ -876,7 +876,7 @@ export default function MessagesPage() {
                     {milestonesEditMode ? "Done" : "Edit"}
                   </Button>
                 </div>
-                <ScrollArea className="flex-1 px-4 py-3">
+                <ScrollArea className="flex-1 px-3 py-3">
                   <div className="max-w-md mx-auto py-2">
                     {milestones.map((m, i) => (
                       <div key={m.id} className="flex items-stretch">
