@@ -686,7 +686,26 @@ export default function MessagesPage() {
             </div>
           </div>
         ) : (
-          <>
+          <div className="relative flex-1 flex flex-col min-h-0">
+            <CallOverlay
+              callState={webrtc.callState}
+              isVideo={webrtc.isVideo}
+              isMuted={webrtc.isMuted}
+              isCameraOff={webrtc.isCameraOff}
+              isScreenSharing={webrtc.isScreenSharing}
+              callDuration={webrtc.callDuration}
+              callerName={webrtc.callerName}
+              contactName={contact?.user_name || "Contact"}
+              incomingCallVideo={webrtc.incomingCallVideo}
+              localVideoRef={webrtc.localVideoRef}
+              remoteVideoRef={webrtc.remoteVideoRef}
+              onAnswer={webrtc.answerCall}
+              onReject={webrtc.rejectCall}
+              onHangUp={webrtc.hangUp}
+              onToggleMute={webrtc.toggleMute}
+              onToggleCamera={webrtc.toggleCamera}
+              onShareScreen={webrtc.shareScreen}
+            />
             {/* Chat header */}
             <div className="border-b border-border">
               <div className="flex items-center gap-3 px-4 py-3">
