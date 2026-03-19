@@ -91,7 +91,7 @@ export default function MessagesPage() {
                           {new Date(lastMsg.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                         </span>
                       </div>
-                      <p className="text-xs text-muted-foreground truncate">{lastMsg.content}</p>
+                      <p className="text-xs text-muted-foreground truncate max-w-[200px]">{lastMsg.content}</p>
                     </div>
                   </div>
                 );
