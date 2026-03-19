@@ -1,50 +1,25 @@
 
 
-## Voice, Video & Screen Share for Messages
+## Show Milestones Tab for Supervisors in Student Chats
 
-### Overview
-Add real-time voice calling, video calling, and screen sharing to the chat panel using WebRTC via the browser's native APIs. Two buttons (voice call, video call) will appear in the chat header next to the contact info. During an active call, a call UI overlay appears with controls for mute, camera toggle, screen share, and hang up.
+### Problem
+The Milestones tab currently only appears when the **contact** is a supervisor (`contact?.user_role === "supervisor"`). When a supervisor is chatting with a student, the contact is a student, so the tab is hidden from the supervisor's view.
 
-### Technical Approach
+### Fix
+Change the condition on line 814 of `MessagesPage.tsx` from:
 
-**WebRTC peer-to-peer** with Supabase Realtime channels for signaling (exchanging SDP offers/answers and ICE candidates). No external service needed for basic 1:1 calls.
-
-**Signaling flow:**
-```text
-User A clicks call → sends offer via Supabase channel → 
-User B sees incoming call → accepts → sends answer → 
-ICE candidates exchanged → peer connection established
+```tsx
+{contact?.user_role === "supervisor" && ( ... )}
 ```
 
-### Changes
+to:
 
-**1. Create `src/hooks/useWebRTC.ts`**
-- Custom hook managing `RTCPeerConnection`, local/remote `MediaStream`
-- Functions: `startCall(video: boolean)`, `answerCall()`, `hangUp()`, `toggleMute()`, `toggleCamera()`, `shareScreen()`
-- Uses a Supabase Realtime channel (scoped to conversation ID) for signaling
-- Handles ICE candidate exchange, renegotiation for screen share
-- STUN servers: Google's free public STUN servers
+```tsx
+{(contact?.user_role === "supervisor" || currentUser?.role === "supervisor") && ( ... )}
+```
 
-**2. Create `src/components/CallOverlay.tsx`**
-- Full-overlay component shown during active call
-- Displays remote video (large) and local video (small picture-in-picture)
-- Control bar: mute mic, toggle camera, share screen, hang up
-- Incoming call dialog with accept/decline buttons
-- Call timer display
-- Audio-only mode shows avatar instead of video
+This shows the Milestones tab whenever **either** party is a supervisor — covering both the student's view (contact is supervisor) and the supervisor's view (current user is supervisor).
 
-**3. Update `src/pages/MessagesPage.tsx`**
-- Add `Phone` and `Video` icon buttons to the chat header (line ~740, after contact info div)
-- Import and render `CallOverlay` when a call is active
-- Wire up the `useWebRTC` hook with the active conversation ID
-
-**4. Create Supabase Realtime channel for signaling**
-- Use `supabase.channel(`call-signal-${conversationId}`)` for WebRTC signaling
-- Broadcast events: `offer`, `answer`, `ice-candidate`, `hang-up`, `call-rejected`
-- No database table needed — signaling is ephemeral
-
-### UI Layout
-- Two small icon buttons (Phone, Video) in the chat header row, right-aligned
-- Call overlay renders on top of the chat area when active
-- Screen share replaces the remote video stream; a badge indicates "Screen sharing"
+### Files Changed
+- `src/pages/MessagesPage.tsx` — one line condition update
 
