@@ -72,6 +72,8 @@ export default function MessagesPage() {
     typingUsers,
     loading,
     messagesLoading,
+    uploadFile,
+    getConversationFiles,
   } = useMessaging();
 
   const [search, setSearch] = useState("");
@@ -79,7 +81,12 @@ export default function MessagesPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editInput, setEditInput] = useState("");
   const [deleteConvId, setDeleteConvId] = useState<string | null>(null);
+  const [chatTab, setChatTab] = useState<"messages" | "files">("messages");
+  const [convFiles, setConvFiles] = useState<ChatFile[]>([]);
+  const [filesLoading, setFilesLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
   const userId = currentUser?.id;
