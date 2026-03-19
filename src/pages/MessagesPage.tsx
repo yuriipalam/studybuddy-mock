@@ -391,8 +391,30 @@ export default function MessagesPage() {
                       </Badge>
                     )}
                   </div>
-                  <p className="text-xs text-muted-foreground capitalize">
-                    {contact?.user_role || ""}
+                  <p className="text-xs text-muted-foreground">
+                    {(() => {
+                      if (!contact) return "";
+                      const id = contact.user_id;
+                      const student = getStudent(id);
+                      if (student) {
+                        const uni = getUniversity(student.universityId);
+                        const fieldNames = getFieldNames(student.fieldIds);
+                        return [uni?.name, fieldNames[0]].filter(Boolean).join(" · ");
+                      }
+                      const sup = getSupervisor(id);
+                      if (sup) {
+                        const uni = getUniversity(sup.universityId);
+                        const fieldNames = getFieldNames(sup.fieldIds);
+                        return [uni?.name, fieldNames[0]].filter(Boolean).join(" · ");
+                      }
+                      const exp = getExpert(id);
+                      if (exp) {
+                        const company = getCompany(exp.companyId);
+                        const fieldNames = getFieldNames(exp.fieldIds);
+                        return [company?.name, fieldNames[0]].filter(Boolean).join(" · ");
+                      }
+                      return "";
+                    })()}
                   </p>
                 </div>
               </div>
