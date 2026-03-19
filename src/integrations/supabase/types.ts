@@ -156,6 +156,41 @@ export type Database = {
           },
         ]
       }
+      milestones: {
+        Row: {
+          completed: boolean
+          conversation_id: string
+          created_at: string
+          id: string
+          position: number
+          text: string
+        }
+        Insert: {
+          completed?: boolean
+          conversation_id: string
+          created_at?: string
+          id?: string
+          position?: number
+          text: string
+        }
+        Update: {
+          completed?: boolean
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          position?: number
+          text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "milestones_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

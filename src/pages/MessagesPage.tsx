@@ -96,6 +96,53 @@ export default function MessagesPage() {
   const [milestonesEditMode, setMilestonesEditMode] = useState(false);
   const [editingMilestoneId, setEditingMilestoneId] = useState<string | null>(null);
   const [editMilestoneText, setEditMilestoneText] = useState("");
+  const [milestonesLoading, setMilestonesLoading] = useState(false);
+
+  // Load milestones from DB when conversation changes
+  useEffect(() => {
+    if (!activeConversationId) { setMilestones([]); return; }
+    let cancelled = false;
+    const load = async () => {
+      setMilestonesLoading(true);
+      const { data } = await supabase
+        .from("milestones")
+        .select("*")
+        .eq("conversation_id", activeConversationId)
+        .order("position", { ascending: true });
+      if (!cancelled && data) {
+        setMilestones(data.map((r: any) => ({ id: r.id, text: r.text, completed: r.completed })));
+      }
+      setMilestonesLoading(false);
+    };
+    load();
+    return () => { cancelled = true; };
+  }, [activeConversationId]);
+
+  const dbAddMilestone = async (text: string) => {
+    if (!activeConversationId) return;
+    const position = milestones.length;
+    const { data } = await supabase
+      .from("milestones")
+      .insert({ conversation_id: activeConversationId, text, position, completed: false })
+      .select()
+      .single();
+    if (data) setMilestones((prev) => [...prev, { id: data.id, text: data.text, completed: data.completed }]);
+  };
+
+  const dbToggleMilestone = async (id: string, completed: boolean) => {
+    setMilestones((prev) => prev.map((m) => (m.id === id ? { ...m, completed } : m)));
+    await supabase.from("milestones").update({ completed }).eq("id", id);
+  };
+
+  const dbEditMilestone = async (id: string, text: string) => {
+    setMilestones((prev) => prev.map((m) => (m.id === id ? { ...m, text } : m)));
+    await supabase.from("milestones").update({ text }).eq("id", id);
+  };
+
+  const dbDeleteMilestone = async (id: string) => {
+    setMilestones((prev) => prev.filter((m) => m.id !== id));
+    await supabase.from("milestones").delete().eq("id", id);
+  };
   const bottomRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
@@ -837,12 +884,7 @@ export default function MessagesPage() {
                         <div className="flex flex-col items-center w-6 shrink-0">
                           <button
                             onClick={() =>
-                              !milestonesEditMode &&
-                              setMilestones((prev) =>
-                                prev.map((item) =>
-                                  item.id === m.id ? { ...item, completed: !item.completed } : item
-                                )
-                              )
+                              !milestonesEditMode && dbToggleMilestone(m.id, !m.completed)
                             }
                             className="relative z-10 shrink-0"
                           >
@@ -867,11 +909,7 @@ export default function MessagesPage() {
                               onSubmit={(e) => {
                                 e.preventDefault();
                                 if (editMilestoneText.trim()) {
-                                  setMilestones((prev) =>
-                                    prev.map((item) =>
-                                      item.id === m.id ? { ...item, text: editMilestoneText.trim() } : item
-                                    )
-                                  );
+                                  dbEditMilestone(m.id, editMilestoneText.trim());
                                 }
                                 setEditingMilestoneId(null);
                               }}
@@ -907,9 +945,7 @@ export default function MessagesPage() {
                                   </button>
                                   <button
                                     className="p-1 rounded hover:bg-destructive/10"
-                                    onClick={() =>
-                                      setMilestones((prev) => prev.filter((item) => item.id !== m.id))
-                                    }
+                                    onClick={() => dbDeleteMilestone(m.id)}
                                   >
                                     <Trash2 className="h-3 w-3 text-destructive" />
                                   </button>
@@ -942,10 +978,7 @@ export default function MessagesPage() {
                             onSubmit={(e) => {
                               e.preventDefault();
                               if (newMilestoneText.trim()) {
-                                setMilestones((prev) => [
-                                  ...prev,
-                                  { id: crypto.randomUUID(), text: newMilestoneText.trim(), completed: false },
-                                ]);
+                                dbAddMilestone(newMilestoneText.trim());
                                 setNewMilestoneText("");
                                 setAddingMilestone(false);
                               }
