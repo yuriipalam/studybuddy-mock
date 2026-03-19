@@ -260,6 +260,8 @@ export default function TopicApplicationPage() {
         availability,
         scheduling_url: schedulingUrl,
         status,
+        student_name: `${currentUser.firstName} ${currentUser.lastName}`,
+        avatar_url: currentUser.avatar || "",
         updated_at: new Date().toISOString(),
       };
       if (cvPath) {

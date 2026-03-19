@@ -30,6 +30,8 @@ interface ApplicationRow {
   availability: string | null;
   scheduling_url: string | null;
   cv_file_name: string | null;
+  student_name: string | null;
+  avatar_url: string | null;
   status: string;
   created_at: string;
   updated_at: string;
