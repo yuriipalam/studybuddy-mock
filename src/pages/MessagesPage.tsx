@@ -5,19 +5,28 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { MessageSquare, Send, Check, CheckCheck, Pencil, X, Trash2 } from "lucide-react";
 import { useMessaging } from "@/contexts/MessagingContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 
 function formatTime(dateStr: string) {
-  return new Date(dateStr).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  return new Date(dateStr).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false });
 }
 
 function formatDate(dateStr: string) {
   const d = new Date(dateStr);
   const now = new Date();
-  // Compare by calendar date to avoid timezone issues
   const dDate = new Date(d.getFullYear(), d.getMonth(), d.getDate());
   const nowDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const diffDays = Math.round((nowDate.getTime() - dDate.getTime()) / 86400000);
@@ -67,6 +76,7 @@ export default function MessagesPage() {
   const [input, setInput] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editInput, setEditInput] = useState("");
+  const [deleteConvId, setDeleteConvId] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
@@ -74,7 +84,6 @@ export default function MessagesPage() {
 
   const activeConv = conversations.find((c) => c.id === activeConversationId);
 
-  // Get the other participant's info
   const getContact = (conv: typeof conversations[0]) =>
     conv.participants.find((p) => p.user_id !== userId);
 
@@ -84,19 +93,16 @@ export default function MessagesPage() {
     return contact?.user_name.toLowerCase().includes(search.toLowerCase());
   });
 
-  // Scroll to bottom on new messages
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages.length]);
 
-  // Mark messages as read when viewing conversation
   useEffect(() => {
     if (activeConversationId) {
       markAsRead(activeConversationId);
     }
   }, [activeConversationId, messages.length, markAsRead]);
 
-  // Handle typing indicator
   const handleInputChange = useCallback(
     (value: string) => {
       setInput(value);
@@ -138,6 +144,11 @@ export default function MessagesPage() {
   }
 
   const contact = activeConv ? getContact(activeConv) : null;
+  const contactInitials = contact?.user_name
+    ?.split(" ")
+    .map((w) => w[0])
+    .join("")
+    .slice(0, 2) || "?";
 
   return (
     <div className="flex h-[calc(100vh-3.5rem)]">
@@ -185,7 +196,7 @@ export default function MessagesPage() {
                   <div
                     key={conv.id}
                     className={cn(
-                      "flex items-center gap-3 px-3 py-3 cursor-pointer border-b border-border hover:bg-muted/50 transition-colors group/conv relative",
+                      "flex items-center gap-3 px-3 py-3 cursor-pointer border-b border-border hover:bg-muted/50 transition-colors group/conv",
                       isActive && "bg-muted"
                     )}
                     onClick={() => setActiveConversationId(conv.id)}
@@ -199,11 +210,22 @@ export default function MessagesPage() {
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between">
                         <p className="text-sm font-medium truncate">{convContact?.user_name}</p>
-                        {conv.lastMessage && (
-                          <span className="text-xs text-muted-foreground shrink-0">
-                            {formatTime(conv.lastMessage.created_at)}
-                          </span>
-                        )}
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          {conv.lastMessage && (
+                            <span className="text-xs text-muted-foreground whitespace-nowrap">
+                              {formatTime(conv.lastMessage.created_at)}
+                            </span>
+                          )}
+                          <button
+                            className="opacity-0 group-hover/conv:opacity-100 transition-opacity p-0.5 rounded hover:bg-destructive/10"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setDeleteConvId(conv.id);
+                            }}
+                          >
+                            <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                          </button>
+                        </div>
                       </div>
                       <div className="flex items-center justify-between">
                         {convTyping.length > 0 ? (
@@ -220,15 +242,6 @@ export default function MessagesPage() {
                         )}
                       </div>
                     </div>
-                    <button
-                      className="absolute right-2 top-2 opacity-0 group-hover/conv:opacity-100 transition-opacity p-1 rounded hover:bg-destructive/10"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        deleteConversation(conv.id);
-                      }}
-                    >
-                      <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                    </button>
                   </div>
                 );
               })}
@@ -253,19 +266,17 @@ export default function MessagesPage() {
             {/* Chat header */}
             <div className="flex items-center gap-3 px-4 py-3 border-b border-border">
               <Avatar className="h-9 w-9">
-                {contact?.user_avatar && <AvatarImage src={contact.user_avatar} />}
+                {contact?.user_avatar ? (
+                  <AvatarImage src={contact.user_avatar} />
+                ) : null}
                 <AvatarFallback className="text-xs font-semibold">
-                  {contact?.user_name
-                    .split(" ")
-                    .map((w) => w[0])
-                    .join("")
-                    .slice(0, 2)}
+                  {contactInitials}
                 </AvatarFallback>
               </Avatar>
               <div>
-                <p className="text-sm font-medium">{contact?.user_name}</p>
+                <p className="text-sm font-medium">{contact?.user_name || "Unknown"}</p>
                 <p className="text-xs text-muted-foreground capitalize">
-                  {contact?.user_role}
+                  {contact?.user_role || ""}
                 </p>
               </div>
             </div>
@@ -293,18 +304,18 @@ export default function MessagesPage() {
                               <div className="w-7 mr-2 shrink-0">
                                 {showAvatar && (
                                   <Avatar className="h-7 w-7">
-                                    {contact?.user_avatar && <AvatarImage src={contact.user_avatar} />}
+                                    {contact?.user_avatar ? <AvatarImage src={contact.user_avatar} /> : null}
                                     <AvatarFallback className="text-[10px]">
-                                      {contact?.user_name?.split(" ").map((w) => w[0]).join("").slice(0, 2)}
+                                      {contactInitials}
                                     </AvatarFallback>
                                   </Avatar>
                                 )}
                               </div>
                             )}
-                            <div className={cn("flex items-center gap-1", isMe && "flex-row-reverse")}>
+                            <div className={cn("flex items-center gap-1 max-w-[75%]", isMe && "flex-row-reverse")}>
                               <div
                                 className={cn(
-                                  "max-w-[75%] rounded-2xl px-3.5 py-2 text-sm",
+                                  "rounded-2xl px-3.5 py-2 text-sm",
                                   isMe
                                     ? "bg-primary text-primary-foreground rounded-br-md"
                                     : "bg-muted rounded-bl-md"
@@ -353,7 +364,7 @@ export default function MessagesPage() {
                                     </span>
                                   )}
                                   <span className={cn(
-                                    "text-[10px]",
+                                    "text-[10px] whitespace-nowrap",
                                     isMe ? "text-primary-foreground/60" : "text-muted-foreground"
                                   )}>
                                     {formatTime(msg.created_at)}
@@ -361,7 +372,7 @@ export default function MessagesPage() {
                                   <ReadReceipt isMe={isMe} readAt={msg.read_at} />
                                 </div>
                               </div>
-                              {/* Edit button - only for own messages */}
+                              {/* Edit/delete buttons - only for own messages */}
                               {isMe && !msg.id.startsWith("temp-") && editingId !== msg.id && (
                                 <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5">
                                   <button
@@ -398,9 +409,9 @@ export default function MessagesPage() {
                       <div className="w-7 mr-2 shrink-0">
                         {showAvatar && (
                           <Avatar className="h-7 w-7">
-                            {contact?.user_avatar && <AvatarImage src={contact.user_avatar} />}
+                            {contact?.user_avatar ? <AvatarImage src={contact.user_avatar} /> : null}
                             <AvatarFallback className="text-[10px]">
-                              {contact?.user_name?.split(" ").map((w) => w[0]).join("").slice(0, 2)}
+                              {contactInitials}
                             </AvatarFallback>
                           </Avatar>
                         )}
@@ -439,6 +450,30 @@ export default function MessagesPage() {
           </>
         )}
       </div>
+
+      {/* Delete conversation confirmation */}
+      <AlertDialog open={!!deleteConvId} onOpenChange={(open) => !open && setDeleteConvId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete conversation?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete this conversation and all its messages. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => {
+                if (deleteConvId) deleteConversation(deleteConvId);
+                setDeleteConvId(null);
+              }}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
