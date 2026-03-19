@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Bot, Send, X, Sparkles, Loader2, Square, RotateCcw, Copy, RefreshCw, Paperclip, FileText, Image as ImageIcon } from "lucide-react";
 import ReactMarkdown from "react-markdown";
-import { ChatTopicCard, parseTopicBlocks } from "@/components/ChatTopicCard";
+import { ChatTopicCard, parseChatBlocks } from "@/components/ChatTopicCard";
+import { ChatSupervisorCard } from "@/components/ChatSupervisorCard";
 import { toast } from "sonner";
 import { useUserProfile } from "@/contexts/UserProfileContext";
 
