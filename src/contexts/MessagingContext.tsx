@@ -621,6 +621,23 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
     [userId, loadConversations]
   );
 
+  const sendMessageWithFiles = useCallback(
+    async (conversationId: string, content: string, files: File[]) => {
+      if (!userId) return;
+
+      // Send text message first if there is one
+      if (content.trim()) {
+        await sendMessage(conversationId, content);
+      }
+
+      // Upload each file
+      for (const file of files) {
+        await uploadFile(conversationId, file);
+      }
+    },
+    [userId, sendMessage, uploadFile]
+  );
+
   const getConversationFiles = useCallback(
     async (conversationId: string): Promise<ChatFile[]> => {
       const { data, error } = await supabase
