@@ -378,28 +378,34 @@ export type Database = {
           avatar: string | null
           created_at: string
           email: string
+          field_ids: string[] | null
           first_name: string
           id: string
           last_name: string
           role: string
+          university: string | null
         }
         Insert: {
           avatar?: string | null
           created_at?: string
           email: string
+          field_ids?: string[] | null
           first_name: string
           id?: string
           last_name: string
           role?: string
+          university?: string | null
         }
         Update: {
           avatar?: string | null
           created_at?: string
           email?: string
+          field_ids?: string[] | null
           first_name?: string
           id?: string
           last_name?: string
           role?: string
+          university?: string | null
         }
         Relationships: []
       }

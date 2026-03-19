@@ -17,6 +17,7 @@ const registerSchema = z.object({
   lastName: z.string().trim().min(1, "Last name is required").max(50),
   email: z.string().trim().email("Invalid email address").max(255),
   role: z.enum(["student", "supervisor"]),
+  university: z.string().trim().min(1, "University is required").max(200),
 });
 
 export default function RegisterPage() {
@@ -24,6 +25,7 @@ export default function RegisterPage() {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<string>("student");
+  const [university, setUniversity] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const navigate = useNavigate();
@@ -34,7 +36,7 @@ export default function RegisterPage() {
     e.preventDefault();
     setErrors({});
 
-    const result = registerSchema.safeParse({ firstName, lastName, email, role });
+    const result = registerSchema.safeParse({ firstName, lastName, email, role, university });
     if (!result.success) {
       const fieldErrors: Record<string, string> = {};
       result.error.issues.forEach((issue) => {
@@ -53,6 +55,7 @@ export default function RegisterPage() {
         last_name: result.data.lastName,
         email: result.data.email,
         role: result.data.role,
+        university: result.data.university,
         avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${avatarSeed}`,
       } as any).select().single();
 
@@ -74,6 +77,7 @@ export default function RegisterPage() {
           email: inserted.email,
           role: inserted.role,
           avatar: inserted.avatar,
+          university: (inserted as any).university,
         }));
       }
 
@@ -135,6 +139,18 @@ export default function RegisterPage() {
                 maxLength={255}
               />
               {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="university">University</Label>
+              <Input
+                id="university"
+                value={university}
+                onChange={(e) => setUniversity(e.target.value)}
+                placeholder="ETH Zurich"
+                maxLength={200}
+              />
+              {errors.university && <p className="text-xs text-destructive">{errors.university}</p>}
             </div>
 
             <div className="space-y-1.5">
