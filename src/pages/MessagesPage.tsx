@@ -717,7 +717,7 @@ export default function MessagesPage() {
                       </div>
                     </div>
                   ) : (
-                  <div className="space-y-1 max-w-2xl mx-auto">
+                  <div className="space-y-1 px-4">
                     {groupedMessages.map((group) => (
                       <div key={group.date}>
                         <div className="flex items-center justify-center my-4">
@@ -905,7 +905,7 @@ export default function MessagesPage() {
                 {/* Pending files preview */}
                 {pendingFiles.length > 0 && (
                   <div className="border-t border-border px-3 py-2">
-                    <div className="flex flex-wrap gap-2 max-w-2xl mx-auto">
+                    <div className="flex flex-wrap gap-2 px-1">
                       {pendingFiles.map((file, idx) => {
                         const isImage = file.type.startsWith("image/");
                         const ext = file.name.split(".").pop()?.toUpperCase() || "FILE";
@@ -940,7 +940,7 @@ export default function MessagesPage() {
                 {/* Input */}
                 <div className="border-t border-border p-3">
                   <form
-                    className="flex items-center gap-2 max-w-2xl mx-auto"
+                    className="flex items-center gap-2"
                     onSubmit={(e) => {
                       e.preventDefault();
                       handleSend();
