@@ -9,17 +9,17 @@ import { mockUser } from "@/data/mockUser";
 export default function SettingsPage() {
   return (
     <div className="p-6 max-w-2xl space-y-6">
-      <h1 className="text-2xl font-bold">My Settings</h1>
+      <h1 className="ds-title-lg">My Settings</h1>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Profile</CardTitle>
+          <CardTitle className="ds-title-sm">Profile</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center gap-4">
             <Avatar className="h-16 w-16">
               <AvatarImage src={mockUser.avatar} />
-              <AvatarFallback>AJ</AvatarFallback>
+              <AvatarFallback>LM</AvatarFallback>
             </Avatar>
             <Button variant="outline" size="sm">Change photo</Button>
           </div>
@@ -27,11 +27,11 @@ export default function SettingsPage() {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>First Name</Label>
-              <Input defaultValue="Alex" />
+              <Input defaultValue="Luca" />
             </div>
             <div className="space-y-2">
               <Label>Last Name</Label>
-              <Input defaultValue="Johnson" />
+              <Input defaultValue="Meier" />
             </div>
           </div>
           <div className="space-y-2">

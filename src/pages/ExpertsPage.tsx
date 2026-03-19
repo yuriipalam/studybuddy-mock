@@ -1,10 +1,11 @@
 import { useState, useEffect, useMemo } from "react";
-import { fetchExperts, Expert } from "@/data/mockExperts";
+import { fetchExperts, getCompany, getFieldNames, fields } from "@/data";
+import type { Expert } from "@/data/types";
 import { FilterBar } from "@/components/FilterBar";
 import { EntityCard } from "@/components/EntityCard";
 
 export default function ExpertsPage() {
-  const [experts, setExperts] = useState<Expert[]>([]);
+  const [expertList, setExperts] = useState<Expert[]>([]);
   const [search, setSearch] = useState("");
   const [fieldFilter, setFieldFilter] = useState("all");
 
@@ -12,38 +13,46 @@ export default function ExpertsPage() {
     fetchExperts().then(setExperts);
   }, []);
 
-  const allFields = useMemo(() => [...new Set(experts.flatMap((e) => e.fields))], [experts]);
+  const allFieldNames = useMemo(() => fields.map((f) => f.name), []);
 
   const filtered = useMemo(() => {
-    return experts.filter((e) => {
-      if (search && !e.name.toLowerCase().includes(search.toLowerCase()) && !e.company.toLowerCase().includes(search.toLowerCase())) return false;
-      if (fieldFilter !== "all" && !e.fields.includes(fieldFilter)) return false;
+    return expertList.filter((e) => {
+      const name = `${e.firstName} ${e.lastName}`;
+      const company = getCompany(e.companyId)?.name ?? "";
+      if (search && !name.toLowerCase().includes(search.toLowerCase()) && !company.toLowerCase().includes(search.toLowerCase())) return false;
+      if (fieldFilter !== "all") {
+        const fieldNames = getFieldNames(e.fieldIds);
+        if (!fieldNames.includes(fieldFilter)) return false;
+      }
       return true;
     });
-  }, [experts, search, fieldFilter]);
+  }, [expertList, search, fieldFilter]);
 
   return (
     <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold">Experts</h1>
+      <h1 className="ds-title-lg">Experts</h1>
       <FilterBar
         searchValue={search}
         onSearchChange={setSearch}
         searchPlaceholder="Search experts..."
         filters={[
-          { label: "Fields", options: allFields, value: fieldFilter, onChange: setFieldFilter },
+          { label: "Fields", options: allFieldNames, value: fieldFilter, onChange: setFieldFilter },
         ]}
       />
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {filtered.map((expert) => (
-          <EntityCard
-            key={expert.id}
-            name={expert.name}
-            avatar={expert.avatar}
-            subtitle={`${expert.company} · ${expert.role}`}
-            secondaryText={`${expert.university} · ${expert.degree}`}
-            tags={expert.tags}
-          />
-        ))}
+      <div className="grid-4-col">
+        {filtered.map((expert) => {
+          const company = getCompany(expert.companyId);
+          const fieldNames = getFieldNames(expert.fieldIds);
+          return (
+            <EntityCard
+              key={expert.id}
+              name={`${expert.firstName} ${expert.lastName}`}
+              avatar={`https://api.dicebear.com/7.x/avataaars/svg?seed=${expert.firstName}`}
+              subtitle={`${company?.name ?? ""} · ${expert.title}`}
+              tags={fieldNames}
+            />
+          );
+        })}
       </div>
     </div>
   );
