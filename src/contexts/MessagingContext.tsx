@@ -657,17 +657,84 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
     async (conversationId: string, content: string, files: File[]) => {
       if (!userId) return;
 
-      // Send text message first if there is one
-      if (content.trim()) {
-        await sendMessage(conversationId, content);
+      // For the first file, attach the text content (if any)
+      // For subsequent files, send without text
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const textContent = i === 0 ? content.trim() : "";
+
+        // Optimistic: add temp message immediately
+        const tempId = `temp-${crypto.randomUUID()}`;
+        const msgContent = textContent
+          ? `📎 ${file.name}\n${textContent}`
+          : `📎 ${file.name}`;
+        const tempMsg: DbMessage = {
+          id: tempId,
+          conversation_id: conversationId,
+          sender_id: userId,
+          content: msgContent,
+          created_at: new Date().toISOString(),
+          read_at: null,
+          edited_at: null,
+        };
+        setMessages((prev) => [...prev, tempMsg]);
+        setConversations((prev) =>
+          prev.map((c) =>
+            c.id === conversationId ? { ...c, lastMessage: tempMsg } : c
+          )
+        );
+
+        const filePath = `${conversationId}/${crypto.randomUUID()}-${file.name}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from("chat-files")
+          .upload(filePath, file);
+
+        if (uploadError) {
+          setMessages((prev) => prev.filter((m) => m.id !== tempId));
+          toast.error("Failed to upload file");
+          continue;
+        }
+
+        // Send a message referencing the file
+        const { data: msgData, error: msgError } = await supabase
+          .from("messages")
+          .insert({
+            conversation_id: conversationId,
+            sender_id: userId,
+            content: msgContent,
+          })
+          .select()
+          .single();
+
+        if (msgError) {
+          setMessages((prev) => prev.filter((m) => m.id !== tempId));
+          toast.error("Failed to send file message");
+          continue;
+        }
+
+        // Replace temp message with real one
+        if (msgData) {
+          setMessages((prev) =>
+            prev.map((m) => (m.id === tempId ? (msgData as DbMessage) : m))
+          );
+        }
+
+        // Track in chat_files table
+        await supabase.from("chat_files").insert({
+          conversation_id: conversationId,
+          message_id: msgData?.id || null,
+          sender_id: userId,
+          file_name: file.name,
+          file_path: filePath,
+          file_size: file.size,
+          mime_type: file.type || "application/octet-stream",
+        } as any);
       }
 
-      // Upload each file
-      for (const file of files) {
-        await uploadFile(conversationId, file);
-      }
+      loadConversations();
     },
-    [userId, sendMessage, uploadFile]
+    [userId, loadConversations]
   );
 
   const getConversationFiles = useCallback(
