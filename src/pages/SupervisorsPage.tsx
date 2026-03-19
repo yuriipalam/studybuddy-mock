@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { fetchSupervisors, getUniversity, getFieldNames, fields } from "@/data";
 import type { Supervisor } from "@/data/types";
 import { FilterBar } from "@/components/FilterBar";
