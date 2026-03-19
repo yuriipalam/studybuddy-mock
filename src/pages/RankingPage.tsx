@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Flame, Trophy, Shield, ArrowUp, ArrowDown, Gift, ChevronRight, CheckCircle, Zap, FileText, UserPlus, MessageCircle } from "lucide-react";
+import { Flame, Trophy, Shield, ArrowUp, ArrowDown, Gift, ChevronRight, CheckCircle, Zap, FileText, UserPlus, MessageCircle, Crown, Medal } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 
 type RankingTab = "my-status" | "global" | "institute";
@@ -9,6 +10,223 @@ const tabs: { id: RankingTab; label: string; icon: React.ElementType }[] = [
   { id: "global", label: "Global Ranking", icon: Trophy },
   { id: "institute", label: "Institute Ranking", icon: Shield },
 ];
+
+interface PodiumUser {
+  name: string;
+  avatar: string;
+  xp: number;
+  institute?: string;
+}
+
+interface LeaderboardUser extends PodiumUser {
+  rank: number;
+  change: number;
+}
+
+const globalTop3: PodiumUser[] = [
+  { name: "Priya Kapoor", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Priya", xp: 2750, institute: "ETH Zürich" },
+  { name: "Alex Müller", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex", xp: 3800, institute: "TU Munich" },
+  { name: "Liam Chen", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Liam", xp: 2720, institute: "KIT Karlsruhe" },
+];
+
+const instituteTop3: PodiumUser[] = [
+  { name: "Elena Fischer", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Elena", xp: 2400, institute: "TU Munich" },
+  { name: "Alex Müller", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex", xp: 3800, institute: "TU Munich" },
+  { name: "Jonas Weber", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Jonas", xp: 2310, institute: "TU Munich" },
+];
+
+const globalLeaderboard: LeaderboardUser[] = [
+  { rank: 4, name: "Sophie Laurent", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sophie", xp: 2680, change: 2, institute: "EPFL" },
+  { rank: 5, name: "Marco Rossi", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Marco", xp: 2540, change: -1, institute: "Politecnico di Milano" },
+  { rank: 6, name: "Emma Johansson", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Emma", xp: 2490, change: 0, institute: "KTH Stockholm" },
+  { rank: 7, name: "Yuki Tanaka", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Yuki", xp: 2350, change: 3, institute: "U of Tokyo" },
+  { rank: 8, name: "David Kim", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=David", xp: 2280, change: -2, institute: "KAIST" },
+  { rank: 9, name: "Anna Novak", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Anna", xp: 2210, change: 1, institute: "Charles University" },
+  { rank: 10, name: "Lucas Bernard", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Lucas", xp: 2150, change: -1, institute: "Sorbonne" },
+  { rank: 39, name: "Sarah Brunner", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah", xp: 1250, change: 4, institute: "TU Munich" },
+];
+
+const instituteLeaderboard: LeaderboardUser[] = [
+  { rank: 4, name: "Maria Schneider", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Maria", xp: 2180, change: 1, institute: "TU Munich" },
+  { rank: 5, name: "Tobias Braun", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Tobias", xp: 2050, change: -1, institute: "TU Munich" },
+  { rank: 6, name: "Lena Hoffmann", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Lena", xp: 1980, change: 2, institute: "TU Munich" },
+  { rank: 7, name: "Felix Wagner", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix", xp: 1890, change: 0, institute: "TU Munich" },
+  { rank: 8, name: "Nina Becker", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Nina", xp: 1750, change: -2, institute: "TU Munich" },
+  { rank: 9, name: "Paul Richter", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Paul", xp: 1620, change: 1, institute: "TU Munich" },
+  { rank: 10, name: "Sarah Brunner", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah", xp: 1250, change: 3, institute: "TU Munich" },
+];
+
+function getInitials(name: string) {
+  return name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+}
+
+const podiumConfig = [
+  {
+    rank: 2,
+    height: "h-28",
+    border: "border-[hsl(0,0%,72%)]",
+    glow: "shadow-[0_0_20px_hsl(0,0%,72%,0.15)]",
+    iconColor: "text-[hsl(0,0%,72%)]",
+    pedestalBg: "from-[hsl(0,0%,72%)]/20 to-[hsl(0,0%,72%)]/5",
+    pedestalBorder: "border-[hsl(0,0%,72%)]/30",
+    xpColor: "text-[hsl(0,0%,72%)]",
+  },
+  {
+    rank: 1,
+    height: "h-36",
+    border: "border-[hsl(45,90%,55%)]",
+    glow: "shadow-[0_0_30px_hsl(45,90%,55%,0.2)]",
+    iconColor: "text-[hsl(45,90%,55%)]",
+    pedestalBg: "from-[hsl(45,90%,55%)]/20 to-[hsl(45,90%,55%)]/5",
+    pedestalBorder: "border-[hsl(45,90%,55%)]/30",
+    xpColor: "text-[hsl(45,90%,55%)]",
+  },
+  {
+    rank: 3,
+    height: "h-24",
+    border: "border-[hsl(25,70%,55%)]",
+    glow: "shadow-[0_0_20px_hsl(25,70%,55%,0.15)]",
+    iconColor: "text-[hsl(25,70%,55%)]",
+    pedestalBg: "from-[hsl(25,70%,55%)]/20 to-[hsl(25,70%,55%)]/5",
+    pedestalBorder: "border-[hsl(25,70%,55%)]/30",
+    xpColor: "text-[hsl(25,70%,55%)]",
+  },
+];
+
+function Podium({ top3 }: { top3: PodiumUser[] }) {
+  return (
+    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[hsl(260,60%,22%)] via-[hsl(240,50%,20%)] to-[hsl(220,55%,18%)] p-6 pb-4 shadow-xl">
+      {/* Background decorations */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 rounded-full bg-[hsl(45,90%,55%)]/5 blur-3xl" />
+      <div className="absolute -bottom-12 -left-12 w-40 h-40 rounded-full bg-[hsl(260,60%,50%)]/10 blur-3xl" />
+
+      <div className="relative flex items-end justify-center gap-3 pt-4">
+        {top3.map((user, i) => {
+          const config = podiumConfig[i];
+          const isFirst = i === 1;
+          return (
+            <div key={user.name} className={cn("flex flex-col items-center gap-2", isFirst ? "-mt-4" : "mt-4")}>
+              {/* Crown / Medal */}
+              <div className="relative">
+                {isFirst && <Crown className={cn("h-6 w-6 absolute -top-5 left-1/2 -translate-x-1/2", config.iconColor)} />}
+                {!isFirst && <Medal className={cn("h-5 w-5 absolute -top-4 left-1/2 -translate-x-1/2", config.iconColor)} />}
+                <Avatar className={cn(
+                  isFirst ? "h-[72px] w-[72px]" : i === 0 ? "h-14 w-14" : "h-12 w-12",
+                  "border-2 ring-2 ring-offset-2 ring-offset-transparent",
+                  config.border,
+                  config.glow
+                )}>
+                  <AvatarImage src={user.avatar} />
+                  <AvatarFallback className="text-xs font-bold text-white bg-white/10">{getInitials(user.name)}</AvatarFallback>
+                </Avatar>
+              </div>
+
+              {/* Name & XP */}
+              <div className="text-center">
+                <p className="text-xs font-semibold text-white truncate max-w-[90px]">{user.name}</p>
+                {user.institute && <p className="text-[10px] text-white/40 truncate max-w-[90px]">{user.institute}</p>}
+                <p className={cn("text-sm font-bold mt-0.5", config.xpColor)}>{user.xp.toLocaleString()} XP</p>
+              </div>
+
+              {/* Pedestal */}
+              <div className={cn(
+                "w-24 rounded-t-xl bg-gradient-to-t border border-b-0 backdrop-blur-sm flex items-start justify-center pt-3",
+                config.height,
+                config.pedestalBg,
+                config.pedestalBorder
+              )}>
+                <span className="text-2xl font-black text-white/20">#{config.rank}</span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function LeaderboardTable({ users }: { users: LeaderboardUser[] }) {
+  const isYou = (u: LeaderboardUser) => u.name === "Sarah Brunner";
+  const regularUsers = users.filter((u) => !isYou(u));
+  const youUser = users.find(isYou);
+
+  return (
+    <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
+      {/* Header */}
+      <div className="grid grid-cols-[48px_1fr_100px_60px] px-4 py-2.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider border-b border-border bg-muted/30">
+        <span>Rank</span>
+        <span>Student</span>
+        <span className="text-right">XP</span>
+        <span className="text-right">Change</span>
+      </div>
+
+      {regularUsers.map((user) => (
+        <div
+          key={user.rank}
+          className="grid grid-cols-[48px_1fr_100px_60px] items-center px-4 py-3 border-b border-border last:border-b-0 hover:bg-muted/20 transition-colors"
+        >
+          <span className="text-sm font-bold text-foreground">#{user.rank}</span>
+          <div className="flex items-center gap-3 min-w-0">
+            <Avatar className="h-8 w-8 shrink-0">
+              <AvatarImage src={user.avatar} />
+              <AvatarFallback className="text-[10px] font-semibold">{getInitials(user.name)}</AvatarFallback>
+            </Avatar>
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-foreground truncate">{user.name}</p>
+              {user.institute && <p className="text-[10px] text-muted-foreground truncate">{user.institute}</p>}
+            </div>
+          </div>
+          <span className="text-sm font-semibold text-foreground text-right">{user.xp.toLocaleString()}</span>
+          <span className={cn(
+            "text-xs font-semibold text-right flex items-center justify-end gap-0.5",
+            user.change > 0 ? "text-emerald-500" : user.change < 0 ? "text-destructive" : "text-muted-foreground"
+          )}>
+            {user.change > 0 && <ArrowUp className="h-3 w-3" />}
+            {user.change < 0 && <ArrowDown className="h-3 w-3" />}
+            {user.change === 0 ? "—" : Math.abs(user.change)}
+          </span>
+        </div>
+      ))}
+
+      {/* Gap indicator */}
+      {youUser && regularUsers.length > 0 && youUser.rank - regularUsers[regularUsers.length - 1].rank > 1 && (
+        <div className="flex items-center justify-center py-2 border-b border-border">
+          <div className="flex gap-1">
+            <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
+            <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
+            <span className="w-1 h-1 rounded-full bg-muted-foreground/30" />
+          </div>
+        </div>
+      )}
+
+      {/* You row */}
+      {youUser && (
+        <div className="grid grid-cols-[48px_1fr_100px_60px] items-center px-4 py-3 bg-primary/5 border-t border-primary/20">
+          <span className="text-sm font-bold text-primary">#{youUser.rank}</span>
+          <div className="flex items-center gap-3 min-w-0">
+            <Avatar className="h-8 w-8 shrink-0 ring-2 ring-primary ring-offset-1 ring-offset-background">
+              <AvatarImage src={youUser.avatar} />
+              <AvatarFallback className="text-[10px] font-semibold">{getInitials(youUser.name)}</AvatarFallback>
+            </Avatar>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-primary truncate">{youUser.name} <span className="text-xs font-normal text-primary/60">(You)</span></p>
+              {youUser.institute && <p className="text-[10px] text-muted-foreground truncate">{youUser.institute}</p>}
+            </div>
+          </div>
+          <span className="text-sm font-bold text-primary text-right">{youUser.xp.toLocaleString()}</span>
+          <span className={cn(
+            "text-xs font-semibold text-right flex items-center justify-end gap-0.5",
+            youUser.change > 0 ? "text-emerald-500" : youUser.change < 0 ? "text-destructive" : "text-muted-foreground"
+          )}>
+            {youUser.change > 0 && <ArrowUp className="h-3 w-3" />}
+            {youUser.change < 0 && <ArrowDown className="h-3 w-3" />}
+            {youUser.change === 0 ? "—" : Math.abs(youUser.change)}
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}
 
 const RankingPage = () => {
   const [activeTab, setActiveTab] = useState<RankingTab>("my-status");
@@ -44,7 +262,6 @@ const RankingPage = () => {
           {/* Hero points card */}
           <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[hsl(260,60%,22%)] via-[hsl(240,50%,20%)] to-[hsl(220,55%,18%)] p-8 shadow-xl">
             <div className="flex items-center justify-between">
-              {/* Left side */}
               <div className="flex flex-col gap-3">
                 <span className="text-xs font-semibold uppercase tracking-widest text-white/50">
                   Total Points
@@ -61,7 +278,6 @@ const RankingPage = () => {
                   <span className="text-sm text-white/40">Rank #39 globally</span>
                 </div>
               </div>
-              {/* Right side trophy */}
               <Trophy className="h-28 w-28 text-white/10" strokeWidth={1} />
             </div>
           </div>
@@ -141,18 +357,32 @@ const RankingPage = () => {
       )}
 
       {activeTab === "global" && (
-        <div className="flex flex-col items-center justify-center min-h-[50vh] text-center gap-4">
-          <Trophy className="h-12 w-12 text-muted-foreground" />
-          <h1 className="text-2xl font-bold">Global Ranking</h1>
-          <p className="text-muted-foreground">Global leaderboard will appear here.</p>
+        <div className="flex flex-col gap-6">
+          <Podium top3={globalTop3} />
+          <div className="flex flex-col gap-3">
+            <h2 className="text-base font-semibold text-foreground">Leaderboard</h2>
+            <LeaderboardTable users={globalLeaderboard} />
+          </div>
         </div>
       )}
 
       {activeTab === "institute" && (
-        <div className="flex flex-col items-center justify-center min-h-[50vh] text-center gap-4">
-          <Shield className="h-12 w-12 text-muted-foreground" />
-          <h1 className="text-2xl font-bold">Institute Ranking</h1>
-          <p className="text-muted-foreground">Institute leaderboard will appear here.</p>
+        <div className="flex flex-col gap-6">
+          <div className="flex items-center gap-3 rounded-xl border border-border bg-card p-4 shadow-sm">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+              <Shield className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-foreground">TU Munich</p>
+              <p className="text-xs text-muted-foreground">127 active students · Ranked #3 globally</p>
+            </div>
+          </div>
+
+          <Podium top3={instituteTop3} />
+          <div className="flex flex-col gap-3">
+            <h2 className="text-base font-semibold text-foreground">Institute Leaderboard</h2>
+            <LeaderboardTable users={instituteLeaderboard} />
+          </div>
         </div>
       )}
     </div>
