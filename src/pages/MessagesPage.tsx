@@ -745,11 +745,11 @@ export default function MessagesPage() {
                   </p>
                 </div>
                 <div className="flex items-center gap-1">
-                  <Button
+                   <Button
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8 rounded-full"
-                    onClick={() => webrtc.startCall(false)}
+                    onClick={() => contact && activeConversationId && startCall(activeConversationId, contact.user_id, contact.user_name, false)}
                     title="Voice call"
                   >
                     <Phone className="h-4 w-4" />
@@ -758,9 +758,11 @@ export default function MessagesPage() {
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8 rounded-full"
-                    onClick={() => webrtc.startCall(true)}
+                    onClick={() => contact && activeConversationId && startCall(activeConversationId, contact.user_id, contact.user_name, true)}
                     title="Video call"
                   >
+                    <Video className="h-4 w-4" />
+                  </Button>
                     <Video className="h-4 w-4" />
                   </Button>
                 </div>
