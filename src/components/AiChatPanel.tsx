@@ -442,16 +442,11 @@ export function AiChatPanel({
                               return nl ? match : `${before}\n${num}`;
                             });
                           return (
-                            <div key={si} className="prose prose-sm dark:prose-invert max-w-none 
-                              prose-p:my-1.5 prose-p:leading-relaxed
-                              prose-headings:font-semibold prose-headings:text-foreground
-                              prose-h2:text-lg prose-h2:mt-5 prose-h2:mb-2
-                              prose-h3:text-[15px] prose-h3:mt-4 prose-h3:mb-1.5
-                              prose-ul:my-1.5 prose-ol:my-1.5 prose-li:my-0.5
-                              prose-pre:my-2 prose-pre:rounded-lg prose-pre:bg-muted
-                              prose-blockquote:my-2 prose-blockquote:border-primary/30
-                              prose-strong:text-foreground prose-strong:font-semibold
-                              prose-code:text-primary prose-code:bg-muted prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-xs prose-code:before:content-none prose-code:after:content-none
+                            <div key={si} className="prose dark:prose-invert max-w-none
+                              prose-code:before:content-none prose-code:after:content-none
+                              prose-code:bg-muted prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-xs
+                              prose-pre:bg-muted prose-pre:rounded-lg
+                              prose-blockquote:border-primary/30
                               [&>*:first-child]:mt-0 [&>*:last-child]:mb-0
                               [overflow-wrap:anywhere]">
                               <ReactMarkdown>{processed}</ReactMarkdown>
