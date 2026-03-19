@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { topics, getStudent, getUniversity, getField } from "@/data";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -30,6 +30,8 @@ interface ApplicationRow {
   availability: string | null;
   scheduling_url: string | null;
   cv_file_name: string | null;
+  student_name: string | null;
+  avatar_url: string | null;
   status: string;
   created_at: string;
   updated_at: string;
@@ -239,6 +241,9 @@ export default function StudentRequestsPage() {
         <div className="space-y-3">
           {currentList.map((app) => {
             const student = getStudent(app.user_id);
+            const displayName = app.student_name || (student ? `${student.firstName} ${student.lastName}` : "Unknown Student");
+            const initials = displayName.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase() || "??";
+            const avatarUrl = app.avatar_url || undefined;
             const topic = topics.find((t) => t.id === app.topic_id);
             const university = getUniversity(topic?.universityId ?? "");
 
@@ -247,8 +252,9 @@ export default function StudentRequestsPage() {
                 <CardContent className="p-5">
                   <div className="flex items-start gap-4">
                     <Avatar className="h-12 w-12 shrink-0">
+                      <AvatarImage src={avatarUrl} alt={displayName} />
                       <AvatarFallback className="font-semibold">
-                        {student ? `${student.firstName[0]}${student.lastName[0]}` : "??"}
+                        {initials}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0 space-y-2">
@@ -258,15 +264,13 @@ export default function StudentRequestsPage() {
                             {topic?.title ?? "Unknown Topic"}
                           </h3>
                           <div className="flex items-center gap-2 mt-1">
-                            {student && (
-                              <span
-                                className="text-xs text-muted-foreground hover:text-foreground cursor-pointer flex items-center gap-1"
-                                onClick={() => navigate(`/people/students/${student.id}`)}
-                              >
-                                <User className="h-3 w-3" />
-                                {student.firstName} {student.lastName}
-                              </span>
-                            )}
+                            <span
+                              className="text-xs text-muted-foreground hover:text-foreground cursor-pointer flex items-center gap-1"
+                              onClick={() => student ? navigate(`/people/students/${student.id}`) : undefined}
+                            >
+                              <User className="h-3 w-3" />
+                              {displayName}
+                            </span>
                             {university && (
                               <span className="text-xs text-muted-foreground flex items-center gap-1">
                                 <BookOpen className="h-3 w-3" />
@@ -354,9 +358,10 @@ export default function StudentRequestsPage() {
           <DialogHeader>
             <DialogTitle>{topics.find((t) => t.id === viewApp?.topic_id)?.title}</DialogTitle>
             <DialogDescription>
-              {viewApp?.user_id && (() => {
+              {viewApp && (() => {
                 const s = getStudent(viewApp.user_id);
-                return s ? `By ${s.firstName} ${s.lastName}` : "";
+                const name = viewApp.student_name || (s ? `${s.firstName} ${s.lastName}` : "Unknown Student");
+                return `By ${name}`;
               })()}
             </DialogDescription>
           </DialogHeader>

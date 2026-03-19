@@ -1,0 +1,1 @@
+ALTER TABLE public.topic_applications ADD COLUMN IF NOT EXISTS student_name text DEFAULT '';

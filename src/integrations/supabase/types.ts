@@ -342,6 +342,7 @@ export type Database = {
           motivation: string | null
           scheduling_url: string | null
           status: string
+          student_name: string | null
           topic_id: string
           updated_at: string
           user_id: string
@@ -356,6 +357,7 @@ export type Database = {
           motivation?: string | null
           scheduling_url?: string | null
           status?: string
+          student_name?: string | null
           topic_id: string
           updated_at?: string
           user_id: string
@@ -370,6 +372,7 @@ export type Database = {
           motivation?: string | null
           scheduling_url?: string | null
           status?: string
+          student_name?: string | null
           topic_id?: string
           updated_at?: string
           user_id?: string
