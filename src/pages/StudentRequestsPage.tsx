@@ -358,9 +358,10 @@ export default function StudentRequestsPage() {
           <DialogHeader>
             <DialogTitle>{topics.find((t) => t.id === viewApp?.topic_id)?.title}</DialogTitle>
             <DialogDescription>
-              {viewApp?.user_id && (() => {
+              {viewApp && (() => {
                 const s = getStudent(viewApp.user_id);
-                return s ? `By ${s.firstName} ${s.lastName}` : "";
+                const name = viewApp.student_name || (s ? `${s.firstName} ${s.lastName}` : "Unknown Student");
+                return `By ${name}`;
               })()}
             </DialogDescription>
           </DialogHeader>
