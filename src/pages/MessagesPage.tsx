@@ -1580,7 +1580,7 @@ export default function MessagesPage() {
                 </ScrollArea>
               </div>
             ) : null}
-          </>
+          </div>
         )}
       </div>
 
