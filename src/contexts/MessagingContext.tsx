@@ -381,6 +381,19 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
       if (error) {
         setMessages((prev) => prev.filter((m) => m.id !== tempMsg.id));
         toast.error("Failed to send message");
+      } else {
+        // Notify supervisor via email if they're offline
+        try {
+          supabase.functions.invoke("notify-supervisor", {
+            body: {
+              conversation_id: conversationId,
+              sender_id: userId,
+              message_content: content,
+            },
+          });
+        } catch (e) {
+          console.error("Failed to trigger supervisor notification:", e);
+        }
       }
     },
     [userId, setTyping]
