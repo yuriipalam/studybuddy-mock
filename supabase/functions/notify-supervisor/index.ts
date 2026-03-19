@@ -90,7 +90,7 @@ Deno.serve(async (req) => {
       if (!supervisorEmail) {
         // Fallback: check hardcoded supervisors
         const hardcoded: Record<string, string> = {
-          "supervisor-01": "martin.vechev@ethz.ch",
+          "supervisor-01": "mikhael2005@gmail.com",
         };
         supervisorEmail = hardcoded[sup.user_id];
       }

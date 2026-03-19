@@ -76,7 +76,7 @@ Deno.serve(async (req) => {
     if (!senderId) {
       // Try matching from hardcoded supervisor emails
       const hardcoded: Record<string, string> = {
-        "martin.vechev@ethz.ch": "supervisor-01",
+        "mikhael2005@gmail.com": "supervisor-01",
       };
       senderId = hardcoded[fromEmail];
     }
