@@ -39,6 +39,7 @@ interface MessagingContextType {
   setActiveConversationId: (id: string | null) => void;
   messages: DbMessage[];
   sendMessage: (conversationId: string, content: string) => Promise<void>;
+  editMessage: (messageId: string, newContent: string) => Promise<void>;
   startConversation: (contact: { id: string; name: string; role: string; avatar?: string }) => Promise<string>;
   getConversationByContact: (contactId: string) => Conversation | undefined;
   markAsRead: (conversationId: string) => Promise<void>;
