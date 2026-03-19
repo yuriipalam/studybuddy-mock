@@ -909,11 +909,7 @@ export default function MessagesPage() {
                               onSubmit={(e) => {
                                 e.preventDefault();
                                 if (editMilestoneText.trim()) {
-                                  setMilestones((prev) =>
-                                    prev.map((item) =>
-                                      item.id === m.id ? { ...item, text: editMilestoneText.trim() } : item
-                                    )
-                                  );
+                                  dbEditMilestone(m.id, editMilestoneText.trim());
                                 }
                                 setEditingMilestoneId(null);
                               }}
