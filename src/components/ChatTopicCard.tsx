@@ -3,8 +3,6 @@ import { Badge } from "@/components/ui/badge";
 import { Building2, GraduationCap, MapPin, Briefcase, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { SupervisorCardData } from "@/components/ChatSupervisorCard";
-import { Building2, GraduationCap, MapPin, Briefcase, ArrowRight } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 export interface TopicCardData {
   id: string;
