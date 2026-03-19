@@ -116,7 +116,7 @@ export function ThesisJourneyTracker({ stages, currentStage }: { stages: Journey
                     {stage.label}
                   </p>
                   <p className={cn(
-                    "text-[7.5px] mt-0.5",
+                    "text-[9px] mt-0.5",
                     stage.status === "in_progress" ? "text-[hsl(260,60%,55%)]" :
                     stage.status === "completed" ? "text-emerald-500" :
                     "text-muted-foreground/40"
