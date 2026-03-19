@@ -1,4 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 export interface StudentXpRow {
@@ -24,9 +25,29 @@ async function fetchStudentXp(): Promise<StudentXpRow[]> {
 }
 
 export function useStudentXp() {
+  const queryClient = useQueryClient();
+
+  // Subscribe to realtime changes on student_xp
+  useEffect(() => {
+    const channel = supabase
+      .channel("student-xp-realtime")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "student_xp" },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["student_xp"] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      channel.unsubscribe();
+    };
+  }, [queryClient]);
+
   return useQuery({
     queryKey: ["student_xp"],
     queryFn: fetchStudentXp,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 10_000,
   });
 }
