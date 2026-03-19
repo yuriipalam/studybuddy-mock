@@ -470,6 +470,53 @@ export default function MessagesPage() {
     }
   }
 
+  const handleImproveMessage = async () => {
+    if (!input.trim() || improving) return;
+    setImproving(true);
+    setOriginalText(input);
+    try {
+      const resp = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/improve-message`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({ message: input }),
+        }
+      );
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => ({ error: "Failed" }));
+        throw new Error(err.error || "Failed to improve message");
+      }
+      const { improved } = await resp.json();
+      if (improved && improved !== input) {
+        setImprovedText(improved);
+        setInput(improved);
+      } else {
+        toast.info("Your message already looks great!");
+        setOriginalText(null);
+      }
+    } catch (e: any) {
+      toast.error(e.message || "Failed to improve message");
+      setOriginalText(null);
+    } finally {
+      setImproving(false);
+    }
+  };
+
+  const acceptImprovement = () => {
+    setImprovedText(null);
+    setOriginalText(null);
+  };
+
+  const declineImprovement = () => {
+    if (originalText !== null) setInput(originalText);
+    setImprovedText(null);
+    setOriginalText(null);
+  };
+
   const contact = activeConv ? getContact(activeConv) : null;
   const contactInitials = contact?.user_name
     ?.split(" ")
