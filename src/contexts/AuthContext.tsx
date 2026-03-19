@@ -127,6 +127,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem(AUTH_STORAGE_KEY);
   }, []);
 
+  // Ping last_seen_at every 60 seconds while logged in
+  useEffect(() => {
+    if (!currentUser) return;
+    const ping = () => {
+      supabase
+        .from("user_accounts")
+        .update({ last_seen_at: new Date().toISOString() } as any)
+        .eq("id", currentUser.id)
+        .then(() => {});
+    };
+    ping(); // immediate
+    const interval = setInterval(ping, 60_000);
+    return () => clearInterval(interval);
+  }, [currentUser]);
+
   return (
     <AuthContext.Provider value={{ currentUser, login, logout, isAuthenticated: !!currentUser }}>
       {children}
