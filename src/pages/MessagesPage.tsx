@@ -646,17 +646,13 @@ export default function MessagesPage() {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center px-4 gap-4">
-                {chatTab === "milestones" && (
-                  <p className="text-sm text-foreground mr-auto">Break your goal into milestones</p>
-                )}
+              <div className="flex px-4 gap-4">
                 <button
                   className={cn(
                     "pb-2 text-sm font-medium border-b-2 transition-colors",
                     chatTab === "messages"
                       ? "border-primary text-foreground"
-                      : "border-transparent text-muted-foreground hover:text-foreground",
-                    chatTab === "milestones" && "ml-auto"
+                      : "border-transparent text-muted-foreground hover:text-foreground"
                   )}
                   onClick={() => setChatTab("messages")}
                 >
@@ -685,6 +681,9 @@ export default function MessagesPage() {
                   Milestones
                 </button>
               </div>
+              {chatTab === "milestones" && (
+                <p className="text-sm text-foreground px-4 py-2">Break your goal into milestones</p>
+              )}
             </div>
 
             {chatTab === "messages" ? (
