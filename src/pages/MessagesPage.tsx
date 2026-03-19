@@ -136,16 +136,25 @@ export default function MessagesPage() {
     await sendMessage(activeConversationId, content);
   };
 
+  const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || !activeConversationId) return;
+    const validFiles = Array.from(files).filter((file) => {
+      if (file.size > MAX_FILE_SIZE) {
+        toast.error(`"${file.name}" exceeds 100MB limit`);
+        return false;
+      }
+      return true;
+    });
+    if (validFiles.length === 0) return;
     setUploading(true);
-    for (const file of Array.from(files)) {
+    for (const file of validFiles) {
       await uploadFile(activeConversationId, file);
     }
     setUploading(false);
     if (fileInputRef.current) fileInputRef.current.value = "";
-    // Refresh files if on files tab
     if (chatTab === "files") loadFiles();
   };
 
