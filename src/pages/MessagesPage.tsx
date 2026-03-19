@@ -940,7 +940,7 @@ export default function MessagesPage() {
                 {/* Input */}
                 <div className="border-t border-border p-3">
                   <form
-                    className="flex items-center gap-2 max-w-2xl mx-auto"
+                    className="flex items-center gap-2"
                     onSubmit={(e) => {
                       e.preventDefault();
                       handleSend();
