@@ -1,79 +1,77 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 220 20% 97%;
-    --foreground: 224 71% 4%;
-
+    --radius: 0.625rem;
+    --background: 0 0% 100%;
+    --foreground: 0 0% 10%;
     --card: 0 0% 100%;
-    --card-foreground: 224 71% 4%;
-
+    --card-foreground: 0 0% 10%;
     --popover: 0 0% 100%;
-    --popover-foreground: 224 71% 4%;
-
-    --primary: 0 0% 4%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 220 14% 96%;
-    --secondary-foreground: 224 71% 4%;
-
-    --muted: 220 14% 96%;
-    --muted-foreground: 220 9% 46%;
-
-    --accent: 0 0% 95%;
-    --accent-foreground: 0 0% 4%;
-
-    --destructive: 0 84% 60%;
+    --popover-foreground: 0 0% 10%;
+    --primary: 0 0% 15%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 15%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 15%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 0 0% 4%;
-
-    --radius: 0.5rem;
-
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 0 0% 55%;
+    --chart-1: 25 80% 52%;
+    --chart-2: 175 40% 50%;
+    --chart-3: 215 35% 35%;
+    --chart-4: 45 75% 60%;
+    --chart-5: 35 70% 58%;
     --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 224 71% 4%;
-    --sidebar-primary: 0 0% 4%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 95%;
-    --sidebar-accent-foreground: 0 0% 4%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 0 0% 4%;
+    --sidebar-foreground: 0 0% 10%;
+    --sidebar-primary: 0 0% 15%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 0 0% 96%;
+    --sidebar-accent-foreground: 0 0% 15%;
+    --sidebar-border: 0 0% 90%;
+    --sidebar-ring: 0 0% 55%;
   }
 
   .dark {
-    --background: 224 71% 4%;
-    --foreground: 210 40% 98%;
-    --card: 224 71% 4%;
-    --card-foreground: 210 40% 98%;
-    --popover: 224 71% 4%;
-    --popover-foreground: 210 40% 98%;
+    --background: 0 0% 10%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 15%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 15%;
+    --popover-foreground: 0 0% 98%;
     --primary: 0 0% 90%;
-    --primary-foreground: 0 0% 4%;
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217 33% 17%;
-    --muted-foreground: 215 20% 65%;
-    --accent: 217 33% 17%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 63% 31%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217 33% 17%;
-    --input: 217 33% 17%;
-    --ring: 0 0% 90%;
-    --sidebar-background: 224 71% 4%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 0 0% 90%;
-    --sidebar-primary-foreground: 0 0% 4%;
-    --sidebar-accent: 217 33% 17%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 217 33% 17%;
-    --sidebar-ring: 0 0% 90%;
+    --primary-foreground: 0 0% 15%;
+    --secondary: 0 0% 22%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 22%;
+    --muted-foreground: 0 0% 55%;
+    --accent: 0 0% 22%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 5 65% 55%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 100% / 10%;
+    --input: 0 0% 100% / 15%;
+    --ring: 0 0% 45%;
+    --chart-1: 250 60% 52%;
+    --chart-2: 160 45% 55%;
+    --chart-3: 35 70% 58%;
+    --chart-4: 280 55% 55%;
+    --chart-5: 10 65% 52%;
+    --sidebar-background: 0 0% 10%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 250 60% 52%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 0 0% 22%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 0 0% 100% / 10%;
+    --sidebar-ring: 0 0% 45%;
   }
 }
 
@@ -83,9 +81,83 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: 'Inter', sans-serif;
+    font-family: "Avenir Next", -apple-system, BlinkMacSystemFont, "Segoe UI",
+      Roboto, Helvetica, Arial, sans-serif;
   }
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Montserrat', sans-serif;
-  }
+}
+
+/* ==========================================================================
+   AI Accent Utilities
+   ========================================================================== */
+
+.text-ai {
+  @apply text-transparent bg-gradient-to-r from-purple-500 via-blue-700 to-blue-500 bg-clip-text;
+}
+
+.bg-ai {
+  @apply bg-gradient-to-r from-purple-700 via-blue-600 to-purple-700 text-white;
+}
+
+.text-ai-solid {
+  @apply text-blue-600;
+}
+
+.border-ai {
+  @apply border-blue-200;
+}
+
+/* ==========================================================================
+   Typography
+   ========================================================================== */
+
+.ds-caption     { font-size: 12px; font-weight: 400; line-height: 16px; }
+.ds-badge       { font-size: 12px; font-weight: 500; line-height: 16px; }
+.ds-label       { font-size: 14px; font-weight: 500; line-height: 20px; }
+.ds-small       { font-size: 14px; font-weight: 400; line-height: 20px; }
+.ds-body        { font-size: 16px; font-weight: 400; line-height: 24px; }
+.ds-title-cards { font-size: 18px; font-weight: 500; line-height: 24px; }
+.ds-title-sm    { font-size: 20px; font-weight: 500; line-height: 28px; }
+.ds-title-md    { font-size: 24px; font-weight: 500; line-height: 32px; }
+.ds-title-lg    { font-size: 30px; font-weight: 500; line-height: 36px; }
+.ds-title-xl    { font-size: 36px; font-weight: 500; line-height: 40px; }
+
+/* Responsive headers */
+.header-xl { @apply text-2xl font-semibold tracking-tight sm:text-3xl lg:text-4xl; }
+.header-lg { @apply text-2xl font-semibold tracking-tight sm:text-2xl lg:text-3xl; }
+.header-md { @apply text-2xl font-semibold tracking-tight; }
+.header-sm { @apply text-base font-medium leading-tight tracking-tight sm:text-lg lg:text-xl; }
+
+/* ==========================================================================
+   Layout
+   ========================================================================== */
+
+.grid-3-col {
+  @apply grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-3;
+}
+
+.grid-4-col {
+  @apply grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
+}
+
+.header {
+  @apply bg-background sticky top-0 z-30 flex h-16 min-h-[4rem] flex-shrink-0 justify-between;
+}
+
+.scroll-area {
+  @apply h-full w-full px-6 lg:px-8;
+}
+
+.scroll-area-content {
+  @apply pt-4 pb-8;
+}
+
+.ds-layout-narrow     { @apply md:max-w-3xl; }
+.ds-layout-onboarding { @apply md:max-w-3xl xl:max-w-7xl; }
+
+/* ==========================================================================
+   Component Overrides
+   ========================================================================== */
+
+[data-slot='dialog-overlay'] {
+  @apply h-screen w-screen bg-transparent opacity-30 backdrop-blur-3xl transition-all;
 }
