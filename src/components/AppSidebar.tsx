@@ -1,4 +1,4 @@
-import { Home, MessageSquare, FolderKanban, BookOpen, Briefcase, Users, Building2, Settings, GraduationCap, UserCheck, User, School, LogOut, Trophy } from "lucide-react";
+import { Home, MessageSquare, FolderKanban, BookOpen, Briefcase, Users, Building2, Settings, GraduationCap, UserCheck, User, School, LogOut, Trophy, ClipboardList } from "lucide-react";
 import studyondLogo from "@/assets/studyond.svg";
 import studyondLogoLight from "@/assets/studyond-light.svg";
 import { NavLink } from "@/components/NavLink";
@@ -99,6 +99,16 @@ export function AppSidebar() {
                     <NavLink to="/ranking">
                       <Trophy className="h-4 w-4" />
                       <span>My Ranking</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
+              {currentUser?.role === "supervisor" && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild isActive={isActive("/requests")}>
+                    <NavLink to="/requests">
+                      <ClipboardList className="h-4 w-4" />
+                      <span>Student Requests</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
