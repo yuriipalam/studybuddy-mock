@@ -5,6 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageSquare } from "lucide-react";
 
 export default function MessagesPage() {
+  const navigate = useNavigate();
   return (
     <div className="flex h-[calc(100vh-3.5rem)]">
       {/* Left panel */}
