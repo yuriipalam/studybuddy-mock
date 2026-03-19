@@ -717,7 +717,7 @@ export default function MessagesPage() {
                       </div>
                     </div>
                   ) : (
-                  <div className="space-y-1 max-w-2xl mx-auto">
+                  <div className="space-y-1 px-4">
                     {groupedMessages.map((group) => (
                       <div key={group.date}>
                         <div className="flex items-center justify-center my-4">
