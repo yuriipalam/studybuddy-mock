@@ -141,6 +141,8 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
     setLoading(false);
   }, [userId]);
 
+  const [messagesLoading, setMessagesLoading] = useState(false);
+
   // Load messages for active conversation
   const loadMessages = useCallback(async () => {
     if (!activeConversationId) {
@@ -148,10 +150,13 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    // Show cached data immediately if available
+    // Show cached data immediately if available, otherwise show loading
     const cached = messageCacheRef.current[activeConversationId];
     if (cached) {
       setMessages(cached);
+    } else {
+      setMessages([]);
+      setMessagesLoading(true);
     }
 
     const { data } = await supabase
@@ -163,6 +168,7 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
     const msgs = (data as DbMessage[]) || [];
     setMessages(msgs);
     messageCacheRef.current[activeConversationId] = msgs;
+    setMessagesLoading(false);
   }, [activeConversationId]);
 
   // Custom setter that caches current messages before switching
