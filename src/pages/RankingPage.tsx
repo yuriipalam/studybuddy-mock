@@ -97,7 +97,7 @@ const podiumConfig = [
 
 function Podium({ top3 }: { top3: PodiumUser[] }) {
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-card border border-border p-6 pb-4">
+    <div className="relative overflow-hidden p-6 pb-4">
       {/* Background decorations */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 rounded-full bg-[hsl(45,90%,55%)]/5 blur-3xl" />
       <div className="absolute -bottom-12 -left-12 w-40 h-40 rounded-full bg-[hsl(260,60%,50%)]/10 blur-3xl" />
