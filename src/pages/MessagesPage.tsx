@@ -992,7 +992,7 @@ export default function MessagesPage() {
                     <p className="text-sm text-muted-foreground">No files shared in this conversation yet.</p>
                   </div>
                 ) : (
-                  <div className="max-w-2xl mx-auto space-y-4 pb-6">
+                  <div className="space-y-4 pb-6 px-4">
                     {groupedFiles.map((group) => (
                       <div key={group.date}>
                         <div className="flex items-center justify-center my-3">
