@@ -41,6 +41,7 @@ interface MessagingContextType {
   sendMessage: (conversationId: string, content: string) => Promise<void>;
   editMessage: (messageId: string, newContent: string) => Promise<void>;
   deleteMessage: (messageId: string) => Promise<void>;
+  deleteConversation: (conversationId: string) => Promise<void>;
   startConversation: (contact: { id: string; name: string; role: string; avatar?: string }) => Promise<string>;
   getConversationByContact: (contactId: string) => Conversation | undefined;
   markAsRead: (conversationId: string) => Promise<void>;
