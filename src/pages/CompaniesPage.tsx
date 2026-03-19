@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { fetchCompanies, experts as allExperts, topics as allTopics } from "@/data";
 import type { Company } from "@/data/types";
 import { FilterBar } from "@/components/FilterBar";
