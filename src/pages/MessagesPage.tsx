@@ -1067,6 +1067,17 @@ export default function MessagesPage() {
                       {milestonesEditMode ? "Done" : "Edit"}
                     </Button>
                   </div>
+                  {milestones.length > 0 && (() => {
+                    const completed = milestones.filter((m) => m.completed).length;
+                    const total = milestones.length;
+                    const pct = Math.round((completed / total) * 100);
+                    return (
+                      <div className="flex items-center gap-2 px-1 pb-3">
+                        <Progress value={pct} className="flex-1 h-2" />
+                        <span className="text-xs text-muted-foreground shrink-0">{pct}%</span>
+                      </div>
+                    );
+                  })()}
                   <div className="py-2">
                     {milestones.map((m, i) => (
                       <div key={m.id} className="flex items-stretch">
