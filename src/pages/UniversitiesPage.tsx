@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { GraduationCap, User } from "lucide-react";
 
 export default function UniversitiesPage() {
+  const navigate = useNavigate();
   const [unis, setUnis] = useState<University[]>([]);
   const [search, setSearch] = useState("");
 
