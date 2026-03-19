@@ -91,8 +91,10 @@ export default function StudentRequestsPage() {
   const handleAccept = (project: ThesisProject) => {
     saveDecision(project.id, "agreed");
     setDecisions(loadDecisions());
-    // Award supervisor interaction XP to the student
-    awardXp(XP_TRIGGERS.SUPERVISOR_INTERACTION);
+    // Award XP to the student, not the supervisor
+    if (project.studentId) {
+      awardXp(XP_TRIGGERS.SUPERVISOR_INTERACTION, project.studentId);
+    }
     toast.success(`Accepted "${project.title}"`);
   };
 
