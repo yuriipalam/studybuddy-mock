@@ -86,7 +86,7 @@ export default function TopicsPage() {
               <Sparkles className="size-3.5" />
               Get Suggestions
             </Button>
-            <Button size="sm" className="gap-1.5">
+            <Button size="sm" className="gap-1.5" onClick={handleProposeTopic}>
               <Plus className="size-3.5" />
               Propose Topic
             </Button>
