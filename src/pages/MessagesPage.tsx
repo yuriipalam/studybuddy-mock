@@ -296,11 +296,12 @@ export default function MessagesPage() {
     return mimeType.startsWith("image/");
   };
 
-  const getFileIcon = (mimeType: string) => {
-    if (mimeType.startsWith("image/")) return <ImageIcon className="h-4 w-4 text-primary" />;
-    if (mimeType.includes("pdf")) return <FileText className="h-4 w-4 text-destructive" />;
-    if (mimeType.startsWith("text/")) return <FileText className="h-4 w-4 text-accent-foreground" />;
-    return <FileIcon className="h-4 w-4 text-muted-foreground" />;
+  const getFileIcon = (mimeType: string, size: "sm" | "lg" = "sm") => {
+    const cls = size === "lg" ? "h-8 w-8" : "h-4 w-4";
+    if (mimeType.startsWith("image/")) return <ImageIcon className={cn(cls, "text-primary")} />;
+    if (mimeType.includes("pdf")) return <FileText className={cn(cls, "text-destructive")} />;
+    if (mimeType.startsWith("text/")) return <FileText className={cn(cls, "text-accent-foreground")} />;
+    return <FileIcon className={cn(cls, "text-muted-foreground")} />;
   };
 
   const formatFileSize = (bytes: number) => {
