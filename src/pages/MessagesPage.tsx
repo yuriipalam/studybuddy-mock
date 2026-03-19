@@ -851,7 +851,7 @@ export default function MessagesPage() {
 
                 {/* Pending files preview */}
                 {pendingFiles.length > 0 && (
-                  <div className="border-t border-border px-3 pt-2">
+                  <div className="border-t border-border px-3 py-2">
                     <div className="flex flex-wrap gap-2 max-w-2xl mx-auto">
                       {pendingFiles.map((file, idx) => {
                         const isImage = file.type.startsWith("image/");
