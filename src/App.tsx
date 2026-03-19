@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { MessagingProvider } from "@/contexts/MessagingContext";
 import { UserProfileProvider } from "@/contexts/UserProfileContext";
+import { CallProvider } from "@/contexts/CallContext";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { Toaster as Sonner } from "@/components/ui/sonner";

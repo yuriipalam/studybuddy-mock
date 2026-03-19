@@ -16,9 +16,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { MessageSquare, Send, Check, CheckCheck, Pencil, X, Trash2, Paperclip, FileText, Image as ImageIcon, File as FileIcon, Download, Eye, ExternalLink, Plus, Circle, CheckCircle2, Pin, PinOff, Loader2, Sparkles, Phone, Video } from "lucide-react";
-import { useWebRTC } from "@/hooks/useWebRTC";
-import CallOverlay from "@/components/CallOverlay";
+import { MessageSquare, Send, Check, CheckCheck, Pencil, X, Trash2, Paperclip, FileText, Image as ImageIcon, File as FileIcon, Download, Eye, ExternalLink, Plus, Circle, CheckCircle2, Pin, PinOff, Loader2, Sparkles, Phone, Video, PhoneIncoming, PhoneOutgoing, PhoneMissed } from "lucide-react";
+import { useCall } from "@/contexts/CallContext";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
 import { useMessaging, ChatFile } from "@/contexts/MessagingContext";
