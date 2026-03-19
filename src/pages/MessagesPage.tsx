@@ -497,7 +497,26 @@ export default function MessagesPage() {
             </div>
 
             {chatTab === "messages" ? (
-              <>
+              <div
+                className={cn("flex flex-col flex-1 relative", dragging && "ring-2 ring-primary ring-inset rounded-md")}
+                onDragEnter={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  dragCounterRef.current++;
+                  setDragging(true);
+                }}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+                onDragLeave={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  dragCounterRef.current--;
+                  if (dragCounterRef.current === 0) setDragging(false);
+                }}
+                onDrop={handleDrop}
+              >
                 {/* Messages */}
                 <ScrollArea className="flex-1 px-4 py-3">
                   {messagesLoading ? (
