@@ -50,6 +50,24 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 const AUTH_STORAGE_KEY = "studyond-auth-user";
 
+function buildStagesFromOnboarding(selection: string) {
+  const allStages = [
+    { id: "topic_selection", label: "Topic Selection", status: "locked" },
+    { id: "supervisor_approval", label: "Supervisor Approval", status: "locked" },
+    { id: "literature_review", label: "Literature Review", status: "locked" },
+    { id: "research", label: "Research", status: "locked" },
+    { id: "writing", label: "Writing", status: "locked" },
+    { id: "submission", label: "Submission", status: "locked" },
+  ];
+  let ci = 0;
+  if (selection === "has_topic" || selection === "needs_supervisor") ci = 1;
+  else if (selection === "working") ci = 3;
+  return allStages.map((s, i) => ({
+    ...s,
+    status: i < ci ? "completed" : i === ci ? "in_progress" : i === ci + 1 ? "up_next" : "locked",
+  }));
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [currentUser, setCurrentUser] = useState<AuthAccount | null>(() => {
     try {
