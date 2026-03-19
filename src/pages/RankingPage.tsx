@@ -296,18 +296,21 @@ const RankingPage = () => {
   const me: RankedStudent = useMemo(() => {
     const found = globalRanked.find((r) => r.studentId === currentStudentId);
     if (found) return found;
-    // Default for new users with no XP record
+
+    const fallbackXp = (activities ?? []).reduce((sum, item) => sum + item.xp_amount, 0);
+    const safeFallbackXp = Math.max(0, fallbackXp);
+
     return {
       rank: globalRanked.length + 1,
       name: currentUser ? `${currentUser.firstName} ${currentUser.lastName}` : "You",
       avatar: getStudentAvatar(currentStudentId),
-      xp: 0,
+      xp: safeFallbackXp,
       institute: getUniversity("uni-01")?.name ?? "Unknown",
       change: 0,
       studentId: currentStudentId,
       xpBreakdown: { supervisor: 0, research: 0, referrals: 0, profile: 0 },
     };
-  }, [globalRanked, currentStudentId, currentUser]);
+  }, [activities, globalRanked, currentStudentId, currentUser]);
 
   const globalTop3 = globalRanked.slice(0, 3);
   const globalLeaderboard = globalRanked.slice(3, 10);
