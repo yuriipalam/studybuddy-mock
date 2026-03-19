@@ -613,7 +613,7 @@ export default function MessagesPage() {
                 )}
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <p className="text-sm font-medium">{contact?.user_name || "Unknown"}</p>
+                    <p className="text-base font-semibold">{contact?.user_name || "Unknown"}</p>
                     {contact?.user_role === "supervisor" && (
                       <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 leading-none border-blue-500 text-blue-500">
                         Supervisor
