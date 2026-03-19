@@ -94,48 +94,52 @@ export function ThesisJourneyTracker({ stages, currentStage }: { stages: Journey
 
       {/* Progress bar */}
       <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
-        <div className="flex items-start">
+        <div className="flex items-start justify-between relative">
+          {/* Connector lines layer */}
+          <div className="absolute top-4 left-0 right-0 flex items-center pointer-events-none" style={{ height: '2px' }}>
+            {stages.map((stage, i) => {
+              if (i === stages.length - 1) return null;
+              const config = getStatusConfig(stage.status);
+              const segmentWidth = 100 / stages.length;
+              return (
+                <div
+                  key={`line-${stage.id}`}
+                  className={cn("h-0.5 rounded-full transition-all duration-500", config.lineClass)}
+                  style={{
+                    position: 'absolute',
+                    left: `calc(${segmentWidth * i}% + 16px + ${segmentWidth / 2}% - 16px)`,
+                    width: `calc(${segmentWidth}% - ${segmentWidth / 2}% + 16px - 16px)`,
+                  }}
+                />
+              );
+            })}
+          </div>
+          {/* Stage dots + labels */}
           {stages.map((stage, i) => {
             const config = getStatusConfig(stage.status);
             const Icon = config.icon;
-            const isLast = i === stages.length - 1;
 
             return (
-              <div key={stage.id} className={cn("flex items-start", isLast ? "flex-shrink-0" : "flex-1")}>
-                {/* Step dot + label */}
-                <div className="flex flex-col items-center">
-                  <div
-                    className={cn(
-                      "flex h-8 w-8 items-center justify-center rounded-full transition-all duration-300",
-                      config.dotClass
-                    )}
-                  >
-                    <Icon className="h-3.5 w-3.5" strokeWidth={stage.status === "completed" ? 3 : 2} />
-                  </div>
-                  <p className={cn("text-[12.5px] mt-2 text-center max-w-[90px] leading-tight", config.labelClass)}>
-                    {stage.label}
-                  </p>
-                  <p className={cn(
-                    "text-[9px] mt-0.5",
-                    stage.status === "in_progress" ? "text-[hsl(260,60%,55%)]" :
-                    stage.status === "completed" ? "text-emerald-500" :
-                    "text-muted-foreground/40"
-                  )}>
-                    {config.statusText}
-                  </p>
+              <div key={stage.id} className="flex flex-col items-center relative z-10" style={{ width: `${100 / stages.length}%` }}>
+                <div
+                  className={cn(
+                    "flex h-8 w-8 items-center justify-center rounded-full transition-all duration-300",
+                    config.dotClass
+                  )}
+                >
+                  <Icon className="h-3.5 w-3.5" strokeWidth={stage.status === "completed" ? 3 : 2} />
                 </div>
-
-                {/* Connector line */}
-                {!isLast && (
-                  <div className="flex-1 flex items-center pt-4">
-                    <div
-                      className={cn(
-                        "h-0.5 w-full rounded-full transition-all duration-500",
-                        config.lineClass
-                      )}
-                    />
-                  </div>
-                )}
+                <p className={cn("text-[12.5px] mt-2 text-center max-w-[90px] leading-tight", config.labelClass)}>
+                  {stage.label}
+                </p>
+                <p className={cn(
+                  "text-[9px] mt-0.5",
+                  stage.status === "in_progress" ? "text-[hsl(260,60%,55%)]" :
+                  stage.status === "completed" ? "text-emerald-500" :
+                  "text-muted-foreground/40"
+                )}>
+                  {config.statusText}
+                </p>
               </div>
             );
           })}
