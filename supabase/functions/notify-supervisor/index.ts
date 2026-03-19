@@ -123,7 +123,7 @@ Deno.serve(async (req) => {
       `;
 
       const emailPayload: any = {
-        from: "StudyOnd <notifications@studyond.com>",
+        from: "StudyOnd <onboarding@resend.dev>",
         to: [supervisorEmail],
         subject: `New message from ${senderName} — StudyOnd`,
         html: emailHtml,
