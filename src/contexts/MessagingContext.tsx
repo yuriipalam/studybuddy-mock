@@ -61,6 +61,8 @@ interface MessagingContextType {
   typingUsers: TypingState;
   loading: boolean;
   messagesLoading: boolean;
+  uploadFile: (conversationId: string, file: File) => Promise<void>;
+  getConversationFiles: (conversationId: string) => Promise<ChatFile[]>;
 }
 
 const MessagingContext = createContext<MessagingContextType | null>(null);
