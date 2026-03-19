@@ -17,6 +17,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { MessageSquare, Send, Check, CheckCheck, Pencil, X, Trash2, Paperclip, FileText, Image as ImageIcon, File as FileIcon, Download, Eye, ExternalLink, Plus, Circle, CheckCircle2, Pin, PinOff, Loader2 } from "lucide-react";
+import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
 import { useMessaging, ChatFile } from "@/contexts/MessagingContext";
 import { useAuth } from "@/contexts/AuthContext";
