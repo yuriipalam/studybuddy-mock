@@ -7,10 +7,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft, MapPin, MessageSquare, School } from "lucide-react";
+import { useMessaging } from "@/contexts/MessagingContext";
 
 export default function SupervisorDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { startConversation } = useMessaging();
   const supervisor = getSupervisor(id || "");
   const university = supervisor ? getUniversity(supervisor.universityId) : undefined;
 
@@ -67,7 +69,10 @@ export default function SupervisorDetailPage() {
                   )}
                 </div>
               </div>
-              <Button size="sm" className="gap-1.5">
+              <Button size="sm" className="gap-1.5" onClick={() => {
+                startConversation({ id: supervisor.id, name: fullName, role: "supervisor", title: supervisor.title });
+                navigate("/messages");
+              }}>
                 <MessageSquare className="size-3.5" /> Get in touch
               </Button>
             </div>

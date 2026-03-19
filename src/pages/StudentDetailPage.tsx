@@ -6,10 +6,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft, MessageSquare, School, BookOpen, Briefcase, GraduationCap, Shield } from "lucide-react";
+import { useMessaging } from "@/contexts/MessagingContext";
 
 export default function StudentDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { startConversation } = useMessaging();
   const student = getStudent(id || "");
   const university = student ? getUniversity(student.universityId) : undefined;
   const program = student ? getStudyProgram(student.studyProgramId) : undefined;
@@ -82,7 +84,10 @@ export default function StudentDetailPage() {
                   )}
                 </div>
               </div>
-              <Button size="sm" className="gap-1.5">
+              <Button size="sm" className="gap-1.5" onClick={() => {
+                startConversation({ id: student.id, name: fullName, role: "student", title: program?.name ?? "Student" });
+                navigate("/messages");
+              }}>
                 <MessageSquare className="size-3.5" /> Get in touch
               </Button>
             </div>

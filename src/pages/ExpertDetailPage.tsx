@@ -7,10 +7,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft, MessageSquare, Building2, BookOpen, Users } from "lucide-react";
+import { useMessaging } from "@/contexts/MessagingContext";
 
 export default function ExpertDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { startConversation } = useMessaging();
   const expert = getExpert(id || "");
   const company = expert ? getCompany(expert.companyId) : undefined;
 
@@ -67,7 +69,10 @@ export default function ExpertDetailPage() {
                   )}
                 </div>
               </div>
-              <Button size="sm" className="gap-1.5">
+              <Button size="sm" className="gap-1.5" onClick={() => {
+                startConversation({ id: expert.id, name: fullName, role: "expert", title: expert.title });
+                navigate("/messages");
+              }}>
                 <MessageSquare className="size-3.5" /> Get in touch
               </Button>
             </div>
