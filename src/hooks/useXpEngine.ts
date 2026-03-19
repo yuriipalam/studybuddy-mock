@@ -89,15 +89,18 @@ export function useXpEngine() {
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
       queryClient.invalidateQueries({ queryKey: ["xp_activity"] });
 
-      // 5. Show toast
-      if (isPositive) {
-        toast.success(`+${trigger.xp} XP: ${trigger.title}`, {
-          style: { background: "hsl(142, 71%, 45%)", color: "white", border: "none" },
-        });
-      } else {
-        toast.error(`${trigger.xp} XP: ${trigger.title}`, {
-          style: { background: "hsl(0, 84%, 60%)", color: "white", border: "none" },
-        });
+      // 5. Show toast only if awarding to the current user
+      const isOwnXp = userId === currentUser?.id;
+      if (isOwnXp) {
+        if (isPositive) {
+          toast.success(`+${trigger.xp} XP: ${trigger.title}`, {
+            style: { background: "hsl(142, 71%, 45%)", color: "white", border: "none" },
+          });
+        } else {
+          toast.error(`${trigger.xp} XP: ${trigger.title}`, {
+            style: { background: "hsl(0, 84%, 60%)", color: "white", border: "none" },
+          });
+        }
       }
     } catch (err) {
       console.error("XP engine error:", err);
