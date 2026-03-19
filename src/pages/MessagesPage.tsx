@@ -650,24 +650,33 @@ export default function MessagesPage() {
                         </div>
                         <div className="space-y-2">
                           {group.files.map((f) => (
-                            <a
+                            <div
                               key={f.id}
-                              href={getFileUrl(f.file_path)}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors group"
+                              className="flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors group cursor-pointer"
+                              onClick={() => handleFileClick(f)}
                             >
-                              <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
-                                {getFileIcon(f.mime_type)}
-                              </div>
+                              {/* Thumbnail for images */}
+                              {f.mime_type.startsWith("image/") ? (
+                                <div className="h-10 w-10 rounded-lg overflow-hidden shrink-0">
+                                  <img src={getFileUrl(f.file_path)} alt={f.file_name} className="h-full w-full object-cover" />
+                                </div>
+                              ) : (
+                                <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                                  {getFileIcon(f.mime_type)}
+                                </div>
+                              )}
                               <div className="min-w-0 flex-1">
                                 <p className="text-sm font-medium truncate">{f.file_name}</p>
                                 <p className="text-xs text-muted-foreground">
                                   {formatFileSize(f.file_size)} · {formatTime(f.created_at)}
                                 </p>
                               </div>
-                              <Download className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
-                            </a>
+                              {isPreviewable(f.mime_type) ? (
+                                <Eye className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                              ) : (
+                                <Download className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                              )}
+                            </div>
                           ))}
                         </div>
                       </div>
