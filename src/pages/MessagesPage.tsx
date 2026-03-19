@@ -683,9 +683,6 @@ export default function MessagesPage() {
               </div>
             </div>
 
-            {chatTab === "milestones" && (
-              <p className="text-sm text-foreground px-4 py-2">Break your goal into milestones</p>
-            )}
 
             {chatTab === "messages" ? (
               <div
