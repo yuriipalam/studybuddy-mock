@@ -1,16 +1,21 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth, PREDEFINED_ACCOUNTS } from "@/contexts/AuthContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import studyondLogo from "@/assets/studyond.svg";
+import studyondLogoLight from "@/assets/studyond-light.svg";
 
 export default function LoginPage() {
   const [selectedId, setSelectedId] = useState<string>("");
   const { login } = useAuth();
+  const { resolvedTheme } = useTheme();
   const navigate = useNavigate();
+  const logo = resolvedTheme === "dark" ? studyondLogoLight : studyondLogo;
 
   const selectedAccount = PREDEFINED_ACCOUNTS.find((a) => a.id === selectedId);
 
@@ -26,7 +31,7 @@ export default function LoginPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center space-y-2">
           <div className="flex justify-center mb-2">
-            <img src="/src/assets/studyond.svg" alt="StudyOnd" className="h-8" />
+            <img src={logo} alt="StudyOnd" className="h-8" />
           </div>
           <CardTitle className="text-2xl">Welcome to StudyOnd</CardTitle>
           <CardDescription>Select an account to continue</CardDescription>

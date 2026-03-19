@@ -1,9 +1,11 @@
 import { Home, MessageSquare, FolderKanban, BookOpen, Briefcase, Users, Building2, Settings, GraduationCap, UserCheck, User, School, LogOut, Trophy } from "lucide-react";
 import studyondLogo from "@/assets/studyond.svg";
+import studyondLogoLight from "@/assets/studyond-light.svg";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import { Badge } from "@/components/ui/badge";
 import {
   Sidebar,
@@ -53,6 +55,8 @@ export function AppSidebar() {
   const navigate = useNavigate();
   const currentPath = location.pathname;
   const { currentUser, logout } = useAuth();
+  const { resolvedTheme } = useTheme();
+  const logo = resolvedTheme === "dark" ? studyondLogoLight : studyondLogo;
 
   const handleLogout = () => {
     logout();
@@ -68,10 +72,10 @@ export function AppSidebar() {
       <SidebarContent>
         <div className="p-4 pb-2">
           {!collapsed && (
-            <img src={studyondLogo} alt="Studyond" className="h-6" />
+            <img src={logo} alt="Studyond" className="h-6" />
           )}
           {collapsed && (
-            <img src={studyondLogo} alt="Studyond" className="h-5 w-5 object-contain" />
+            <img src={logo} alt="Studyond" className="h-5 w-5 object-contain" />
           )}
         </div>
 
