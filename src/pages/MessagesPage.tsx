@@ -290,7 +290,7 @@ export default function MessagesPage() {
       setUploading(true);
       await sendMessageWithFiles(activeConversationId, content, filesToSend);
       setUploading(false);
-      if (chatTab === "files") loadFiles();
+      loadFiles();
     } else {
       await sendMessage(activeConversationId, content);
     }
