@@ -10,10 +10,10 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Camera, X } from "lucide-react";
-import { mockUser } from "@/data/mockUser";
 import { fields } from "@/data";
 import { toast } from "sonner";
 import { useUserProfile } from "@/contexts/UserProfileContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 const DEGREE_OPTIONS = [
   { value: "bsc", label: "Bachelor" },
