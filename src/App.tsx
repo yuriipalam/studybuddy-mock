@@ -28,6 +28,7 @@ import StudyProgramsPage from "@/pages/StudyProgramsPage";
 import StudyProgramDetailPage from "@/pages/StudyProgramDetailPage";
 import RankingPage from "@/pages/RankingPage";
 import SettingsPage from "@/pages/SettingsPage";
+import StudentRequestsPage from "@/pages/StudentRequestsPage";
 import OnboardingPage from "@/pages/OnboardingPage";
 import RegisterPage from "@/pages/RegisterPage";
 import NotFound from "@/pages/NotFound";
