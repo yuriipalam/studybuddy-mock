@@ -5,7 +5,9 @@ import { Flame, Trophy, Shield, ArrowUp, ArrowDown, Gift, ChevronRight, Zap, Cro
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { useStudentXp, StudentXpRow } from "@/hooks/useStudentXp";
+import { useXpActivity } from "@/hooks/useXpActivity";
 import { students as jsonStudents, getUniversity } from "@/data";
+import { formatDistanceToNow } from "date-fns";
 
 type RankingTab = "my-status" | "global" | "institute";
 
