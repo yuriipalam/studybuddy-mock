@@ -51,6 +51,7 @@ interface MessagingContextType {
   setActiveConversationId: (id: string | null) => void;
   messages: DbMessage[];
   sendMessage: (conversationId: string, content: string) => Promise<void>;
+  sendMessageWithFiles: (conversationId: string, content: string, files: File[]) => Promise<void>;
   editMessage: (messageId: string, newContent: string) => Promise<void>;
   deleteMessage: (messageId: string) => Promise<void>;
   deleteConversation: (conversationId: string) => Promise<void>;
