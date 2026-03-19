@@ -501,7 +501,7 @@ export function AiChatPanel({
             }}
             onPaste={handlePaste}
             placeholder="What would you like to know?"
-            className="w-full resize-none rounded-lg border border-border bg-background pl-10 pr-12 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring min-h-[40px] max-h-[120px]"
+            className="w-full resize-none rounded-lg border border-border bg-background pl-10 pr-12 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring min-h-[44px] max-h-[120px]"
             rows={1}
             disabled={isLoading}
           />
@@ -509,13 +509,13 @@ export function AiChatPanel({
             type="button"
             variant="ghost"
             size="icon"
-            className="absolute left-1.5 bottom-1.5 h-7 w-7 text-muted-foreground hover:text-foreground"
+            className="absolute left-2 bottom-2 h-7 w-7 text-muted-foreground hover:text-foreground"
             onClick={() => fileInputRef.current?.click()}
             disabled={isLoading}
           >
             <Paperclip className="h-4 w-4" />
           </Button>
-          <div className="absolute right-2 bottom-1.5 flex items-center gap-1">
+          <div className="absolute right-2 bottom-2 flex items-center gap-1">
             {isLoading ? (
               <Button
                 size="icon"
