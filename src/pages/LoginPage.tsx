@@ -111,6 +111,11 @@ export default function LoginPage() {
                 <SelectValue placeholder="Choose an account…" />
               </SelectTrigger>
               <SelectContent>
+            <Select value={selectedId} onValueChange={setSelectedId}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Choose an account…" />
+              </SelectTrigger>
+              <SelectContent>
                 {allAccounts.map((account) => (
                   <SelectItem key={account.id} value={account.id}>
                     <div className="flex items-center gap-2">
@@ -134,6 +139,17 @@ export default function LoginPage() {
                 <p className="text-sm text-muted-foreground truncate">{selectedAccount.email}</p>
                 <Badge variant="secondary" className="mt-1 text-xs capitalize">{selectedAccount.role}</Badge>
               </div>
+              {isDbAccount(selectedAccount.id) && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="shrink-0 text-muted-foreground hover:text-destructive"
+                  onClick={() => handleDelete(selectedAccount)}
+                  title="Remove account"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              )}
             </div>
           )}
 
