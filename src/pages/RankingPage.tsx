@@ -239,7 +239,12 @@ function LeaderboardTable({ users }: { users: LeaderboardUser[] }) {
 }
 
 const RankingPage = () => {
+  const { currentUser } = useAuth();
   const [activeTab, setActiveTab] = useState<RankingTab>("my-status");
+
+  if (currentUser?.role !== "student") {
+    return <Navigate to="/" replace />;
+  }
 
   return (
     <div className="flex flex-col gap-6">
