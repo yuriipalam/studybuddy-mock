@@ -577,7 +577,11 @@ export default function MessagesPage() {
                             <span className="text-xs text-primary italic">typing...</span>
                           ) : (
                             <p className="text-xs text-muted-foreground truncate max-w-[180px]">
-                              {conv.lastMessage?.content || "No messages yet"}
+                              {conv.lastMessage?.content
+                                ? conv.lastMessage.content.startsWith("📎") && conv.lastMessage.content.includes("\n")
+                                  ? conv.lastMessage.content.split("\n")[0]
+                                  : conv.lastMessage.content
+                                : "No messages yet"}
                             </p>
                           )}
                         </div>
