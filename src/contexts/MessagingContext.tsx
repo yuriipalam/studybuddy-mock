@@ -657,33 +657,56 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
     async (conversationId: string, content: string, files: File[]) => {
       if (!userId) return;
 
-      // For the first file, attach the text content (if any)
-      // For subsequent files, send without text
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const textContent = i === 0 ? content.trim() : "";
+      // Build a single message content with all file names
+      const fileLines = files.map((f) => `📎 ${f.name}`).join("\n");
+      const textContent = content.trim();
+      const msgContent = textContent ? `${fileLines}\n${textContent}` : fileLines;
 
-        // Optimistic: add temp message immediately
-        const tempId = `temp-${crypto.randomUUID()}`;
-        const msgContent = textContent
-          ? `📎 ${file.name}\n${textContent}`
-          : `📎 ${file.name}`;
-        const tempMsg: DbMessage = {
-          id: tempId,
+      // Optimistic: add temp message immediately
+      const tempId = `temp-${crypto.randomUUID()}`;
+      const tempMsg: DbMessage = {
+        id: tempId,
+        conversation_id: conversationId,
+        sender_id: userId,
+        content: msgContent,
+        created_at: new Date().toISOString(),
+        read_at: null,
+        edited_at: null,
+      };
+      setMessages((prev) => [...prev, tempMsg]);
+      setConversations((prev) =>
+        prev.map((c) =>
+          c.id === conversationId ? { ...c, lastMessage: tempMsg } : c
+        )
+      );
+
+      // Create the DB message first so we have a message_id for all files
+      const { data: msgData, error: msgError } = await supabase
+        .from("messages")
+        .insert({
           conversation_id: conversationId,
           sender_id: userId,
           content: msgContent,
-          created_at: new Date().toISOString(),
-          read_at: null,
-          edited_at: null,
-        };
-        setMessages((prev) => [...prev, tempMsg]);
-        setConversations((prev) =>
-          prev.map((c) =>
-            c.id === conversationId ? { ...c, lastMessage: tempMsg } : c
-          )
-        );
+        })
+        .select()
+        .single();
 
+      if (msgError) {
+        setMessages((prev) => prev.filter((m) => m.id !== tempId));
+        toast.error("Failed to send message");
+        loadConversations();
+        return;
+      }
+
+      // Replace temp message with real one
+      if (msgData) {
+        setMessages((prev) =>
+          prev.map((m) => (m.id === tempId ? (msgData as DbMessage) : m))
+        );
+      }
+
+      // Upload all files and link to this single message
+      for (const file of files) {
         const filePath = `${conversationId}/${crypto.randomUUID()}-${file.name}`;
 
         const { error: uploadError } = await supabase.storage
@@ -691,36 +714,10 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
           .upload(filePath, file);
 
         if (uploadError) {
-          setMessages((prev) => prev.filter((m) => m.id !== tempId));
-          toast.error("Failed to upload file");
+          toast.error(`Failed to upload ${file.name}`);
           continue;
         }
 
-        // Send a message referencing the file
-        const { data: msgData, error: msgError } = await supabase
-          .from("messages")
-          .insert({
-            conversation_id: conversationId,
-            sender_id: userId,
-            content: msgContent,
-          })
-          .select()
-          .single();
-
-        if (msgError) {
-          setMessages((prev) => prev.filter((m) => m.id !== tempId));
-          toast.error("Failed to send file message");
-          continue;
-        }
-
-        // Replace temp message with real one
-        if (msgData) {
-          setMessages((prev) =>
-            prev.map((m) => (m.id === tempId ? (msgData as DbMessage) : m))
-          );
-        }
-
-        // Track in chat_files table
         await supabase.from("chat_files").insert({
           conversation_id: conversationId,
           message_id: msgData?.id || null,

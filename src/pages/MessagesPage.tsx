@@ -408,29 +408,26 @@ export default function MessagesPage() {
     toast.success("File deleted");
   };
 
-  // Extract the file name from a 📎 message (first line only, ignoring accompanying text)
-  const getFileNameFromMsg = (content: string) => {
-    const firstLine = content.split("\n")[0];
-    return firstLine.slice(2).trim();
-  };
-
-  // Extract accompanying text from a file message (everything after the first line)
+  // Extract accompanying text from a file message (lines that don't start with 📎)
   const getFileMessageText = (content: string) => {
     const lines = content.split("\n");
-    if (lines.length <= 1) return "";
-    return lines.slice(1).join("\n").trim();
+    const textLines = lines.filter((l) => !l.startsWith("📎"));
+    return textLines.join("\n").trim();
   };
 
-  // Find ChatFile matching a file message content
-  const findFileForMessage = useCallback((msgContent: string, messageId?: string): ChatFile | undefined => {
-    if (!msgContent.startsWith("📎")) return undefined;
+  // Find ALL ChatFiles matching a file message (may have multiple 📎 lines)
+  const findFilesForMessage = useCallback((msgContent: string, messageId?: string): ChatFile[] => {
+    if (!msgContent.startsWith("📎")) return [];
     // Prefer matching by message_id for accuracy
     if (messageId) {
-      const byId = convFiles.find((f) => f.message_id === messageId);
-      if (byId) return byId;
+      const byId = convFiles.filter((f) => f.message_id === messageId);
+      if (byId.length > 0) return byId;
     }
-    const fileName = getFileNameFromMsg(msgContent);
-    return convFiles.find((f) => f.file_name === fileName);
+    // Fallback: match by file names in content
+    const fileNames = msgContent.split("\n")
+      .filter((l) => l.startsWith("📎"))
+      .map((l) => l.slice(2).trim());
+    return convFiles.filter((f) => fileNames.includes(f.file_name));
   }, [convFiles]);
 
   // Group files by date
