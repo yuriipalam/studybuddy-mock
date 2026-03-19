@@ -183,9 +183,14 @@ export default function MessagesPage() {
     return data.publicUrl;
   };
 
+  const isPreviewable = (mimeType: string) => {
+    return mimeType.startsWith("image/") || mimeType === "application/pdf" || mimeType.startsWith("text/");
+  };
+
   const getFileIcon = (mimeType: string) => {
     if (mimeType.startsWith("image/")) return <ImageIcon className="h-4 w-4 text-primary" />;
     if (mimeType.includes("pdf")) return <FileText className="h-4 w-4 text-destructive" />;
+    if (mimeType.startsWith("text/")) return <FileText className="h-4 w-4 text-accent-foreground" />;
     return <FileIcon className="h-4 w-4 text-muted-foreground" />;
   };
 
@@ -193,6 +198,19 @@ export default function MessagesPage() {
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
+
+  const handleFileClick = (f: ChatFile) => {
+    if (isPreviewable(f.mime_type)) {
+      setPreviewFile(f);
+    } else {
+      // Download non-previewable files
+      const url = getFileUrl(f.file_path);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = f.file_name;
+      a.click();
+    }
   };
 
   // Group files by date
