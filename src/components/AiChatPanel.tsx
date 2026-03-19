@@ -501,7 +501,7 @@ export function AiChatPanel({
             }}
             onPaste={handlePaste}
             placeholder="What would you like to know?"
-            className="w-full resize-none rounded-lg border border-border bg-background pl-10 pr-12 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring min-h-[40px] max-h-[120px]"
+            className="w-full resize-none rounded-lg border border-border bg-background pl-10 pr-12 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring min-h-[44px] max-h-[120px]"
             rows={1}
             disabled={isLoading}
           />
