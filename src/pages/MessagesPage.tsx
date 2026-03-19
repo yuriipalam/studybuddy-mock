@@ -473,6 +473,9 @@ export default function MessagesPage() {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-1.5 min-w-0">
                           <p className="text-sm font-medium truncate">{convContact?.user_name}</p>
+                          {isPinned && (
+                            <Pin className="h-3 w-3 text-primary shrink-0" />
+                          )}
                           {convContact?.user_role === "supervisor" && (
                             <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 leading-none shrink-0">
                               Supervisor
@@ -485,6 +488,20 @@ export default function MessagesPage() {
                               {formatTime(conv.lastMessage.created_at)}
                             </span>
                           )}
+                          <button
+                            className="opacity-0 group-hover/conv:opacity-100 transition-opacity p-0.5 rounded hover:bg-muted"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              togglePin(conv.id);
+                            }}
+                            title={isPinned ? "Unpin chat" : "Pin chat"}
+                          >
+                            {isPinned ? (
+                              <PinOff className="h-3.5 w-3.5 text-muted-foreground" />
+                            ) : (
+                              <Pin className="h-3.5 w-3.5 text-muted-foreground" />
+                            )}
+                          </button>
                           <button
                             className="opacity-0 group-hover/conv:opacity-100 transition-opacity p-0.5 rounded hover:bg-destructive/10"
                             onClick={(e) => {
