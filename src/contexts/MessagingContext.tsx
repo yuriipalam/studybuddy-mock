@@ -439,6 +439,34 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
     [userId]
   );
 
+  const editMessage = useCallback(
+    async (messageId: string, newContent: string) => {
+      if (!userId) return;
+
+      const editedAt = new Date().toISOString();
+
+      // Optimistic update
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === messageId ? { ...m, content: newContent, edited_at: editedAt } : m
+        )
+      );
+
+      const { error } = await supabase
+        .from("messages")
+        .update({ content: newContent, edited_at: editedAt })
+        .eq("id", messageId)
+        .eq("sender_id", userId);
+
+      if (error) {
+        toast.error("Failed to edit message");
+        // Reload to restore original
+        loadMessages();
+      }
+    },
+    [userId, loadMessages]
+  );
+
   return (
     <MessagingContext.Provider
       value={{
@@ -447,6 +475,7 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
         setActiveConversationId,
         messages,
         sendMessage,
+        editMessage,
         startConversation,
         getConversationByContact,
         markAsRead,
