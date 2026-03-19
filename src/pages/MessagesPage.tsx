@@ -800,32 +800,67 @@ export default function MessagesPage() {
                                     )}
                                   >
                                     {editingId === msg.id ? (
-                                      <form
-                                        className="flex items-center gap-1.5"
-                                        onSubmit={(e) => {
-                                          e.preventDefault();
-                                          if (editInput.trim() && editInput.trim() !== msg.content) {
-                                            editMessage(msg.id, editInput.trim());
-                                          }
-                                          setEditingId(null);
-                                        }}
-                                      >
-                                        <input
-                                          autoFocus
-                                          className="bg-transparent outline-none flex-1 min-w-0 text-sm"
-                                          value={editInput}
-                                          onChange={(e) => setEditInput(e.target.value)}
-                                          onKeyDown={(e) => {
-                                            if (e.key === "Escape") setEditingId(null);
-                                          }}
-                                        />
-                                        <Button type="submit" size="icon" variant="ghost" className="h-5 w-5 shrink-0">
-                                          <Check className="h-3 w-3" />
-                                        </Button>
-                                        <Button type="button" size="icon" variant="ghost" className="h-5 w-5 shrink-0" onClick={() => setEditingId(null)}>
-                                          <X className="h-3 w-3" />
-                                        </Button>
-                                      </form>
+                                      (() => {
+                                        // For file messages, show the file previews above the edit input
+                                        const editChatFiles = isFileMsg ? findFilesForMessage(msg.content, msg.id) : [];
+                                        const filePrefix = msg.content.split("\n").filter((l: string) => l.startsWith("📎")).join("\n");
+                                        return (
+                                          <div className="space-y-1.5">
+                                            {editChatFiles.length > 0 && (
+                                              <div className="flex flex-wrap gap-1.5">
+                                                {editChatFiles.map((chatFile) => {
+                                                  const isImage = chatFile.mime_type.startsWith("image/");
+                                                  return (
+                                                    <div key={chatFile.id} className="rounded-lg overflow-hidden w-20 h-20">
+                                                      {isImage ? (
+                                                        <img src={getFileUrl(chatFile.file_path)} alt={chatFile.file_name} className="w-full h-full object-cover" />
+                                                      ) : (
+                                                        <div className="w-full h-full bg-muted/50 flex flex-col items-center justify-center gap-1 p-1">
+                                                          {getFileIcon(chatFile.mime_type, "lg")}
+                                                          <span className="text-[9px] text-muted-foreground uppercase font-medium truncate w-full text-center">
+                                                            {chatFile.file_name.split(".").pop()}
+                                                          </span>
+                                                        </div>
+                                                      )}
+                                                    </div>
+                                                  );
+                                                })}
+                                              </div>
+                                            )}
+                                            <form
+                                              className="flex items-center gap-1.5"
+                                              onSubmit={(e) => {
+                                                e.preventDefault();
+                                                const newText = editInput.trim();
+                                                const newContent = isFileMsg
+                                                  ? (newText ? `${filePrefix}\n${newText}` : filePrefix)
+                                                  : newText;
+                                                if (newContent && newContent !== msg.content) {
+                                                  editMessage(msg.id, newContent);
+                                                }
+                                                setEditingId(null);
+                                              }}
+                                            >
+                                              <input
+                                                autoFocus
+                                                className="bg-transparent outline-none flex-1 min-w-0 text-sm"
+                                                value={editInput}
+                                                onChange={(e) => setEditInput(e.target.value)}
+                                                onKeyDown={(e) => {
+                                                  if (e.key === "Escape") setEditingId(null);
+                                                }}
+                                                placeholder={isFileMsg ? "Add a caption..." : undefined}
+                                              />
+                                              <Button type="submit" size="icon" variant="ghost" className="h-5 w-5 shrink-0">
+                                                <Check className="h-3 w-3" />
+                                              </Button>
+                                              <Button type="button" size="icon" variant="ghost" className="h-5 w-5 shrink-0" onClick={() => setEditingId(null)}>
+                                                <X className="h-3 w-3" />
+                                              </Button>
+                                            </form>
+                                          </div>
+                                        );
+                                      })()
                                     ) : isFileMsg ? (
                                       (() => {
                                         const chatFiles = findFilesForMessage(msg.content, msg.id);
