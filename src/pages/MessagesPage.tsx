@@ -93,6 +93,9 @@ export default function MessagesPage() {
   const [milestones, setMilestones] = useState<{ id: string; text: string; completed: boolean }[]>([]);
   const [newMilestoneText, setNewMilestoneText] = useState("");
   const [addingMilestone, setAddingMilestone] = useState(false);
+  const [milestonesEditMode, setMilestonesEditMode] = useState(false);
+  const [editingMilestoneId, setEditingMilestoneId] = useState<string | null>(null);
+  const [editMilestoneText, setEditMilestoneText] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
@@ -753,104 +756,174 @@ export default function MessagesPage() {
                 )}
               </ScrollArea>
             ) : chatTab === "milestones" ? (
-              <ScrollArea className="flex-1 px-4 py-3">
-                <div className="max-w-md mx-auto py-4">
-                  {milestones.map((m, i) => (
-                    <div key={m.id} className="flex items-stretch">
-                      {/* Timeline column */}
-                      <div className="flex flex-col items-center w-6 shrink-0">
-                        <button
-                          onClick={() =>
-                            setMilestones((prev) =>
-                              prev.map((item) =>
-                                item.id === m.id ? { ...item, completed: !item.completed } : item
+              <div className="flex-1 flex flex-col overflow-hidden">
+                {/* Edit mode toggle */}
+                <div className="flex justify-end px-4 pt-2">
+                  <Button
+                    variant={milestonesEditMode ? "default" : "ghost"}
+                    size="sm"
+                    className="h-7 text-xs gap-1"
+                    onClick={() => {
+                      setMilestonesEditMode((v) => !v);
+                      setEditingMilestoneId(null);
+                    }}
+                  >
+                    <Pencil className="h-3 w-3" />
+                    {milestonesEditMode ? "Done" : "Edit"}
+                  </Button>
+                </div>
+                <ScrollArea className="flex-1 px-4 py-3">
+                  <div className="max-w-md mx-auto py-2">
+                    {milestones.map((m, i) => (
+                      <div key={m.id} className="flex items-stretch">
+                        {/* Timeline column */}
+                        <div className="flex flex-col items-center w-6 shrink-0">
+                          <button
+                            onClick={() =>
+                              !milestonesEditMode &&
+                              setMilestones((prev) =>
+                                prev.map((item) =>
+                                  item.id === m.id ? { ...item, completed: !item.completed } : item
+                                )
                               )
-                            )
-                          }
-                          className="relative z-10 shrink-0"
-                        >
-                          {m.completed ? (
-                            <CheckCircle2 className="h-5 w-5 text-primary" />
-                          ) : (
-                            <Circle className="h-5 w-5 text-muted-foreground" />
-                          )}
-                        </button>
-                        {/* Solid line to next item */}
-                        {i < milestones.length - 1 && (
-                          <div className="w-px flex-1 bg-border" />
-                        )}
-                        {i === milestones.length - 1 && (
-                          <div className="w-px flex-1 border-l border-dashed border-border" />
-                        )}
-                      </div>
-                      {/* Content */}
-                      <div className="flex-1 pb-6 pl-3 min-w-0">
-                        <p className={cn("text-sm", m.completed && "line-through text-muted-foreground")}>
-                          {m.text}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-
-                  {/* Add new milestone row */}
-                  <div className="flex items-start">
-                    <div className="flex flex-col items-center w-6 shrink-0">
-                      {!addingMilestone ? (
-                        <button
-                          onClick={() => setAddingMilestone(true)}
-                          className="relative z-10 shrink-0 h-5 w-5 rounded-full border-2 border-dashed border-muted-foreground flex items-center justify-center hover:border-primary hover:text-primary transition-colors text-muted-foreground"
-                        >
-                          <Plus className="h-3 w-3" />
-                        </button>
-                      ) : (
-                        <Circle className="h-5 w-5 text-muted-foreground shrink-0" />
-                      )}
-                    </div>
-                    <div className="flex-1 pl-3 min-w-0">
-                      {addingMilestone ? (
-                        <form
-                          className="flex items-center gap-2"
-                          onSubmit={(e) => {
-                            e.preventDefault();
-                            if (newMilestoneText.trim()) {
-                              setMilestones((prev) => [
-                                ...prev,
-                                { id: crypto.randomUUID(), text: newMilestoneText.trim(), completed: false },
-                              ]);
-                              setNewMilestoneText("");
-                              setAddingMilestone(false);
                             }
-                          }}
-                        >
-                          <Input
-                            autoFocus
-                            value={newMilestoneText}
-                            onChange={(e) => setNewMilestoneText(e.target.value)}
-                            placeholder="New milestone..."
-                            className="h-7 text-sm"
-                            onKeyDown={(e) => {
-                              if (e.key === "Escape") {
-                                setAddingMilestone(false);
+                            className="relative z-10 shrink-0"
+                          >
+                            {m.completed ? (
+                              <CheckCircle2 className="h-5 w-5 text-primary" />
+                            ) : (
+                              <Circle className="h-5 w-5 text-muted-foreground" />
+                            )}
+                          </button>
+                          {i < milestones.length - 1 && (
+                            <div className="w-px flex-1 bg-border" />
+                          )}
+                          {i === milestones.length - 1 && (
+                            <div className="w-px flex-1 border-l border-dashed border-border" />
+                          )}
+                        </div>
+                        {/* Content */}
+                        <div className="flex-1 pb-6 pl-3 min-w-0 flex items-start gap-2">
+                          {editingMilestoneId === m.id ? (
+                            <form
+                              className="flex items-center gap-2 flex-1"
+                              onSubmit={(e) => {
+                                e.preventDefault();
+                                if (editMilestoneText.trim()) {
+                                  setMilestones((prev) =>
+                                    prev.map((item) =>
+                                      item.id === m.id ? { ...item, text: editMilestoneText.trim() } : item
+                                    )
+                                  );
+                                }
+                                setEditingMilestoneId(null);
+                              }}
+                            >
+                              <Input
+                                autoFocus
+                                value={editMilestoneText}
+                                onChange={(e) => setEditMilestoneText(e.target.value)}
+                                className="h-7 text-sm flex-1"
+                                onKeyDown={(e) => {
+                                  if (e.key === "Escape") setEditingMilestoneId(null);
+                                }}
+                              />
+                              <Button type="submit" size="sm" className="h-7 px-2">
+                                Save
+                              </Button>
+                            </form>
+                          ) : (
+                            <>
+                              <p className={cn("text-sm flex-1", m.completed && "line-through text-muted-foreground")}>
+                                {m.text}
+                              </p>
+                              {milestonesEditMode && (
+                                <div className="flex items-center gap-1 shrink-0">
+                                  <button
+                                    className="p-1 rounded hover:bg-muted"
+                                    onClick={() => {
+                                      setEditingMilestoneId(m.id);
+                                      setEditMilestoneText(m.text);
+                                    }}
+                                  >
+                                    <Pencil className="h-3 w-3 text-muted-foreground" />
+                                  </button>
+                                  <button
+                                    className="p-1 rounded hover:bg-destructive/10"
+                                    onClick={() =>
+                                      setMilestones((prev) => prev.filter((item) => item.id !== m.id))
+                                    }
+                                  >
+                                    <Trash2 className="h-3 w-3 text-destructive" />
+                                  </button>
+                                </div>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+
+                    {/* Add new milestone row */}
+                    <div className="flex items-start">
+                      <div className="flex flex-col items-center w-6 shrink-0">
+                        {!addingMilestone ? (
+                          <button
+                            onClick={() => setAddingMilestone(true)}
+                            className="relative z-10 shrink-0 h-5 w-5 rounded-full border-2 border-dashed border-muted-foreground flex items-center justify-center hover:border-primary hover:text-primary transition-colors text-muted-foreground"
+                          >
+                            <Plus className="h-3 w-3" />
+                          </button>
+                        ) : (
+                          <Circle className="h-5 w-5 text-muted-foreground shrink-0" />
+                        )}
+                      </div>
+                      <div className="flex-1 pl-3 min-w-0">
+                        {addingMilestone ? (
+                          <form
+                            className="flex items-center gap-2"
+                            onSubmit={(e) => {
+                              e.preventDefault();
+                              if (newMilestoneText.trim()) {
+                                setMilestones((prev) => [
+                                  ...prev,
+                                  { id: crypto.randomUUID(), text: newMilestoneText.trim(), completed: false },
+                                ]);
                                 setNewMilestoneText("");
+                                setAddingMilestone(false);
                               }
                             }}
-                          />
-                          <Button type="submit" size="sm" className="h-7 px-2" disabled={!newMilestoneText.trim()}>
-                            Add
-                          </Button>
-                        </form>
-                      ) : (
-                        <button
-                          onClick={() => setAddingMilestone(true)}
-                          className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                        >
-                          Add milestone
-                        </button>
-                      )}
+                          >
+                            <Input
+                              autoFocus
+                              value={newMilestoneText}
+                              onChange={(e) => setNewMilestoneText(e.target.value)}
+                              placeholder="New milestone..."
+                              className="h-7 text-sm"
+                              onKeyDown={(e) => {
+                                if (e.key === "Escape") {
+                                  setAddingMilestone(false);
+                                  setNewMilestoneText("");
+                                }
+                              }}
+                            />
+                            <Button type="submit" size="sm" className="h-7 px-2" disabled={!newMilestoneText.trim()}>
+                              Add
+                            </Button>
+                          </form>
+                        ) : (
+                          <button
+                            onClick={() => setAddingMilestone(true)}
+                            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                          >
+                            Add milestone
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </ScrollArea>
+                </ScrollArea>
+              </div>
             ) : null}
           </>
         )}
