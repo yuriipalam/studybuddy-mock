@@ -371,7 +371,7 @@ export default function MessagesPage() {
   };
 
   const getFileIcon = (mimeType: string, size: "sm" | "lg" = "sm") => {
-    const cls = size === "lg" ? "h-8 w-8" : "h-4 w-4";
+    const cls = size === "lg" ? "h-5 w-5" : "h-4 w-4";
     if (mimeType.startsWith("image/")) return <ImageIcon className={cn(cls, "text-primary")} />;
     if (mimeType.includes("pdf")) return <FileText className={cn(cls, "text-destructive")} />;
     if (mimeType.startsWith("text/")) return <FileText className={cn(cls, "text-accent-foreground")} />;
