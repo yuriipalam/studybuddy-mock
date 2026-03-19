@@ -137,8 +137,8 @@ export function AiChatPanel({
       {/* Header */}
       <div className="h-14 border-b border-border flex items-center justify-between px-4 shrink-0">
         <div className="flex items-center gap-2">
-          <Sparkles className="h-4 w-4 text-foreground" />
-          <span className="font-semibold text-sm">AI Assistant</span>
+          <Sparkles className="h-4 w-4 text-ai-solid" />
+          <span className="text-ai font-semibold text-sm">AI Assistant</span>
         </div>
         <div className="flex items-center gap-1">
           {messages.length > 0 && (

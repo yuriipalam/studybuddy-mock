@@ -7,71 +7,61 @@ const corsHeaders = {
 };
 
 const PLATFORM_DATA = `
-## Available Thesis Topics
-1. "Machine Learning for Predictive Maintenance in Railway Systems" — Company: SBB CFF FFS, Contact: Dr. Maria Keller, Fields: Machine Learning, Transportation, IoT. Develop ML models to predict railway component failures using sensor data.
-2. "Quantum Computing Applications in Particle Physics Simulation" — Company: CERN, Contact: Prof. Jean-Pierre Dubois, Fields: Quantum Computing, Physics, HPC. Explore quantum algorithms for accelerating Monte Carlo simulations.
-3. "Advanced Filtration Membranes Using Nano-Materials" — Company: Sefar AG, Contact: Dr. Thomas Brunner, Fields: Materials Science, Nanotechnology, Chemistry. Develop next-gen filtration membranes with nano-materials.
-4. "Sustainable Energy Storage Solutions for Smart Grids" — Company: ABB Switzerland, Contact: Ing. Sarah Weber, Fields: Energy, Electrical Engineering, Sustainability. Design novel energy storage for smart grid infrastructure.
-5. "Natural Language Processing for Multilingual Legal Document Analysis" — Company: Swiss Re, Contact: Dr. Lisa Meier, Fields: NLP, AI, Legal Tech. Build NLP pipelines for analyzing legal documents across DE/FR/IT/EN.
-6. "Computer Vision for Autonomous Drone Navigation in Alpine Environments" — University: ETH Zurich, Contact: Prof. Andreas Müller, Fields: Computer Vision, Robotics, AI. Develop CV algorithms for drone navigation in alpine terrain.
+## Platform Overview
+Studyond is a three-sided marketplace connecting Students, Companies, and Universities around real-world thesis topics, research projects, and talent sourcing in Switzerland. The platform hosts 7,500+ topics, 200+ companies, 44+ Swiss universities, and 1,680+ study programs.
 
-## Industry Experts
-- Dr. Maria Keller — SBB CFF FFS, Head of Data Science, PhD Computer Science (ETH Zurich). Fields: Machine Learning, Transportation.
-- Prof. Jean-Pierre Dubois — CERN, Senior Researcher, PhD Physics (EPFL). Fields: Quantum Computing, Physics.
-- Dr. Thomas Brunner — Sefar AG, R&D Manager, PhD Chemistry (University of Basel). Fields: Materials Science, Nanotechnology.
-- Ing. Sarah Weber — ABB Switzerland, Principal Engineer, MSc Electrical Engineering (ETH Zurich). Fields: Energy, Electrical Engineering.
-- Dr. Lisa Meier — Swiss Re, AI Research Lead, PhD AI (University of Zurich). Fields: NLP, AI.
-- Dr. Marco Rossi — Roche, Data Scientist, PhD Bioinformatics (ETH Zurich). Fields: Bioinformatics, Data Science.
-- Dr. Anna Schmidt — Google Zurich, Engineering Manager, PhD Computer Science (TU Munich). Fields: Software Engineering, Cloud Computing.
-- Dr. Peter Huber — Novartis, Research Director, PhD Pharma (University of Basel). Fields: Pharma, Biotech.
+## Available Thesis Topics (Sample)
+1. "AI-Driven Demand Forecasting for Perishable Goods" — Nestlé, Expert: Laura Fischer. Fields: Data Science, AI. MSc.
+2. "Circular Packaging Design Assessment Framework" — Nestlé, Expert: Philippe Dubois. Fields: Sustainability, Supply Chain Management. MSc.
+3. "Biomarker Discovery Using Multi-Omics Data Integration" — Roche, Expert: Nadia Kessler. Fields: Biotechnology, Healthcare. MSc/PhD.
+4. "Digital Twin for Collaborative Robot Work Cells" — ABB, Expert: Sven Eriksson. Fields: Mechanical Engineering, Electrical Engineering. MSc.
+5. "Federated Learning for Telecom Network Optimization" — Swisscom, Expert: Marco Bentivoglio. Fields: Computer Science, AI. MSc.
+6. "Predictive Maintenance for Rolling Stock Using IoT Data" — SBB, Expert: Patrick Zollinger. Fields: Data Science, Computer Science. MSc.
+7. "Climate Risk Modeling with Alternative Data Sources" — Swiss Re, Expert: Julian Kraft. Fields: Data Science, Finance. MSc.
+8. "Generative Models for Molecular Lead Optimization" — Novartis, Expert: Rahel Ammann. Fields: AI, Biotechnology. MSc/PhD.
+9. "BIM-Integrated IoT Monitoring for Construction Site Safety" — Hilti, Expert: Reto Huber. Fields: Computer Science, Mechanical Engineering. MSc.
+10. "Sustainable Cocoa Supply Chain Traceability" — Bühler Group, Expert: Jonas Beerli. Fields: Supply Chain Management, Sustainability. MSc.
 
-## Supervisors
-- Prof. Andreas Müller — ETH Zurich, Full Professor. Fields: Robotics, AI.
-- Prof. Clara Hoffmann — EPFL, Associate Professor. Fields: Quantum Computing, Physics.
-- Prof. Robert Lang — University of Zurich, Full Professor. Fields: NLP, AI.
-- Prof. Elena Bianchi — ETH Zurich, Assistant Professor. Fields: Materials Science, Chemistry.
-- Prof. Martin Steiner — University of Bern, Full Professor. Fields: Energy, Sustainability.
-- Prof. Yuki Tanaka — EPFL, Associate Professor. Fields: Computer Vision, Robotics.
-- Prof. Laura Frei — University of Basel, Full Professor. Fields: Bioinformatics, Data Science.
-- Prof. Stefan Vogel — ETH Zurich, Full Professor. Fields: Software Engineering, Cloud Computing.
+## Supervisor Topics (Sample)
+31. "Verification of Neural Network Robustness" — Prof. Dr. Martin Vechev, ETH Zurich. Fields: Computer Science, AI.
+32. "Simulation-Driven Topology Optimization for Additive Manufacturing" — Prof. Dr. Sibylle Hechberger, ETH Zurich. Fields: Mechanical Engineering.
+33. "Privacy-Preserving Health Data Analytics" — Prof. Dr. Carmela Troncoso, EPFL. Fields: Computer Science, Data Science.
+34. "Computational Protein Design for Therapeutic Antibodies" — Prof. Dr. Bruno Correia, EPFL. Fields: Biotechnology, AI.
+35. "Consumer Adoption of Autonomous Mobility Services" — Prof. Dr. Andreas Herrmann, HSG. Fields: Marketing, Business Administration.
 
-## Students on the Platform
-- Lena Fischer — ETH Zurich, Computer Science, Master
-- Noah Müller — EPFL, Physics, Master
-- Sophie Martin — University of Zurich, Data Science, Bachelor
-- Lukas Schmid — ETH Zurich, Mechanical Engineering, Master
-- Emma Keller — University of Bern, Biology, Master
-- Julian Brunner — EPFL, Electrical Engineering, Bachelor
-- Mia Weber — ETH Zurich, AI, Master
-- David Huber — University of Basel, Chemistry, Master
+## Industry Experts (Sample)
+- Laura Fischer — Nestlé, Head of Data Science. Fields: Data Science, AI.
+- Nadia Kessler — Roche, Principal Scientist, Computational Biology. Fields: Biotechnology, Healthcare.
+- Sven Eriksson — ABB, VP Robotics R&D. Fields: Mechanical Engineering, Electrical Engineering.
+- Marco Bentivoglio — Swisscom, Head of ML Engineering. Fields: Computer Science, AI.
+- Patrick Zollinger — SBB, Head of Data Analytics & AI. Fields: Data Science, Computer Science.
+- Julian Kraft — Swiss Re, Chief Data Officer. Fields: Data Science, Finance.
+- Rahel Ammann — Novartis, Director of AI in Drug Discovery. Fields: AI, Biotechnology.
 
-## Available Jobs
-1. "Research Internship — Accelerator Physics" — CERN, Internship. Fields: Physics, Engineering.
-2. "Data Science Working Student" — SBB CFF FFS, Working Student. Fields: Data Science, Transportation.
-3. "Software Engineering Intern — Cloud Platform" — ABB Switzerland, Internship. Fields: Software Engineering, Cloud Computing.
-4. "Research Assistant — Robotics Lab" — ETH Zurich, Research Assistant. Fields: Robotics, AI, Mechanical Engineering.
-5. "UX Design Intern" — Swiss Re, Internship. Fields: Design, UX Research.
-6. "Materials Testing Lab Technician" — Sefar AG, Part-time. Fields: Materials Science, Quality Assurance.
+## Supervisors (Sample)
+- Prof. Dr. Martin Vechev — ETH Zurich. Research: reliable AI, automated reasoning, program synthesis.
+- Prof. Dr. Carmela Troncoso — EPFL. Research: privacy engineering, security analytics.
+- Prof. Dr. Andreas Herrmann — University of St. Gallen. Research: consumer behavior, digital marketing, autonomous mobility.
+- Prof. Dr. Abraham Bernstein — University of Zurich. Research: knowledge graphs, semantic web, human-AI collaboration.
+- Prof. Dr. Thomas Stocker — University of Bern. Research: climate modeling, paleoclimatology, carbon cycle dynamics.
 
-## Industry Partners
-- SBB CFF FFS — 30,000+ employees, 12 experts, 5 open topics. Fields: Transportation, Data Science.
-- CERN — 17,000+ employees, 24 experts, 14 open topics. Fields: Physics, Engineering.
-- ABB Switzerland — 10,000+ employees, 8 experts, 6 open topics. Fields: Electrical Engineering, Energy.
-- Sefar AG — 2,500+ employees, 3 experts, 2 open topics. Fields: Materials Science, Chemistry.
-- Swiss Re — 14,000+ employees, 6 experts, 4 open topics. Fields: Insurance, AI.
-- Roche — 100,000+ employees, 15 experts, 10 open topics. Fields: Pharma, Biotech.
-- Google Zurich — 5,000+ employees, 10 experts, 8 open topics. Fields: Software Engineering, AI.
-- Novartis — 78,000+ employees, 11 experts, 7 open topics. Fields: Pharma, Data Science.
+## Companies (Sample)
+- Nestlé — 10,001+ employees. Domains: Consumer Goods, Food & Beverage.
+- Roche — 10,001+ employees. Domains: Pharma & Healthcare, Biotechnology.
+- ABB — 10,001+ employees. Domains: Industrial Technology, Energy.
+- Swisscom — 5,001-10,000 employees. Domains: Telecommunications, IT Services.
+- SBB — 10,001+ employees. Domains: Transportation, Logistics.
+- Swiss Re — 5,001-10,000 employees. Domains: Insurance, Financial Services.
+- Novartis — 10,001+ employees. Domains: Pharma & Healthcare.
+- Hilti — 5,001-10,000 employees. Domains: Construction, Industrial Technology.
+- Bühler Group — 5,001-10,000 employees. Domains: Food Processing, Manufacturing.
+- On Running — 1,001-5,000 employees. Domains: Sportswear, Consumer Goods.
 
-## Study Programs
-- MSc Computer Science — ETH Zurich, 450 active students
-- MSc Physics — EPFL, 180 active students
-- MSc Data Science — University of Zurich, 220 active students
-- BSc Mechanical Engineering — ETH Zurich, 380 active students
-- MSc Electrical Engineering — EPFL, 160 active students
-- MSc Biology — University of Bern, 140 active students
-- MSc Chemistry — University of Basel, 120 active students
-- MSc Robotics — ETH Zurich, 95 active students
+## Universities
+ETH Zurich, EPFL, University of St. Gallen (HSG), University of Zurich, University of Bern, University of Basel, ZHAW, FHNW, OST, USI.
+
+## Fields
+Computer Science, Data Science, Artificial Intelligence, Business Administration, Finance, Marketing, Supply Chain Management, Sustainability, Mechanical Engineering, Electrical Engineering, Biotechnology, Healthcare & Medicine, Economics, Law, Communication & Media, Psychology, Environmental Science, Architecture & Design, Education, Public Policy.
 `;
 
 serve(async (req) => {
@@ -84,13 +74,13 @@ serve(async (req) => {
     const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
     if (!ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY is not configured");
 
-    const systemPrompt = `You are the AI assistant for Studyond, a platform connecting students with thesis topics, industry experts, supervisors, and jobs.
+    const systemPrompt = `You are the AI assistant for Studyond, a three-sided marketplace connecting students, companies, and universities around thesis topics and research projects in Switzerland.
 
-You have full access to the platform's current data. Use it to give accurate, specific answers. When users ask about topics, experts, jobs, etc., reference the actual data below.
+You have access to the platform's current data. Use it to give accurate, specific answers. When users ask about topics, experts, supervisors, companies, or study programs, reference the actual data below.
 
-The current user is Alex Johnson, a Computer Science Master student at ETH Zurich. Do NOT include Alex in lists of students.
+The current user is Luca Meier, an MSc Computer Science student at ETH Zurich with skills in Python, machine learning, distributed systems, and Kubernetes. He is interested in AI and Computer Science topics and looking for a thesis topic and career start. Do NOT include Luca in lists of students.
 
-Keep answers clear, well-structured, and use markdown formatting. Use bullet points, bold text, and headers when helpful.
+Keep answers clear, well-structured, and use markdown formatting. Use bullet points, bold text, and headers when helpful. Be encouraging and supportive — thesis students are often anxious and need confidence-building.
 
 ${PLATFORM_DATA}`;
 
