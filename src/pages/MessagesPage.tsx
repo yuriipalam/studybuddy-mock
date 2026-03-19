@@ -127,6 +127,8 @@ export default function MessagesPage() {
     messagesLoading,
     uploadFile,
     getConversationFiles,
+    startConversation,
+    getConversationByContact,
   } = useMessaging();
 
   const allContactIds = conversations.map((c) => {
