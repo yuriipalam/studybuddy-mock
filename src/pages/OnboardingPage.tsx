@@ -58,6 +58,22 @@ export default function OnboardingPage() {
     // Save to localStorage for use after login
     localStorage.setItem("onboarding_stage", selected);
 
+    // Auto-login if we have a pending registered user
+    const pendingUserStr = localStorage.getItem("studyond-pending-user");
+    if (pendingUserStr) {
+      try {
+        const pendingUser = JSON.parse(pendingUserStr);
+        localStorage.removeItem("studyond-pending-user");
+        await login(pendingUser.id, [pendingUser]);
+        toast.success("Great choice! Let's get started.");
+        setIsSaving(false);
+        navigate("/");
+        return;
+      } catch (e) {
+        console.error("Auto-login failed:", e);
+      }
+    }
+
     toast.success("Great choice! Let's get started.");
     setIsSaving(false);
     navigate("/login");
