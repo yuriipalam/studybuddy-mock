@@ -675,7 +675,7 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
       const textContent = content.trim();
       const msgContent = textContent ? `${fileLines}\n${textContent}` : fileLines;
 
-      // Optimistic: add temp message immediately
+      // Optimistic: add temp message immediately (only visible to sender)
       const tempId = `temp-${crypto.randomUUID()}`;
       const tempMsg: DbMessage = {
         id: tempId,
@@ -693,7 +693,30 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
         )
       );
 
-      // Create the DB message first so we have a message_id for all files
+      // Upload all files FIRST before inserting message into DB
+      const uploadedFiles: { file: File; filePath: string }[] = [];
+      for (const file of files) {
+        const filePath = `${conversationId}/${crypto.randomUUID()}-${file.name}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from("chat-files")
+          .upload(filePath, file);
+
+        if (uploadError) {
+          toast.error(`Failed to upload ${file.name}`);
+          continue;
+        }
+        uploadedFiles.push({ file, filePath });
+      }
+
+      // If no files uploaded successfully and no text content, abort
+      if (uploadedFiles.length === 0 && !textContent) {
+        setMessages((prev) => prev.filter((m) => m.id !== tempId));
+        toast.error("Failed to upload files");
+        return;
+      }
+
+      // Now insert the message into DB (receiver sees it only now)
       const { data: msgData, error: msgError } = await supabase
         .from("messages")
         .insert({
@@ -718,19 +741,8 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
         );
       }
 
-      // Upload all files and link to this single message
-      for (const file of files) {
-        const filePath = `${conversationId}/${crypto.randomUUID()}-${file.name}`;
-
-        const { error: uploadError } = await supabase.storage
-          .from("chat-files")
-          .upload(filePath, file);
-
-        if (uploadError) {
-          toast.error(`Failed to upload ${file.name}`);
-          continue;
-        }
-
+      // Link uploaded files to the message
+      for (const { file, filePath } of uploadedFiles) {
         await supabase.from("chat_files").insert({
           conversation_id: conversationId,
           message_id: msgData?.id || null,
