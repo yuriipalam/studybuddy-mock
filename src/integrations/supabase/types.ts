@@ -107,14 +107,17 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          reply_token: string | null
         }
         Insert: {
           created_at?: string
           id?: string
+          reply_token?: string | null
         }
         Update: {
           created_at?: string
           id?: string
+          reply_token?: string | null
         }
         Relationships: []
       }
@@ -382,6 +385,7 @@ export type Database = {
           first_name: string
           id: string
           last_name: string
+          last_seen_at: string | null
           role: string
           university: string | null
         }
@@ -393,6 +397,7 @@ export type Database = {
           first_name: string
           id?: string
           last_name: string
+          last_seen_at?: string | null
           role?: string
           university?: string | null
         }
@@ -404,6 +409,7 @@ export type Database = {
           first_name?: string
           id?: string
           last_name?: string
+          last_seen_at?: string | null
           role?: string
           university?: string | null
         }
