@@ -47,13 +47,13 @@ export default function OnboardingPage() {
   const [selected, setSelected] = useState<ThesisStage | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const navigate = useNavigate();
+  const createJourney = useCreateJourney();
 
   const handleContinue = async () => {
     if (!selected) return;
     setIsSaving(true);
 
-    // Simulate API save
-    await new Promise((resolve) => setTimeout(resolve, 600));
+    // Save to localStorage for use after login
     localStorage.setItem("onboarding_stage", selected);
 
     toast.success("Great choice! Let's get started.");
