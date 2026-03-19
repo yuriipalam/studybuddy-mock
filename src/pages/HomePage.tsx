@@ -38,7 +38,7 @@ export default function HomePage() {
     <div className="scroll-area">
       <div className="scroll-area-content space-y-8">
         <div>
-          <h1 className="ds-title-lg">{greeting}, {mockUser.name.split(" ")[0]}! ☕</h1>
+          <h1 className="ds-title-lg">{greeting}, {currentUser?.firstName ?? "there"}! ☕</h1>
           <p className="ds-body text-muted-foreground mt-1">What would you like to do today?</p>
         </div>
 
