@@ -886,7 +886,6 @@ export default function MessagesPage() {
                             onClick={() =>
                               !milestonesEditMode && dbToggleMilestone(m.id, !m.completed)
                             }
-                            }
                             className="relative z-10 shrink-0"
                           >
                             {m.completed ? (
