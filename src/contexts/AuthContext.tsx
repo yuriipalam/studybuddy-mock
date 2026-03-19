@@ -41,7 +41,7 @@ export const PREDEFINED_ACCOUNTS: AuthAccount[] = [
 
 interface AuthContextType {
   currentUser: AuthAccount | null;
-  login: (accountId: string) => void;
+  login: (accountId: string, accounts?: AuthAccount[]) => void;
   logout: () => void;
   isAuthenticated: boolean;
 }
