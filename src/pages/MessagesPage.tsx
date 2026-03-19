@@ -930,7 +930,7 @@ export default function MessagesPage() {
 
                             // Check if message is a file attachment
                             const isFileMsg = msg.content.startsWith("📎 ");
-                            const senderChanged = i > 0 && group.msgs[i - 1].sender_id !== msg.sender_id;
+                            const senderChanged = i > 0 && prevItem && prevItem.type === "message" && prevItem.data.sender_id !== msg.sender_id;
 
                             return (
                               <div key={msg.id} className={cn("flex w-full group", isMe ? "justify-end" : "justify-start", senderChanged && "mt-3")}>
