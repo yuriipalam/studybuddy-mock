@@ -521,7 +521,7 @@ export default function MessagesPage() {
                             <Pin className="h-3 w-3 text-primary shrink-0" />
                           )}
                           {convContact?.user_role === "supervisor" && (
-                            <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 leading-none shrink-0">
+                            <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 leading-none shrink-0 border-blue-500 text-blue-500">
                               Supervisor
                             </Badge>
                           )}
