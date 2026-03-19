@@ -69,12 +69,23 @@ function buildStagesFromOnboarding(selection: string) {
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  // Store DB accounts so we can restore on refresh
+  const [dbAccounts, setDbAccounts] = useState<AuthAccount[]>(() => {
+    try {
+      const stored = localStorage.getItem("studyond-db-accounts");
+      return stored ? JSON.parse(stored) : [];
+    } catch { return []; }
+  });
+
   const [currentUser, setCurrentUser] = useState<AuthAccount | null>(() => {
     try {
       const stored = localStorage.getItem(AUTH_STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
-        return PREDEFINED_ACCOUNTS.find((a) => a.id === parsed.id) || null;
+        const allAccounts = [...PREDEFINED_ACCOUNTS, ...(() => {
+          try { return JSON.parse(localStorage.getItem("studyond-db-accounts") || "[]"); } catch { return []; }
+        })()];
+        return allAccounts.find((a: AuthAccount) => a.id === parsed.id) || null;
       }
     } catch {}
     return null;
