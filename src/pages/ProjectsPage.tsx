@@ -178,14 +178,25 @@ export default function ProjectsPage() {
                       </div>
                     </div>
 
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => navigate(`/topics`)}
-                      className="shrink-0"
-                    >
-                      View <ArrowRight className="h-3 w-3 ml-1" />
-                    </Button>
+                    <div className="flex flex-col gap-1.5 shrink-0">
+                      {app.status === "accepted" && topic.supervisorIds.length > 0 && (
+                        <Button
+                          variant="default"
+                          size="sm"
+                          onClick={() => navigate(`/messages?contact=${topic.supervisorIds[0]}&role=supervisor`)}
+                        >
+                          <MessageSquare className="h-3 w-3 mr-1" />
+                          Contact Supervisor
+                        </Button>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => navigate(`/topics`)}
+                      >
+                        View <ArrowRight className="h-3 w-3 ml-1" />
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
