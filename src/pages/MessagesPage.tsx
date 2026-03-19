@@ -211,11 +211,13 @@ export default function MessagesPage() {
   };
 
   const handleFileClick = (f: ChatFile) => {
-    if (isPreviewable(f.mime_type)) {
+    const url = getFileUrl(f.file_path);
+    if (f.mime_type.startsWith("image/")) {
       setPreviewFile(f);
+    } else if (f.mime_type === "application/pdf") {
+      window.open(url, "_blank", "noopener,noreferrer");
     } else {
       // Download non-previewable files
-      const url = getFileUrl(f.file_path);
       const a = document.createElement("a");
       a.href = url;
       a.download = f.file_name;
