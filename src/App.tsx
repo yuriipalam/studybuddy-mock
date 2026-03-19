@@ -15,6 +15,7 @@ import SupervisorsPage from "@/pages/SupervisorsPage";
 import CompaniesPage from "@/pages/CompaniesPage";
 import CompanyDetailPage from "@/pages/CompanyDetailPage";
 import UniversitiesPage from "@/pages/UniversitiesPage";
+import UniversityDetailPage from "@/pages/UniversityDetailPage";
 import StudyProgramsPage from "@/pages/StudyProgramsPage";
 import StudyProgramDetailPage from "@/pages/StudyProgramDetailPage";
 import SettingsPage from "@/pages/SettingsPage";
@@ -43,6 +44,7 @@ const App = () => (
             <Route path="/organizations/study-programs" element={<StudyProgramsPage />} />
             <Route path="/organizations/study-programs/:id" element={<StudyProgramDetailPage />} />
             <Route path="/organizations/universities" element={<UniversitiesPage />} />
+            <Route path="/organizations/universities/:id" element={<UniversityDetailPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
