@@ -447,7 +447,7 @@ export default function MessagesPage() {
       </div>
 
       {/* Right panel - chat */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-h-0">
         {!activeConv ? (
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
@@ -545,7 +545,7 @@ export default function MessagesPage() {
 
             {chatTab === "messages" ? (
               <div
-                className={cn("flex flex-col flex-1 relative", dragging && "ring-2 ring-primary ring-inset rounded-md")}
+                className={cn("flex flex-col flex-1 min-h-0 relative", dragging && "ring-2 ring-primary ring-inset rounded-md")}
                 onDragEnter={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
