@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useCreateJourney } from "@/hooks/useThesisJourney";
 import { Button } from "@/components/ui/button";
 import { Compass, Lightbulb, Users, PenTool, Sparkles, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -46,13 +47,13 @@ export default function OnboardingPage() {
   const [selected, setSelected] = useState<ThesisStage | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const navigate = useNavigate();
+  const createJourney = useCreateJourney();
 
   const handleContinue = async () => {
     if (!selected) return;
     setIsSaving(true);
 
-    // Simulate API save
-    await new Promise((resolve) => setTimeout(resolve, 600));
+    // Save to localStorage for use after login
     localStorage.setItem("onboarding_stage", selected);
 
     toast.success("Great choice! Let's get started.");

@@ -1,8 +1,10 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { Sparkles, Users, BookOpen, FileText, Video, Bookmark } from "lucide-react";
+import { Sparkles, Users, BookOpen, FileText, Video, Bookmark, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { ThesisJourneyTracker } from "@/components/ThesisJourneyTracker";
+import { useThesisJourney } from "@/hooks/useThesisJourney";
 
 type ActionCard = {
   title: string;
@@ -24,6 +26,7 @@ const actionCards: ActionCard[] = [
 export default function HomePage() {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
+  const { data: journey, isLoading: journeyLoading } = useThesisJourney();
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
 
@@ -42,6 +45,17 @@ export default function HomePage() {
           <h1 className="ds-title-lg">{greeting}, {currentUser?.firstName ?? "there"}! ☕</h1>
           <p className="ds-body text-muted-foreground mt-1">What would you like to do today?</p>
         </div>
+
+        {/* Thesis Journey Tracker */}
+        {currentUser?.role === "student" && (
+          journeyLoading ? (
+            <div className="flex items-center justify-center py-6">
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            </div>
+          ) : journey ? (
+            <ThesisJourneyTracker stages={journey.stages} currentStage={journey.current_stage} />
+          ) : null
+        )}
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {actionCards.map((card) => (

@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useCallback } from "react";
+import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 export type AccountRole = "student" | "supervisor";
 
@@ -49,6 +50,24 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 const AUTH_STORAGE_KEY = "studyond-auth-user";
 
+function buildStagesFromOnboarding(selection: string) {
+  const allStages = [
+    { id: "topic_selection", label: "Topic Selection", status: "locked" },
+    { id: "supervisor_approval", label: "Supervisor Approval", status: "locked" },
+    { id: "literature_review", label: "Literature Review", status: "locked" },
+    { id: "research", label: "Research", status: "locked" },
+    { id: "writing", label: "Writing", status: "locked" },
+    { id: "submission", label: "Submission", status: "locked" },
+  ];
+  let ci = 0;
+  if (selection === "has_topic" || selection === "needs_supervisor") ci = 1;
+  else if (selection === "working") ci = 3;
+  return allStages.map((s, i) => ({
+    ...s,
+    status: i < ci ? "completed" : i === ci ? "in_progress" : i === ci + 1 ? "up_next" : "locked",
+  }));
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [currentUser, setCurrentUser] = useState<AuthAccount | null>(() => {
     try {
@@ -61,11 +80,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return null;
   });
 
-  const login = useCallback((accountId: string) => {
+  const login = useCallback(async (accountId: string) => {
     const account = PREDEFINED_ACCOUNTS.find((a) => a.id === accountId);
     if (account) {
       setCurrentUser(account);
       localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({ id: account.id }));
+
+      // Check if there's a pending onboarding stage to save
+      const onboardingStage = localStorage.getItem("onboarding_stage");
+      if (onboardingStage && account.role === "student") {
+        try {
+          const stages = buildStagesFromOnboarding(onboardingStage);
+          const currentStage = stages.find((s: any) => s.status === "in_progress")?.id ?? "topic_selection";
+          await supabase.from("thesis_journeys").upsert({
+            user_id: account.id,
+            current_stage: currentStage,
+            stages: stages as any,
+          }, { onConflict: "user_id" });
+          localStorage.removeItem("onboarding_stage");
+        } catch (e) {
+          console.error("Failed to save journey:", e);
+        }
+      }
     }
   }, []);
 
