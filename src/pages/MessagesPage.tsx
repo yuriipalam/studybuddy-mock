@@ -55,6 +55,7 @@ export default function MessagesPage() {
     messages,
     sendMessage,
     editMessage,
+    deleteMessage,
     markAsRead,
     setTyping,
     typingUsers,
