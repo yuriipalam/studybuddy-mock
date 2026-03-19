@@ -29,7 +29,7 @@ export default function UniversitiesPage() {
         searchPlaceholder="Search universities..."
         filters={[]}
       />
-      <div className="grid-4-col">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {filtered.map((uni) => {
           const programCount = studyPrograms.filter((sp) => sp.universityId === uni.id).length;
           const supervisorCount = allSupervisors.filter((s) => s.universityId === uni.id).length;
