@@ -153,12 +153,21 @@ export default function TopicsPage() {
                 <h2 className="ds-title-md mt-1">{selected.title}</h2>
               </div>
               {getContactName(selected) && (
-                <div className="flex items-center gap-3">
+                <div
+                  className={cn(
+                    "flex items-center gap-3",
+                    getContactProfileUrl(selected) && "cursor-pointer hover:bg-muted/50 rounded-lg p-2 -m-2 transition-colors"
+                  )}
+                  onClick={() => {
+                    const url = getContactProfileUrl(selected);
+                    if (url) navigate(url);
+                  }}
+                >
                   <Avatar className="h-8 w-8">
                     <AvatarFallback>{getContactName(selected)[0]}</AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="ds-label">{getContactName(selected)}</p>
+                    <p className={cn("ds-label", getContactProfileUrl(selected) && "text-primary hover:underline")}>{getContactName(selected)}</p>
                     <p className="ds-caption text-muted-foreground">Contact Person</p>
                   </div>
                 </div>
