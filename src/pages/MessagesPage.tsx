@@ -99,6 +99,8 @@ export default function MessagesPage() {
   const bottomRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const [dragging, setDragging] = useState(false);
+  const dragCounterRef = useRef(0);
 
   const userId = currentUser?.id;
 
@@ -172,6 +174,28 @@ export default function MessagesPage() {
       setPendingFiles((prev) => [...prev, ...validFiles]);
     }
     if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const addValidFiles = (fileList: FileList | File[]) => {
+    const validFiles = Array.from(fileList).filter((file) => {
+      if (file.size > MAX_FILE_SIZE) {
+        toast.error(`"${file.name}" exceeds 100MB limit`);
+        return false;
+      }
+      return true;
+    });
+    if (validFiles.length > 0) {
+      setPendingFiles((prev) => [...prev, ...validFiles]);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragging(false);
+    dragCounterRef.current = 0;
+    if (!activeConversationId || !e.dataTransfer.files.length) return;
+    addValidFiles(e.dataTransfer.files);
   };
 
   const loadFiles = useCallback(async () => {
@@ -473,7 +497,26 @@ export default function MessagesPage() {
             </div>
 
             {chatTab === "messages" ? (
-              <>
+              <div
+                className={cn("flex flex-col flex-1 relative", dragging && "ring-2 ring-primary ring-inset rounded-md")}
+                onDragEnter={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  dragCounterRef.current++;
+                  setDragging(true);
+                }}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+                onDragLeave={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  dragCounterRef.current--;
+                  if (dragCounterRef.current === 0) setDragging(false);
+                }}
+                onDrop={handleDrop}
+              >
                 {/* Messages */}
                 <ScrollArea className="flex-1 px-4 py-3">
                   {messagesLoading ? (
@@ -696,7 +739,7 @@ export default function MessagesPage() {
                     </Button>
                   </form>
                 </div>
-              </>
+              </div>
             ) : chatTab === "files" ? (
               /* Files tab */
               <ScrollArea className="flex-1 px-4 py-3">
