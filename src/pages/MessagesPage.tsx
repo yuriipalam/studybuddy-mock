@@ -870,30 +870,37 @@ export default function MessagesPage() {
                                           return (
                                             <div className="space-y-1.5">
                                               <div className="flex flex-wrap gap-1.5">
-                                                {chatFiles.map((chatFile) => {
-                                                  const isImage = chatFile.mime_type.startsWith("image/");
-                                                  return (
-                                                    <div
-                                                      key={chatFile.id}
-                                                      className={cn(
-                                                        "rounded-lg overflow-hidden cursor-pointer w-20 h-20"
-                                                      )}
-                                                      onClick={(e) => { e.stopPropagation(); handleFileClick(chatFile); }}
-                                                    >
-                                                      {isImage ? (
-                                                        <img src={getFileUrl(chatFile.file_path)} alt={chatFile.file_name} className="w-full h-full object-cover" />
-                                                      ) : (
-                                                        <div className="w-full h-full bg-muted/50 flex flex-col items-center justify-center gap-1 p-1">
-                                                          {getFileIcon(chatFile.mime_type, "lg")}
-                                                          <span className="text-[9px] text-muted-foreground uppercase font-medium truncate w-full text-center">
-                                                            {chatFile.file_name.split(".").pop()}
-                                                          </span>
-                                                        </div>
-                                                      )}
-                                                    </div>
-                                                  );
-                                                })}
+                                                {chatFiles.filter(f => f.mime_type.startsWith("image/")).map((chatFile) => (
+                                                  <div
+                                                    key={chatFile.id}
+                                                    className="rounded-lg overflow-hidden cursor-pointer w-20 h-20"
+                                                    onClick={(e) => { e.stopPropagation(); handleFileClick(chatFile); }}
+                                                  >
+                                                    <img src={getFileUrl(chatFile.file_path)} alt={chatFile.file_name} className="w-full h-full object-cover" />
+                                                  </div>
+                                                ))}
                                               </div>
+                                              {chatFiles.filter(f => !f.mime_type.startsWith("image/")).map((chatFile) => (
+                                                <div
+                                                  key={chatFile.id}
+                                                  className={cn(
+                                                    "flex items-center gap-3 rounded-xl p-2.5 cursor-pointer transition-colors",
+                                                    isMe ? "bg-primary-foreground/10 hover:bg-primary-foreground/15" : "bg-background/60 hover:bg-background/80"
+                                                  )}
+                                                  onClick={(e) => { e.stopPropagation(); handleFileClick(chatFile); }}
+                                                >
+                                                  <div className={cn(
+                                                    "h-10 w-10 rounded-full flex items-center justify-center shrink-0",
+                                                    isMe ? "bg-primary-foreground/20" : "bg-muted"
+                                                  )}>
+                                                    {getFileIcon(chatFile.mime_type, "lg")}
+                                                  </div>
+                                                  <div className="min-w-0 flex-1">
+                                                    <p className={cn("text-sm font-medium truncate", isMe ? "text-primary-foreground" : "text-foreground")}>{chatFile.file_name}</p>
+                                                    <p className={cn("text-xs", isMe ? "text-primary-foreground/60" : "text-muted-foreground")}>{formatFileSize(chatFile.file_size)}</p>
+                                                  </div>
+                                                </div>
+                                              ))}
                                               {accompanyingText && (
                                                 <span className="whitespace-pre-wrap [overflow-wrap:anywhere]">{accompanyingText}</span>
                                               )}
