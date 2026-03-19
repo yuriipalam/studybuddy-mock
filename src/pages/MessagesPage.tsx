@@ -15,7 +15,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { MessageSquare, Send, Check, CheckCheck, Pencil, X, Trash2, Paperclip, FileText, Image as ImageIcon, File as FileIcon, Download, Eye, ExternalLink, Plus, Circle, CheckCircle2 } from "lucide-react";
+import { MessageSquare, Send, Check, CheckCheck, Pencil, X, Trash2, Paperclip, FileText, Image as ImageIcon, File as FileIcon, Download, Eye, ExternalLink, Plus, Circle, CheckCircle2, Pin, PinOff } from "lucide-react";
 import { toast } from "sonner";
 import { useMessaging, ChatFile } from "@/contexts/MessagingContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -90,6 +90,7 @@ export default function MessagesPage() {
   const [uploading, setUploading] = useState(false);
   const [previewFile, setPreviewFile] = useState<ChatFile | null>(null);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  const [pinnedIds, setPinnedIds] = useState<Set<string>>(new Set());
   const [milestones, setMilestones] = useState<{ id: string; text: string; description: string; completed: boolean }[]>([]);
   const [newMilestoneText, setNewMilestoneText] = useState("");
   const [newMilestoneDesc, setNewMilestoneDesc] = useState("");
@@ -173,16 +174,55 @@ export default function MessagesPage() {
 
   const userId = currentUser?.id;
 
+  // Load pinned conversations
+  useEffect(() => {
+    if (!userId) return;
+    let cancelled = false;
+    supabase
+      .from("pinned_conversations")
+      .select("conversation_id")
+      .eq("user_id", userId)
+      .then(({ data }) => {
+        if (!cancelled && data) {
+          setPinnedIds(new Set(data.map((r: any) => r.conversation_id)));
+        }
+      });
+    return () => { cancelled = true; };
+  }, [userId]);
+
+  const MAX_PINS = 5;
+
+  const togglePin = async (conversationId: string) => {
+    if (!userId) return;
+    if (pinnedIds.has(conversationId)) {
+      setPinnedIds((prev) => { const next = new Set(prev); next.delete(conversationId); return next; });
+      await supabase.from("pinned_conversations").delete().eq("user_id", userId).eq("conversation_id", conversationId);
+    } else {
+      if (pinnedIds.size >= MAX_PINS) {
+        toast.error(`You can pin up to ${MAX_PINS} chats`);
+        return;
+      }
+      setPinnedIds((prev) => new Set(prev).add(conversationId));
+      await supabase.from("pinned_conversations").insert({ user_id: userId, conversation_id: conversationId });
+    }
+  };
+
   const activeConv = conversations.find((c) => c.id === activeConversationId);
 
   const getContact = (conv: typeof conversations[0]) =>
     conv.participants.find((p) => p.user_id !== userId);
 
-  const filteredConvs = conversations.filter((c) => {
-    if (!search) return true;
-    const contact = getContact(c);
-    return contact?.user_name.toLowerCase().includes(search.toLowerCase());
-  });
+  const filteredConvs = conversations
+    .filter((c) => {
+      if (!search) return true;
+      const contact = getContact(c);
+      return contact?.user_name.toLowerCase().includes(search.toLowerCase());
+    })
+    .sort((a, b) => {
+      const aPinned = pinnedIds.has(a.id) ? 0 : 1;
+      const bPinned = pinnedIds.has(b.id) ? 0 : 1;
+      return aPinned - bPinned;
+    });
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -408,6 +448,7 @@ export default function MessagesPage() {
                   .map((w) => w[0])
                   .join("")
                   .slice(0, 2) || "?";
+                const isPinned = pinnedIds.has(conv.id);
 
                 const convTyping = (typingUsers[conv.id] || []).filter(
                   (t) => t.userId !== userId
@@ -432,6 +473,9 @@ export default function MessagesPage() {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-1.5 min-w-0">
                           <p className="text-sm font-medium truncate">{convContact?.user_name}</p>
+                          {isPinned && (
+                            <Pin className="h-3 w-3 text-primary shrink-0" />
+                          )}
                           {convContact?.user_role === "supervisor" && (
                             <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 leading-none shrink-0">
                               Supervisor
@@ -444,6 +488,20 @@ export default function MessagesPage() {
                               {formatTime(conv.lastMessage.created_at)}
                             </span>
                           )}
+                          <button
+                            className="opacity-0 group-hover/conv:opacity-100 transition-opacity p-0.5 rounded hover:bg-muted"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              togglePin(conv.id);
+                            }}
+                            title={isPinned ? "Unpin chat" : "Pin chat"}
+                          >
+                            {isPinned ? (
+                              <PinOff className="h-3.5 w-3.5 text-muted-foreground" />
+                            ) : (
+                              <Pin className="h-3.5 w-3.5 text-muted-foreground" />
+                            )}
+                          </button>
                           <button
                             className="opacity-0 group-hover/conv:opacity-100 transition-opacity p-0.5 rounded hover:bg-destructive/10"
                             onClick={(e) => {
