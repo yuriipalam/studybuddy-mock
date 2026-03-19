@@ -545,7 +545,7 @@ export default function MessagesPage() {
 
             {chatTab === "messages" ? (
               <div
-                className={cn("flex flex-col flex-1 relative", dragging && "ring-2 ring-primary ring-inset rounded-md")}
+                className={cn("flex flex-col flex-1 min-h-0 relative", dragging && "ring-2 ring-primary ring-inset rounded-md")}
                 onDragEnter={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
