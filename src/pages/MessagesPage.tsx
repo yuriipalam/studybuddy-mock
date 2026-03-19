@@ -1063,8 +1063,8 @@ export default function MessagesPage() {
                     {milestonesEditMode ? <Check className="h-3 w-3" /> : <Pencil className="h-3 w-3" />}
                     {milestonesEditMode ? "Done" : "Edit"}
                   </Button>
+                  <p className="text-sm text-foreground px-3">Break your goal into milestones</p>
                 </div>
-                <p className="text-center text-sm text-muted-foreground py-2">Break Your Goal Into Milestones</p>
                 <ScrollArea className="flex-1 px-3 py-3">
                   <div className="py-2">
                     {milestones.map((m, i) => (
