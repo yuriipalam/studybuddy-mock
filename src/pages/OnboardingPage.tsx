@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCreateJourney } from "@/hooks/useThesisJourney";
 import { useAuth } from "@/contexts/AuthContext";
@@ -50,6 +50,14 @@ export default function OnboardingPage() {
   const navigate = useNavigate();
   const { login } = useAuth();
   const createJourney = useCreateJourney();
+
+  // Guard: only accessible after registration
+  useEffect(() => {
+    const pendingUser = localStorage.getItem("studyond-pending-user");
+    if (!pendingUser) {
+      navigate("/login", { replace: true });
+    }
+  }, [navigate]);
 
   const handleContinue = async () => {
     if (!selected) return;
