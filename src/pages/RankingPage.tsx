@@ -217,6 +217,58 @@ function LeaderboardTable({ users, currentStudentId }: { users: RankedStudent[];
   );
 }
 
+function RecentActivitySection() {
+  const { data: activities } = useXpActivity();
+  const actionLabels: Record<string, string> = {
+    profile_completion: "Completed profile setup",
+    student_referral: "Referred a fellow student",
+    mentor_referral: "Referred a mentor",
+    submit_topic: "Submitted a new topic",
+    supervisor_interaction: "Supervisor interaction",
+    link_external_thesis: "Linked external thesis",
+    thesis_submission: "Thesis submitted",
+    unanswered_mentor_msg: "Unanswered mentor message",
+  };
+  return (
+    <div className="flex flex-col gap-3">
+      <h2 className="text-base font-semibold text-foreground">Recent Activity</h2>
+      <div className="rounded-xl border border-border bg-card shadow-sm divide-y divide-border">
+        {(!activities || activities.length === 0) ? (
+          <div className="px-4 py-8 text-center text-sm text-muted-foreground">
+            No activity yet — start earning XP!
+          </div>
+        ) : (
+          activities.map((item) => {
+            const positive = item.xp_amount > 0;
+            return (
+              <div key={item.id} className="flex items-center gap-3 px-4 py-3">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted">
+                  <Zap className={cn("h-4 w-4", positive ? "text-emerald-500" : "text-destructive")} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground truncate">
+                    {actionLabels[item.action] ?? item.action.replace(/_/g, " ")}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {formatDistanceToNow(new Date(item.created_at), { addSuffix: true })}
+                  </p>
+                </div>
+                <span className={cn(
+                  "text-sm font-semibold flex items-center gap-0.5 shrink-0",
+                  positive ? "text-emerald-500" : "text-destructive"
+                )}>
+                  {positive ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}
+                  {positive ? "+" : ""}{item.xp_amount} XP
+                </span>
+              </div>
+            );
+          })
+        )}
+      </div>
+    </div>
+  );
+}
+
 const RankingPage = () => {
   const { currentUser } = useAuth();
   const [activeTab, setActiveTab] = useState<RankingTab>("my-status");
