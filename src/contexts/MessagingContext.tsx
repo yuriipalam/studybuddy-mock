@@ -41,6 +41,7 @@ interface MessagingContextType {
   sendMessage: (conversationId: string, content: string) => Promise<void>;
   editMessage: (messageId: string, newContent: string) => Promise<void>;
   deleteMessage: (messageId: string) => Promise<void>;
+  deleteConversation: (conversationId: string) => Promise<void>;
   startConversation: (contact: { id: string; name: string; role: string; avatar?: string }) => Promise<string>;
   getConversationByContact: (contactId: string) => Conversation | undefined;
   markAsRead: (conversationId: string) => Promise<void>;
@@ -495,6 +496,30 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
     [userId, messages, loadConversations]
   );
 
+  const deleteConversation = useCallback(
+    async (conversationId: string) => {
+      if (!userId) return;
+
+      // Optimistic remove
+      setConversations((prev) => prev.filter((c) => c.id !== conversationId));
+      if (activeConversationId === conversationId) {
+        setActiveConversationId(null);
+        setMessages([]);
+      }
+
+      // Delete messages, participants, then conversation
+      await supabase.from("messages").delete().eq("conversation_id", conversationId);
+      await supabase.from("conversation_participants").delete().eq("conversation_id", conversationId);
+      const { error } = await supabase.from("conversations").delete().eq("id", conversationId);
+
+      if (error) {
+        toast.error("Failed to delete conversation");
+        loadConversations();
+      }
+    },
+    [userId, activeConversationId, loadConversations]
+  );
+
   return (
     <MessagingContext.Provider
       value={{
@@ -505,6 +530,7 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
         sendMessage,
         editMessage,
         deleteMessage,
+        deleteConversation,
         startConversation,
         getConversationByContact,
         markAsRead,
