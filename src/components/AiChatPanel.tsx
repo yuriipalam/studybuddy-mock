@@ -486,36 +486,38 @@ export function AiChatPanel({
               e.target.value = "";
             }}
           />
-          <textarea
-            ref={textareaRef}
-            value={input}
-            onChange={(e) => {
-              setInput(e.target.value);
-              autoResize();
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                send();
-              }
-            }}
-            onPaste={handlePaste}
-            placeholder="What would you like to know?"
-            className="w-full resize-none rounded-lg border border-border bg-background pl-10 pr-12 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring min-h-[44px] max-h-[120px]"
-            rows={1}
-            disabled={isLoading}
-          />
+          <ScrollArea className="w-full max-h-[120px] rounded-lg border border-border bg-background focus-within:ring-1 focus-within:ring-ring">
+            <textarea
+              ref={textareaRef}
+              value={input}
+              onChange={(e) => {
+                setInput(e.target.value);
+                autoResize();
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  send();
+                }
+              }}
+              onPaste={handlePaste}
+              placeholder="What would you like to know?"
+              className="w-full resize-none bg-transparent pl-10 pr-12 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none min-h-[44px] overflow-hidden"
+              rows={1}
+              disabled={isLoading}
+            />
+          </ScrollArea>
           <Button
             type="button"
             variant="ghost"
             size="icon"
-            className="absolute left-2 bottom-2 h-7 w-7 text-muted-foreground hover:text-foreground"
+            className="absolute left-2 top-2 h-7 w-7 text-muted-foreground hover:text-foreground"
             onClick={() => fileInputRef.current?.click()}
             disabled={isLoading}
           >
             <Paperclip className="h-4 w-4" />
           </Button>
-          <div className="absolute right-2 bottom-2 flex items-center gap-1">
+          <div className="absolute right-2 top-2 flex items-center gap-1">
             {isLoading ? (
               <Button
                 size="icon"
