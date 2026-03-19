@@ -1051,13 +1051,11 @@ export default function MessagesPage() {
                                 <p className={cn("text-sm", m.completed && "line-through text-muted-foreground")}>
                                   {m.text}
                                 </p>
-                                {expandedMilestoneId === m.id && m.description && (
-                                  <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                                    {m.description}
-                                  </p>
-                                )}
-                                {!expandedMilestoneId && m.description && !milestonesEditMode && (
-                                  <p className="text-[10px] text-muted-foreground/60 mt-0.5 truncate">
+                                {m.description && (
+                                  <p className={cn(
+                                    "text-xs text-muted-foreground mt-1 leading-relaxed",
+                                    expandedMilestoneId !== m.id && "line-clamp-2"
+                                  )}>
                                     {m.description}
                                   </p>
                                 )}
