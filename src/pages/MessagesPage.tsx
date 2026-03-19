@@ -1006,7 +1006,9 @@ export default function MessagesPage() {
                                                 <div
                                                   className={cn(
                                                     "prose prose-sm max-w-none [&_p]:my-0 [&_ul]:my-1 [&_ol]:my-1 [&_li]:my-0.5 [overflow-wrap:anywhere]",
-                                                    isMe && "prose-invert"
+                                                    isMe
+                                                      ? "prose-invert text-primary-foreground [&_*]:text-primary-foreground"
+                                                      : "dark:prose-invert"
                                                   )}
                                                 >
                                                   <ReactMarkdown>{accompanyingText}</ReactMarkdown>
