@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft, MessageSquare, Building2, BookOpen, Users } from "lucide-react";
+import { useMessaging } from "@/contexts/MessagingContext";
 
 export default function ExpertDetailPage() {
   const { id } = useParams<{ id: string }>();

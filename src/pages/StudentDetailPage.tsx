@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft, MessageSquare, School, BookOpen, Briefcase, GraduationCap, Shield } from "lucide-react";
+import { useMessaging } from "@/contexts/MessagingContext";
 
 export default function StudentDetailPage() {
   const { id } = useParams<{ id: string }>();
