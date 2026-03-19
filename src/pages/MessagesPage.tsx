@@ -791,7 +791,7 @@ export default function MessagesPage() {
                                       </form>
                                     ) : isFileMsg ? (
                                       (() => {
-                                        const chatFile = findFileForMessage(msg.content);
+                                        const chatFile = findFileForMessage(msg.content, msg.id);
                                         if (chatFile) {
                                           const isImage = chatFile.mime_type.startsWith("image/");
                                           return (
