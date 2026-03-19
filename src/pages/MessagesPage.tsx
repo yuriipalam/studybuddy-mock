@@ -763,8 +763,6 @@ export default function MessagesPage() {
                   >
                     <Video className="h-4 w-4" />
                   </Button>
-                    <Video className="h-4 w-4" />
-                  </Button>
                 </div>
               </div>
               <div className="flex px-4 gap-4">
