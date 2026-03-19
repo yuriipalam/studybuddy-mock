@@ -4,6 +4,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Bot, Send, X, Sparkles, Loader2, Square, RotateCcw, Copy, RefreshCw } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
+import { useUserProfile } from "@/contexts/UserProfileContext";
 
 type Message = { role: "user" | "assistant"; content: string };
 
@@ -27,6 +28,7 @@ export function AiChatPanel({
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const { getProfileSummaryForAI } = useUserProfile();
 
   useEffect(() => {
     if (open) textareaRef.current?.focus();
@@ -100,7 +102,7 @@ export function AiChatPanel({
             "Content-Type": "application/json",
             Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
           },
-          body: JSON.stringify({ messages: allMessages }),
+          body: JSON.stringify({ messages: allMessages, userProfile: getProfileSummaryForAI() }),
           signal: controller.signal,
         }
       );

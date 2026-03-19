@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,8 +11,9 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Camera, X } from "lucide-react";
 import { mockUser } from "@/data/mockUser";
-import { fields, universities, studyPrograms, getUniversity, getStudyProgram } from "@/data";
+import { fields } from "@/data";
 import { toast } from "sonner";
+import { useUserProfile } from "@/contexts/UserProfileContext";
 
 const DEGREE_OPTIONS = [
   { value: "bsc", label: "Bachelor" },
@@ -33,34 +33,17 @@ const INTERNSHIP_OPTIONS = [
 ];
 
 export default function SettingsPage() {
-  const [firstName, setFirstName] = useState("Luca");
-  const [lastName, setLastName] = useState("Meier");
-  const [selectedFields, setSelectedFields] = useState<string[]>(["field-02"]);
-  const [about, setAbout] = useState("");
-  const [degree, setDegree] = useState("msc");
-  const [studyProgram, setStudyProgram] = useState("Computer Science");
-  const [startMonth, setStartMonth] = useState("Sep");
-  const [startYear, setStartYear] = useState("2023");
-  const [skills, setSkills] = useState("Python, machine learning, distributed systems, Kubernetes");
-
-  // Signals
-  const [topicSignal, setTopicSignal] = useState(true);
-  const [supervisionSignal, setSupervisionSignal] = useState(true);
-  const [careerStartSignal, setCareerStartSignal] = useState(true);
-  const [internship, setInternship] = useState("yes");
-  const [profileVisible, setProfileVisible] = useState(true);
-
-  // Preferences
-  const [notifyNewTopic, setNotifyNewTopic] = useState(true);
-  const [notifyNewJob, setNotifyNewJob] = useState(true);
+  const { profile, updateProfile } = useUserProfile();
+  const p = profile;
+  const set = updateProfile;
 
   const addField = (fieldId: string) => {
-    if (selectedFields.length >= 3 || selectedFields.includes(fieldId)) return;
-    setSelectedFields([...selectedFields, fieldId]);
+    if (p.fieldIds.length >= 3 || p.fieldIds.includes(fieldId)) return;
+    set({ fieldIds: [...p.fieldIds, fieldId] });
   };
 
   const removeField = (fieldId: string) => {
-    setSelectedFields(selectedFields.filter((f) => f !== fieldId));
+    set({ fieldIds: p.fieldIds.filter((f) => f !== fieldId) });
   };
 
   const handleSave = () => {
@@ -109,11 +92,11 @@ export default function SettingsPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>First name</Label>
-                  <Input value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+                  <Input value={p.firstName} onChange={(e) => set({ firstName: e.target.value })} />
                 </div>
                 <div className="space-y-2">
                   <Label>Last name</Label>
-                  <Input value={lastName} onChange={(e) => setLastName(e.target.value)} />
+                  <Input value={p.lastName} onChange={(e) => set({ lastName: e.target.value })} />
                 </div>
               </div>
 
@@ -121,7 +104,7 @@ export default function SettingsPage() {
                 <Label>Fields</Label>
                 <p className="text-xs text-muted-foreground">Choose up to 3 fields that match your academic or professional focus.</p>
                 <div className="flex flex-wrap gap-2 mb-2">
-                  {selectedFields.map((fId) => {
+                  {p.fieldIds.map((fId) => {
                     const field = fields.find((f) => f.id === fId);
                     return (
                       <Badge key={fId} variant="secondary" className="gap-1 pr-1">
@@ -133,14 +116,14 @@ export default function SettingsPage() {
                     );
                   })}
                 </div>
-                {selectedFields.length < 3 && (
+                {p.fieldIds.length < 3 && (
                   <Select onValueChange={addField}>
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Add a field..." />
                     </SelectTrigger>
                     <SelectContent>
                       {fields
-                        .filter((f) => !selectedFields.includes(f.id))
+                        .filter((f) => !p.fieldIds.includes(f.id))
                         .map((f) => (
                           <SelectItem key={f.id} value={f.id}>
                             {f.name}
@@ -154,8 +137,8 @@ export default function SettingsPage() {
               <div className="space-y-2">
                 <Label>About me</Label>
                 <Textarea
-                  value={about}
-                  onChange={(e) => setAbout(e.target.value)}
+                  value={p.about}
+                  onChange={(e) => set({ about: e.target.value })}
                   placeholder="What others should know to engage and collaborate with you"
                   rows={4}
                 />
@@ -185,15 +168,15 @@ export default function SettingsPage() {
               <div className="space-y-2">
                 <Label>Student profile address</Label>
                 <div className="flex items-center gap-3">
-                  <Input value={mockUser.email} disabled className="flex-1" />
-                  <span className="text-sm text-muted-foreground whitespace-nowrap">ETH Zurich</span>
+                  <Input value={p.email} disabled className="flex-1" />
+                  <span className="text-sm text-muted-foreground whitespace-nowrap">{p.university}</span>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Degree</Label>
-                  <Select value={degree} onValueChange={setDegree}>
+                  <Select value={p.degree} onValueChange={(v) => set({ degree: v })}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -206,7 +189,7 @@ export default function SettingsPage() {
                 </div>
                 <div className="space-y-2">
                   <Label>Study program</Label>
-                  <Input value={studyProgram} onChange={(e) => setStudyProgram(e.target.value)} />
+                  <Input value={p.studyProgram} onChange={(e) => set({ studyProgram: e.target.value })} />
                 </div>
               </div>
 
@@ -214,7 +197,7 @@ export default function SettingsPage() {
                 <div className="space-y-2">
                   <Label>Start date</Label>
                   <div className="grid grid-cols-2 gap-2">
-                    <Select value={startMonth} onValueChange={setStartMonth}>
+                    <Select value={p.startMonth} onValueChange={(v) => set({ startMonth: v })}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
                         {MONTHS.map((m) => (
@@ -222,7 +205,7 @@ export default function SettingsPage() {
                         ))}
                       </SelectContent>
                     </Select>
-                    <Select value={startYear} onValueChange={setStartYear}>
+                    <Select value={p.startYear} onValueChange={(v) => set({ startYear: v })}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
                         {Array.from({ length: 10 }, (_, i) => String(2020 + i)).map((y) => (
@@ -235,7 +218,7 @@ export default function SettingsPage() {
                 <div className="space-y-2">
                   <Label>End date (or expected)</Label>
                   <div className="grid grid-cols-2 gap-2">
-                    <Select>
+                    <Select value={p.endMonth || undefined} onValueChange={(v) => set({ endMonth: v })}>
                       <SelectTrigger><SelectValue placeholder="Month" /></SelectTrigger>
                       <SelectContent>
                         {MONTHS.map((m) => (
@@ -243,7 +226,7 @@ export default function SettingsPage() {
                         ))}
                       </SelectContent>
                     </Select>
-                    <Select>
+                    <Select value={p.endYear || undefined} onValueChange={(v) => set({ endYear: v })}>
                       <SelectTrigger><SelectValue placeholder="Year" /></SelectTrigger>
                       <SelectContent>
                         {Array.from({ length: 10 }, (_, i) => String(2024 + i)).map((y) => (
@@ -258,8 +241,8 @@ export default function SettingsPage() {
               <div className="space-y-2">
                 <Label>Skills</Label>
                 <Textarea
-                  value={skills}
-                  onChange={(e) => setSkills(e.target.value)}
+                  value={p.skills}
+                  onChange={(e) => set({ skills: e.target.value })}
                   placeholder="Enter your skills"
                   rows={3}
                 />
@@ -283,14 +266,16 @@ export default function SettingsPage() {
                 <div className="h-10 w-10 rounded bg-muted flex items-center justify-center text-xs font-medium text-muted-foreground">ETH</div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">ETH Zurich</span>
+                    <span className="text-sm font-medium">{p.university}</span>
                     <Badge variant="secondary" className="text-xs">Student profile</Badge>
                   </div>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
-                    <span>Computer Science</span>
-                    <Badge variant="outline" className="text-xs">Master</Badge>
+                    <span>{p.studyProgram}</span>
+                    <Badge variant="outline" className="text-xs">
+                      {DEGREE_OPTIONS.find((d) => d.value === p.degree)?.label}
+                    </Badge>
                   </div>
-                  <span className="text-xs text-muted-foreground">Sep 2023 - Ongoing</span>
+                  <span className="text-xs text-muted-foreground">{p.startMonth} {p.startYear} - Ongoing</span>
                 </div>
               </div>
             </CardContent>
@@ -310,7 +295,7 @@ export default function SettingsPage() {
                   <p className="text-sm font-medium">User profile visibility</p>
                   <p className="text-xs text-muted-foreground">Your profile is visible to all students, experts and supervisors as long as you have an active signal.</p>
                 </div>
-                <span className="text-sm font-medium">{profileVisible ? "Visible" : "Hidden"}</span>
+                <span className="text-sm font-medium">{p.profileVisible ? "Visible" : "Hidden"}</span>
               </div>
 
               <Separator />
@@ -321,9 +306,9 @@ export default function SettingsPage() {
                     <p className="text-sm font-medium">Topic</p>
                     <p className="text-xs text-muted-foreground">Find a meaningful thesis topic aligned with my interests.</p>
                   </div>
-                  <Switch checked={topicSignal} onCheckedChange={setTopicSignal} />
+                  <Switch checked={p.topicSignal} onCheckedChange={(v) => set({ topicSignal: v })} />
                 </div>
-                {topicSignal && (
+                {p.topicSignal && (
                   <div className="ml-4 mt-3 space-y-4 border-l-2 border-border pl-4">
                     <div className="flex items-center justify-between">
                       <div>
@@ -337,7 +322,7 @@ export default function SettingsPage() {
                         <p className="text-sm">Internship</p>
                         <p className="text-xs text-muted-foreground">How about pursuing an internship in the context of thesis writing?</p>
                       </div>
-                      <Select value={internship} onValueChange={setInternship}>
+                      <Select value={p.internship} onValueChange={(v) => set({ internship: v })}>
                         <SelectTrigger className="w-[260px]">
                           <SelectValue />
                         </SelectTrigger>
@@ -359,7 +344,7 @@ export default function SettingsPage() {
                   <p className="text-sm font-medium">Supervision</p>
                   <p className="text-xs text-muted-foreground">Connect with academic supervisors who can guide my research.</p>
                 </div>
-                <Switch checked={supervisionSignal} onCheckedChange={setSupervisionSignal} />
+                <Switch checked={p.supervisionSignal} onCheckedChange={(v) => set({ supervisionSignal: v })} />
               </div>
 
               <Separator />
@@ -369,7 +354,7 @@ export default function SettingsPage() {
                   <p className="text-sm font-medium">Career Start</p>
                   <p className="text-xs text-muted-foreground">Show that you graduate soon, looking for a job.</p>
                 </div>
-                <Switch checked={careerStartSignal} onCheckedChange={setCareerStartSignal} />
+                <Switch checked={p.careerStartSignal} onCheckedChange={(v) => set({ careerStartSignal: v })} />
               </div>
             </CardContent>
           </Card>
@@ -388,7 +373,7 @@ export default function SettingsPage() {
                   <p className="text-sm font-medium">New Topic</p>
                   <p className="text-xs text-muted-foreground">Get notification email when a new topic matching your fields is published.</p>
                 </div>
-                <Switch checked={notifyNewTopic} onCheckedChange={setNotifyNewTopic} />
+                <Switch checked={p.notifyNewTopic} onCheckedChange={(v) => set({ notifyNewTopic: v })} />
               </div>
               <Separator />
               <div className="flex items-center justify-between">
@@ -396,7 +381,7 @@ export default function SettingsPage() {
                   <p className="text-sm font-medium">New Job</p>
                   <p className="text-xs text-muted-foreground">Get notification email when a new job matching your fields is published.</p>
                 </div>
-                <Switch checked={notifyNewJob} onCheckedChange={setNotifyNewJob} />
+                <Switch checked={p.notifyNewJob} onCheckedChange={(v) => set({ notifyNewJob: v })} />
               </div>
             </CardContent>
           </Card>

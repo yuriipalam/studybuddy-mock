@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { MessagingProvider } from "@/contexts/MessagingContext";
+import { UserProfileProvider } from "@/contexts/UserProfileContext";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -33,31 +34,33 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <MessagingProvider>
-          <Layout>
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/messages" element={<MessagesPage />} />
-              <Route path="/projects" element={<ProjectsPage />} />
-              <Route path="/topics" element={<TopicsPage />} />
-              <Route path="/jobs" element={<JobsPage />} />
-              <Route path="/people/experts" element={<ExpertsPage />} />
-              <Route path="/people/experts/:id" element={<ExpertDetailPage />} />
-              <Route path="/people/students" element={<StudentsPage />} />
-              <Route path="/people/students/:id" element={<StudentDetailPage />} />
-              <Route path="/people/supervisors" element={<SupervisorsPage />} />
-              <Route path="/people/supervisors/:id" element={<SupervisorDetailPage />} />
-              <Route path="/organizations/companies" element={<CompaniesPage />} />
-              <Route path="/organizations/companies/:id" element={<CompanyDetailPage />} />
-              <Route path="/organizations/study-programs" element={<StudyProgramsPage />} />
-              <Route path="/organizations/study-programs/:id" element={<StudyProgramDetailPage />} />
-              <Route path="/organizations/universities" element={<UniversitiesPage />} />
-              <Route path="/organizations/universities/:id" element={<UniversityDetailPage />} />
-              <Route path="/settings" element={<SettingsPage />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Layout>
-        </MessagingProvider>
+        <UserProfileProvider>
+          <MessagingProvider>
+            <Layout>
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/messages" element={<MessagesPage />} />
+                <Route path="/projects" element={<ProjectsPage />} />
+                <Route path="/topics" element={<TopicsPage />} />
+                <Route path="/jobs" element={<JobsPage />} />
+                <Route path="/people/experts" element={<ExpertsPage />} />
+                <Route path="/people/experts/:id" element={<ExpertDetailPage />} />
+                <Route path="/people/students" element={<StudentsPage />} />
+                <Route path="/people/students/:id" element={<StudentDetailPage />} />
+                <Route path="/people/supervisors" element={<SupervisorsPage />} />
+                <Route path="/people/supervisors/:id" element={<SupervisorDetailPage />} />
+                <Route path="/organizations/companies" element={<CompaniesPage />} />
+                <Route path="/organizations/companies/:id" element={<CompanyDetailPage />} />
+                <Route path="/organizations/study-programs" element={<StudyProgramsPage />} />
+                <Route path="/organizations/study-programs/:id" element={<StudyProgramDetailPage />} />
+                <Route path="/organizations/universities" element={<UniversitiesPage />} />
+                <Route path="/organizations/universities/:id" element={<UniversityDetailPage />} />
+                <Route path="/settings" element={<SettingsPage />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Layout>
+          </MessagingProvider>
+        </UserProfileProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
