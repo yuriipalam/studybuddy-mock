@@ -273,9 +273,19 @@ const RankingPage = () => {
   const { currentUser } = useAuth();
   const [activeTab, setActiveTab] = useState<RankingTab>("my-status");
   const { data: xpRows, isLoading } = useStudentXp();
+  const { data: activities } = useXpActivity();
 
   const currentStudentId = currentUser?.id ?? "";
   const currentUniId = "uni-01";
+
+  // Calculate XP earned this week from activity log
+  const weeklyXp = useMemo(() => {
+    const weekAgo = new Date();
+    weekAgo.setDate(weekAgo.getDate() - 7);
+    return (activities ?? [])
+      .filter((a) => new Date(a.created_at) >= weekAgo)
+      .reduce((sum, a) => sum + a.xp_amount, 0);
+  }, [activities]);
 
   const globalRanked = useMemo(() => buildRankedList(xpRows ?? []), [xpRows]);
 
