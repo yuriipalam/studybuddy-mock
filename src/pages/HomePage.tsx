@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { mockUser } from "@/data/mockUser";
+import { useAuth } from "@/contexts/AuthContext";
 import { Sparkles, Users, BookOpen, FileText, Video, Bookmark } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -23,6 +23,7 @@ const actionCards: ActionCard[] = [
 
 export default function HomePage() {
   const navigate = useNavigate();
+  const { currentUser } = useAuth();
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
 
@@ -38,7 +39,7 @@ export default function HomePage() {
     <div className="scroll-area">
       <div className="scroll-area-content space-y-8">
         <div>
-          <h1 className="ds-title-lg">{greeting}, {mockUser.name.split(" ")[0]}! ☕</h1>
+          <h1 className="ds-title-lg">{greeting}, {currentUser?.firstName ?? "there"}! ☕</h1>
           <p className="ds-body text-muted-foreground mt-1">What would you like to do today?</p>
         </div>
 

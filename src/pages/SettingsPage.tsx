@@ -10,10 +10,10 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Camera, X } from "lucide-react";
-import { mockUser } from "@/data/mockUser";
 import { fields } from "@/data";
 import { toast } from "sonner";
 import { useUserProfile } from "@/contexts/UserProfileContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 const DEGREE_OPTIONS = [
   { value: "bsc", label: "Bachelor" },
@@ -34,6 +34,7 @@ const INTERNSHIP_OPTIONS = [
 
 export default function SettingsPage() {
   const { profile, updateProfile } = useUserProfile();
+  const { currentUser } = useAuth();
   const p = profile;
   const set = updateProfile;
 
@@ -80,8 +81,8 @@ export default function SettingsPage() {
               <div className="flex items-end gap-4">
                 <div className="relative">
                   <Avatar className="h-16 w-16">
-                    <AvatarImage src={mockUser.avatar} />
-                    <AvatarFallback>LM</AvatarFallback>
+                    <AvatarImage src={currentUser?.avatar} />
+                    <AvatarFallback>{p.firstName[0]}{p.lastName[0]}</AvatarFallback>
                   </Avatar>
                   <button className="absolute -bottom-1 -right-1 h-7 w-7 rounded-full bg-background border border-border flex items-center justify-center hover:bg-accent transition-colors">
                     <Camera className="h-3.5 w-3.5 text-muted-foreground" />
