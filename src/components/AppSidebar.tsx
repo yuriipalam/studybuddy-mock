@@ -103,6 +103,16 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               )}
+              {currentUser?.role === "supervisor" && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild isActive={isActive("/requests")}>
+                    <NavLink to="/requests">
+                      <ClipboardList className="h-4 w-4" />
+                      <span>Student Requests</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

@@ -62,6 +62,7 @@ function ProtectedRoutes() {
             <Route path="/organizations/universities" element={<UniversitiesPage />} />
             <Route path="/organizations/universities/:id" element={<UniversityDetailPage />} />
             <Route path="/ranking" element={<RankingPage />} />
+            <Route path="/requests" element={<StudentRequestsPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
