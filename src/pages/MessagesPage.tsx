@@ -108,6 +108,7 @@ function useOnlineStatus(userIds: string[]) {
 
 export default function MessagesPage() {
   const navigate = useNavigate();
+  const [searchParams] = useState(() => new URLSearchParams(window.location.search));
   const { currentUser } = useAuth();
   const {
     conversations,
