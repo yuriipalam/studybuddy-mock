@@ -342,27 +342,53 @@ export default function MessagesPage() {
         ) : (
           <>
             {/* Chat header */}
-            <div className="flex items-center gap-3 px-4 py-3 border-b border-border">
-              <Avatar className="h-9 w-9">
-                {contact?.user_avatar ? (
-                  <AvatarImage src={contact.user_avatar} />
-                ) : null}
-                <AvatarFallback className="text-xs font-semibold">
-                  {contactInitials}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <div className="flex items-center gap-2">
-                  <p className="text-sm font-medium">{contact?.user_name || "Unknown"}</p>
-                  {contact?.user_role === "supervisor" && (
-                    <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 leading-none">
-                      Your Supervisor
-                    </Badge>
-                  )}
+            <div className="border-b border-border">
+              <div className="flex items-center gap-3 px-4 py-3">
+                <Avatar className="h-9 w-9">
+                  {contact?.user_avatar ? (
+                    <AvatarImage src={contact.user_avatar} />
+                  ) : null}
+                  <AvatarFallback className="text-xs font-semibold">
+                    {contactInitials}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-medium">{contact?.user_name || "Unknown"}</p>
+                    {contact?.user_role === "supervisor" && (
+                      <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 leading-none">
+                        Your Supervisor
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground capitalize">
+                    {contact?.user_role || ""}
+                  </p>
                 </div>
-                <p className="text-xs text-muted-foreground capitalize">
-                  {contact?.user_role || ""}
-                </p>
+              </div>
+              <div className="flex px-4 gap-4">
+                <button
+                  className={cn(
+                    "pb-2 text-sm font-medium border-b-2 transition-colors",
+                    chatTab === "messages"
+                      ? "border-primary text-foreground"
+                      : "border-transparent text-muted-foreground hover:text-foreground"
+                  )}
+                  onClick={() => setChatTab("messages")}
+                >
+                  Messages
+                </button>
+                <button
+                  className={cn(
+                    "pb-2 text-sm font-medium border-b-2 transition-colors",
+                    chatTab === "files"
+                      ? "border-primary text-foreground"
+                      : "border-transparent text-muted-foreground hover:text-foreground"
+                  )}
+                  onClick={() => setChatTab("files")}
+                >
+                  Files
+                </button>
               </div>
             </div>
 
