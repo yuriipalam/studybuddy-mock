@@ -1,10 +1,12 @@
 import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { fetchStudents, getUniversity, getStudyProgram, getFieldNames } from "@/data";
 import type { Student } from "@/data/types";
 import { FilterBar } from "@/components/FilterBar";
 import { EntityCard } from "@/components/EntityCard";
 
 export default function StudentsPage() {
+  const navigate = useNavigate();
   const [students, setStudents] = useState<Student[]>([]);
   const [search, setSearch] = useState("");
   const [degreeFilter, setDegreeFilter] = useState("all");
@@ -46,6 +48,7 @@ export default function StudentsPage() {
               subtitle={`${uni?.name ?? ""} · ${program?.name ?? ""}`}
               secondaryText={student.degree.toUpperCase()}
               tags={fieldNames}
+              onClick={() => navigate(`/people/students/${student.id}`)}
             />
           );
         })}

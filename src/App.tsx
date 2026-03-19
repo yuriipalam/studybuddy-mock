@@ -11,6 +11,7 @@ import TopicsPage from "@/pages/TopicsPage";
 import JobsPage from "@/pages/JobsPage";
 import ExpertsPage from "@/pages/ExpertsPage";
 import StudentsPage from "@/pages/StudentsPage";
+import StudentDetailPage from "@/pages/StudentDetailPage";
 import SupervisorsPage from "@/pages/SupervisorsPage";
 import SupervisorDetailPage from "@/pages/SupervisorDetailPage";
 import CompaniesPage from "@/pages/CompaniesPage";
@@ -39,6 +40,7 @@ const App = () => (
             <Route path="/jobs" element={<JobsPage />} />
             <Route path="/people/experts" element={<ExpertsPage />} />
             <Route path="/people/students" element={<StudentsPage />} />
+            <Route path="/people/students/:id" element={<StudentDetailPage />} />
             <Route path="/people/supervisors" element={<SupervisorsPage />} />
             <Route path="/people/supervisors/:id" element={<SupervisorDetailPage />} />
             <Route path="/organizations/companies" element={<CompaniesPage />} />
