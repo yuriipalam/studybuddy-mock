@@ -16,7 +16,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { MessageSquare, Send, Check, CheckCheck, Pencil, X, Trash2, Paperclip, FileText, Image as ImageIcon, File as FileIcon, Download, Eye, ExternalLink, Plus, Circle, CheckCircle2, Pin, PinOff, Loader2, Sparkles } from "lucide-react";
+import { MessageSquare, Send, Check, CheckCheck, Pencil, X, Trash2, Paperclip, FileText, Image as ImageIcon, File as FileIcon, Download, Eye, ExternalLink, Plus, Circle, CheckCircle2, Pin, PinOff, Loader2, Sparkles, Phone, Video } from "lucide-react";
+import { useWebRTC } from "@/hooks/useWebRTC";
+import CallOverlay from "@/components/CallOverlay";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
 import { useMessaging, ChatFile } from "@/contexts/MessagingContext";
@@ -242,6 +244,14 @@ export default function MessagesPage() {
 
   const getContact = (conv: typeof conversations[0]) =>
     conv.participants.find((p) => p.user_id !== userId);
+
+  const activeContact = activeConv ? getContact(activeConv) : null;
+
+  const webrtc = useWebRTC({
+    conversationId: activeConversationId,
+    userId,
+    contactName: activeContact?.user_name,
+  });
 
   const filteredConvs = conversations
     .filter((c) => {
@@ -676,7 +686,26 @@ export default function MessagesPage() {
             </div>
           </div>
         ) : (
-          <>
+          <div className="relative flex-1 flex flex-col min-h-0">
+            <CallOverlay
+              callState={webrtc.callState}
+              isVideo={webrtc.isVideo}
+              isMuted={webrtc.isMuted}
+              isCameraOff={webrtc.isCameraOff}
+              isScreenSharing={webrtc.isScreenSharing}
+              callDuration={webrtc.callDuration}
+              callerName={webrtc.callerName}
+              contactName={contact?.user_name || "Contact"}
+              incomingCallVideo={webrtc.incomingCallVideo}
+              localVideoRef={webrtc.localVideoRef}
+              remoteVideoRef={webrtc.remoteVideoRef}
+              onAnswer={webrtc.answerCall}
+              onReject={webrtc.rejectCall}
+              onHangUp={webrtc.hangUp}
+              onToggleMute={webrtc.toggleMute}
+              onToggleCamera={webrtc.toggleCamera}
+              onShareScreen={webrtc.shareScreen}
+            />
             {/* Chat header */}
             <div className="border-b border-border">
               <div className="flex items-center gap-3 px-4 py-3">
@@ -737,6 +766,26 @@ export default function MessagesPage() {
                       return "";
                     })()}
                   </p>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 rounded-full"
+                    onClick={() => webrtc.startCall(false)}
+                    title="Voice call"
+                  >
+                    <Phone className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 rounded-full"
+                    onClick={() => webrtc.startCall(true)}
+                    title="Video call"
+                  >
+                    <Video className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
               <div className="flex px-4 gap-4">
@@ -1531,7 +1580,7 @@ export default function MessagesPage() {
                 </ScrollArea>
               </div>
             ) : null}
-          </>
+          </div>
         )}
       </div>
 
