@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCreateJourney } from "@/hooks/useThesisJourney";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Compass, Lightbulb, Users, PenTool, Sparkles, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
