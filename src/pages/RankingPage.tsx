@@ -137,6 +137,7 @@ function Podium({ top3 }: { top3: RankedStudent[] }) {
 }
 
 function LeaderboardTable({ users, currentStudentId }: { users: RankedStudent[]; currentStudentId: string }) {
+  const navigate = useNavigate();
   const isYou = (u: RankedStudent) => u.studentId === currentStudentId;
   const regularUsers = users.filter((u) => !isYou(u));
   const youUser = users.find(isYou);
