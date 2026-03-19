@@ -7,7 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Loader2 } from "lucide-react";
+import { Loader2, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import studyondLogo from "@/assets/studyond.svg";
 import studyondLogoLight from "@/assets/studyond-light.svg";
@@ -51,6 +52,23 @@ export default function LoginPage() {
   }, []);
 
   const selectedAccount = allAccounts.find((a) => a.id === selectedId);
+
+  const isDbAccount = (id: string) => id.startsWith("db-");
+
+  const handleDelete = async (account: AuthAccount) => {
+    if (!isDbAccount(account.id)) return;
+    const dbId = account.id.replace("db-", "");
+    try {
+      const { error } = await supabase.from("user_accounts").delete().eq("id", dbId);
+      if (error) throw error;
+      setAllAccounts((prev) => prev.filter((a) => a.id !== account.id));
+      if (selectedId === account.id) setSelectedId("");
+      toast.success(`${account.firstName} ${account.lastName} removed`);
+    } catch (e) {
+      console.error("Delete failed:", e);
+      toast.error("Failed to remove account");
+    }
+  };
 
   const handleLogin = () => {
     if (selectedId) {
@@ -116,6 +134,17 @@ export default function LoginPage() {
                 <p className="text-sm text-muted-foreground truncate">{selectedAccount.email}</p>
                 <Badge variant="secondary" className="mt-1 text-xs capitalize">{selectedAccount.role}</Badge>
               </div>
+              {isDbAccount(selectedAccount.id) && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="shrink-0 text-muted-foreground hover:text-destructive"
+                  onClick={() => handleDelete(selectedAccount)}
+                  title="Remove account"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              )}
             </div>
           )}
 
