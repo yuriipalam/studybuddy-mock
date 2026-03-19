@@ -12,6 +12,7 @@ import JobsPage from "@/pages/JobsPage";
 import ExpertsPage from "@/pages/ExpertsPage";
 import StudentsPage from "@/pages/StudentsPage";
 import SupervisorsPage from "@/pages/SupervisorsPage";
+import SupervisorDetailPage from "@/pages/SupervisorDetailPage";
 import CompaniesPage from "@/pages/CompaniesPage";
 import CompanyDetailPage from "@/pages/CompanyDetailPage";
 import UniversitiesPage from "@/pages/UniversitiesPage";
