@@ -19,7 +19,7 @@ export default function MessagesPage() {
             <p className="text-sm text-muted-foreground">
               You currently have no active chats.
             </p>
-            <p className="text-sm text-primary cursor-pointer hover:underline mt-1">
+            <p className="text-sm text-primary cursor-pointer hover:underline mt-1" onClick={() => navigate("/people/experts")}>
               Click here to connect to experts.
             </p>
           </div>
