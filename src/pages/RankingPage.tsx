@@ -181,9 +181,8 @@ function LeaderboardTable({ users, currentStudentId }: { users: RankedStudent[];
           "text-xs font-semibold text-right flex items-center justify-end gap-0.5",
           user.change > 0 ? "text-emerald-500" : user.change < 0 ? "text-destructive" : "text-muted-foreground"
         )}>
-          {user.change > 0 && <ArrowUp className="h-3 w-3" />}
-          {user.change < 0 && <ArrowDown className="h-3 w-3" />}
-          {user.change === 0 ? "—" : Math.abs(user.change)}
+          {user.change > 0 && <><ArrowUp className="h-3 w-3" />{Math.abs(user.change)}</>}
+          {user.change < 0 && <><ArrowDown className="h-3 w-3" />{Math.abs(user.change)}</>}
         </span>
       </div>
     );
@@ -273,9 +272,19 @@ const RankingPage = () => {
   const { currentUser } = useAuth();
   const [activeTab, setActiveTab] = useState<RankingTab>("my-status");
   const { data: xpRows, isLoading } = useStudentXp();
+  const { data: activities } = useXpActivity();
 
   const currentStudentId = currentUser?.id ?? "";
   const currentUniId = "uni-01";
+
+  // Calculate XP earned this week from activity log
+  const weeklyXp = useMemo(() => {
+    const weekAgo = new Date();
+    weekAgo.setDate(weekAgo.getDate() - 7);
+    return (activities ?? [])
+      .filter((a) => new Date(a.created_at) >= weekAgo)
+      .reduce((sum, a) => sum + a.xp_amount, 0);
+  }, [activities]);
 
   const globalRanked = useMemo(() => buildRankedList(xpRows ?? []), [xpRows]);
 
@@ -387,10 +396,17 @@ const RankingPage = () => {
                   <span className="text-lg font-medium text-white/60">XP</span>
                 </div>
                 <div className="mt-1 flex items-center gap-3">
-                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-xs font-semibold text-emerald-400">
-                    <ArrowUp className="h-3 w-3" />
-                    +195 this week
-                  </span>
+                  {weeklyXp !== 0 && (
+                    <span className={cn(
+                      "inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold",
+                      weeklyXp > 0
+                        ? "bg-emerald-500/20 text-emerald-400"
+                        : "bg-destructive/20 text-destructive"
+                    )}>
+                      {weeklyXp > 0 ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}
+                      {weeklyXp > 0 ? "+" : ""}{weeklyXp} this week
+                    </span>
+                  )}
                   <span className="text-sm text-white/40">Rank #{me.rank} globally</span>
                 </div>
               </div>
