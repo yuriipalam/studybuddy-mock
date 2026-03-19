@@ -72,10 +72,10 @@ export function AppSidebar() {
       <SidebarContent>
         <div className="p-4 pb-2">
           {!collapsed && (
-            <img src={studyondLogo} alt="Studyond" className="h-6" />
+            <img src={logo} alt="Studyond" className="h-6" />
           )}
           {collapsed && (
-            <img src={studyondLogo} alt="Studyond" className="h-5 w-5 object-contain" />
+            <img src={logo} alt="Studyond" className="h-5 w-5 object-contain" />
           )}
         </div>
 
