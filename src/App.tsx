@@ -10,6 +10,7 @@ import ProjectsPage from "@/pages/ProjectsPage";
 import TopicsPage from "@/pages/TopicsPage";
 import JobsPage from "@/pages/JobsPage";
 import ExpertsPage from "@/pages/ExpertsPage";
+import ExpertDetailPage from "@/pages/ExpertDetailPage";
 import StudentsPage from "@/pages/StudentsPage";
 import StudentDetailPage from "@/pages/StudentDetailPage";
 import SupervisorsPage from "@/pages/SupervisorsPage";
