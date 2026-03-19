@@ -314,7 +314,7 @@ export default function MessagesPage() {
                           <p className="text-sm font-medium truncate">{convContact?.user_name}</p>
                           {convContact?.user_role === "supervisor" && (
                             <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 leading-none shrink-0">
-                              Your Supervisor
+                              Supervisor
                             </Badge>
                           )}
                         </div>
