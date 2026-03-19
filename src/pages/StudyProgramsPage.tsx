@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { fetchStudyPrograms, getUniversity, students as allStudents } from "@/data";
 import type { StudyProgram } from "@/data/types";
 import { FilterBar } from "@/components/FilterBar";
@@ -8,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Users } from "lucide-react";
 
 export default function StudyProgramsPage() {
+  const navigate = useNavigate();
   const [programs, setPrograms] = useState<StudyProgram[]>([]);
   const [search, setSearch] = useState("");
   const [degreeFilter, setDegreeFilter] = useState("all");
@@ -41,7 +43,7 @@ export default function StudyProgramsPage() {
           const uni = getUniversity(program.universityId);
           const studentCount = allStudents.filter((s) => s.studyProgramId === program.id).length;
           return (
-            <Card key={program.id} className="group overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
+            <Card key={program.id} className="group overflow-hidden hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate(`/organizations/study-programs/${program.id}`)}>
               <CardContent className="p-5 space-y-3">
                 <div className="flex items-center gap-3">
                   <Avatar className="h-12 w-12 rounded-lg">

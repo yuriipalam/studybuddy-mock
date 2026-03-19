@@ -16,6 +16,7 @@ import CompaniesPage from "@/pages/CompaniesPage";
 import CompanyDetailPage from "@/pages/CompanyDetailPage";
 import UniversitiesPage from "@/pages/UniversitiesPage";
 import StudyProgramsPage from "@/pages/StudyProgramsPage";
+import StudyProgramDetailPage from "@/pages/StudyProgramDetailPage";
 import SettingsPage from "@/pages/SettingsPage";
 import NotFound from "@/pages/NotFound";
 
@@ -40,6 +41,7 @@ const App = () => (
             <Route path="/organizations/companies" element={<CompaniesPage />} />
             <Route path="/organizations/companies/:id" element={<CompanyDetailPage />} />
             <Route path="/organizations/study-programs" element={<StudyProgramsPage />} />
+            <Route path="/organizations/study-programs/:id" element={<StudyProgramDetailPage />} />
             <Route path="/organizations/universities" element={<UniversitiesPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="*" element={<NotFound />} />
