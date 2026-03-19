@@ -1,32 +1,56 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchCompanies, experts as allExperts, topics as allTopics } from "@/data";
-import type { Company } from "@/data/types";
+import type { Company, ExpertObjective } from "@/data/types";
 import { FilterBar } from "@/components/FilterBar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Users, BookOpen } from "lucide-react";
 
+const OBJECTIVE_LABELS: Record<string, string> = {
+  recruiting: "Recruiting",
+  fresh_insights: "Fresh Insights",
+  research_collaboration: "Research Collaboration",
+  education_collaboration: "Education Collaboration",
+  brand_visibility: "Brand Visibility",
+};
+
 export default function CompaniesPage() {
   const navigate = useNavigate();
   const [companyList, setCompanies] = useState<Company[]>([]);
   const [search, setSearch] = useState("");
   const [domainFilter, setDomainFilter] = useState("all");
+  const [objectiveFilter, setObjectiveFilter] = useState("all");
 
   useEffect(() => {
     fetchCompanies().then(setCompanies);
   }, []);
 
   const allDomains = useMemo(() => [...new Set(companyList.flatMap((c) => c.domains))], [companyList]);
+  const objectiveOptions = useMemo(() => Object.keys(OBJECTIVE_LABELS), []);
+
+  // Map company id to the set of objectives its experts have
+  const companyObjectives = useMemo(() => {
+    const map = new Map<string, Set<string>>();
+    allExperts.forEach((e) => {
+      if (!map.has(e.companyId)) map.set(e.companyId, new Set());
+      e.objectives.forEach((o) => map.get(e.companyId)!.add(o));
+    });
+    return map;
+  }, []);
 
   const filtered = useMemo(() => {
     return companyList.filter((c) => {
       if (search && !c.name.toLowerCase().includes(search.toLowerCase())) return false;
       if (domainFilter !== "all" && !c.domains.includes(domainFilter)) return false;
+      if (objectiveFilter !== "all") {
+        const key = Object.entries(OBJECTIVE_LABELS).find(([, v]) => v === objectiveFilter)?.[0];
+        if (!key || !companyObjectives.get(c.id)?.has(key)) return false;
+      }
       return true;
     });
-  }, [companyList, search, domainFilter]);
+  }, [companyList, search, domainFilter, objectiveFilter, companyObjectives]);
 
   return (
     <div className="p-6 space-y-6">
@@ -37,6 +61,7 @@ export default function CompaniesPage() {
         searchPlaceholder="Search companies..."
         filters={[
           { label: "Domain", options: allDomains, value: domainFilter, onChange: setDomainFilter },
+          { label: "Open to", options: objectiveOptions.map((k) => OBJECTIVE_LABELS[k]), value: objectiveFilter, onChange: setObjectiveFilter },
         ]}
       />
       <div className="grid-4-col">
