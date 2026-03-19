@@ -1098,14 +1098,11 @@ export default function MessagesPage() {
                                 className="flex-1 min-w-0 cursor-pointer"
                                 onClick={() => !milestonesEditMode && setExpandedMilestoneId(expandedMilestoneId === m.id ? null : m.id)}
                               >
-                                <p className={cn("text-sm", m.completed && "line-through text-muted-foreground")}>
+                                <p className={cn("text-sm truncate", m.completed && "line-through text-muted-foreground")}>
                                   {m.text}
                                 </p>
-                                {m.description && (
-                                  <p className={cn(
-                                    "text-xs text-muted-foreground mt-1 leading-relaxed",
-                                    expandedMilestoneId !== m.id && "line-clamp-2"
-                                  )}>
+                                {m.description && expandedMilestoneId === m.id && (
+                                  <p className="text-xs text-muted-foreground mt-1 leading-relaxed break-words">
                                     {m.description}
                                   </p>
                                 )}
