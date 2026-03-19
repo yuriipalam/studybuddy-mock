@@ -762,17 +762,19 @@ export default function MessagesPage() {
                 >
                   Files
                 </button>
-                <button
-                  className={cn(
-                    "pb-2 text-xs font-medium border-b-2 transition-colors",
-                    chatTab === "milestones"
-                      ? "border-primary text-foreground"
-                      : "border-transparent text-muted-foreground hover:text-foreground"
-                  )}
-                  onClick={() => setChatTab("milestones")}
-                >
-                  Milestones
-                </button>
+                {contact?.user_role === "supervisor" && (
+                  <button
+                    className={cn(
+                      "pb-2 text-xs font-medium border-b-2 transition-colors",
+                      chatTab === "milestones"
+                        ? "border-primary text-foreground"
+                        : "border-transparent text-muted-foreground hover:text-foreground"
+                    )}
+                    onClick={() => setChatTab("milestones")}
+                  >
+                    Milestones
+                  </button>
+                )}
               </div>
             </div>
 
