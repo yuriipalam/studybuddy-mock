@@ -1024,12 +1024,13 @@ export default function MessagesPage() {
                       <div className="flex-1 pl-3 min-w-0">
                         {addingMilestone ? (
                           <form
-                            className="flex items-center gap-2"
+                            className="flex flex-col gap-2"
                             onSubmit={(e) => {
                               e.preventDefault();
                               if (newMilestoneText.trim()) {
-                                dbAddMilestone(newMilestoneText.trim());
+                                dbAddMilestone(newMilestoneText.trim(), newMilestoneDesc.trim());
                                 setNewMilestoneText("");
+                                setNewMilestoneDesc("");
                                 setAddingMilestone(false);
                               }
                             }}
@@ -1037,19 +1038,35 @@ export default function MessagesPage() {
                             <Input
                               autoFocus
                               value={newMilestoneText}
-                              onChange={(e) => setNewMilestoneText(e.target.value)}
-                              placeholder="New milestone..."
+                              onChange={(e) => setNewMilestoneText(e.target.value.slice(0, 150))}
+                              placeholder="Milestone name (max 150 chars)"
+                              maxLength={150}
                               className="h-7 text-sm"
                               onKeyDown={(e) => {
                                 if (e.key === "Escape") {
                                   setAddingMilestone(false);
                                   setNewMilestoneText("");
+                                  setNewMilestoneDesc("");
                                 }
                               }}
                             />
-                            <Button type="submit" size="sm" className="h-7 px-2" disabled={!newMilestoneText.trim()}>
-                              Add
-                            </Button>
+                            <textarea
+                              value={newMilestoneDesc}
+                              onChange={(e) => setNewMilestoneDesc(e.target.value.slice(0, 300))}
+                              className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-xs text-foreground resize-none focus:outline-none focus:ring-1 focus:ring-ring"
+                              placeholder="Description (optional, max 300 chars)"
+                              maxLength={300}
+                              rows={2}
+                            />
+                            <div className="flex items-center gap-2">
+                              <Button type="submit" size="sm" className="h-7 px-2" disabled={!newMilestoneText.trim()}>
+                                Add
+                              </Button>
+                              <Button type="button" variant="ghost" size="sm" className="h-7 px-2" onClick={() => { setAddingMilestone(false); setNewMilestoneText(""); setNewMilestoneDesc(""); }}>
+                                Cancel
+                              </Button>
+                              <span className="text-[10px] text-muted-foreground ml-auto">{newMilestoneDesc.length}/300</span>
+                            </div>
                           </form>
                         ) : (
                           <button
