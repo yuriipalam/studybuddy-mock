@@ -1,5 +1,20 @@
 [
   {
+    "id": "topic-vechev-01",
+    "title": "Reliable AI: Certifiable Robustness of Deep Neural Networks",
+    "description": "This thesis investigates methods for formally verifying the robustness of deep neural networks against adversarial perturbations. The student will develop and evaluate novel certification techniques that provide provable guarantees on network behavior. The work will build on state-of-the-art abstract interpretation and convex relaxation approaches, with applications to safety-critical AI systems in autonomous driving and medical imaging. Expected outcomes include both theoretical contributions and practical tool development.",
+    "type": "topic",
+    "employment": "no",
+    "employmentType": null,
+    "workplaceType": "on_site",
+    "degrees": ["msc", "phd"],
+    "fieldIds": ["field-02"],
+    "companyId": null,
+    "universityId": "uni-01",
+    "supervisorIds": ["supervisor-01"],
+    "expertIds": []
+  },
+  {
     "id": "topic-01",
     "title": "AI-Driven Demand Forecasting for Perishable Goods",
     "description": "Develop a machine learning model to predict demand for short-shelf-life products across Nestle's European distribution network. The thesis should explore how weather, seasonal trends, and promotional calendars can be integrated into a unified forecasting pipeline. Accuracy improvements of even a few percent translate into millions of francs in reduced food waste.",
