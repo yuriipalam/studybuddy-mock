@@ -2,10 +2,17 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Bot, Send, X, Sparkles, Loader2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { Bot, Send, X, Sparkles, Loader2, Square } from "lucide-react";
+import ReactMarkdown from "react-markdown";
 
 type Message = { role: "user" | "assistant"; content: string };
+
+const TEMPLATE_QUESTIONS = [
+  "What topics are currently available?",
+  "Help me find a supervisor for my thesis",
+  "What are trending research areas?",
+  "How do I write a good thesis proposal?",
+];
 
 export function AiChatPanel({
   open,
@@ -19,6 +26,7 @@ export function AiChatPanel({
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     if (open) inputRef.current?.focus();
@@ -28,17 +36,25 @@ export function AiChatPanel({
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const send = async () => {
-    const text = input.trim();
-    if (!text || isLoading) return;
+  const stop = () => {
+    abortRef.current?.abort();
+    abortRef.current = null;
+    setIsLoading(false);
+  };
 
-    const userMsg: Message = { role: "user", content: text };
+  const send = async (text?: string) => {
+    const msg = (text ?? input).trim();
+    if (!msg || isLoading) return;
+
+    const userMsg: Message = { role: "user", content: msg };
     const allMessages = [...messages, userMsg];
     setMessages(allMessages);
     setInput("");
     setIsLoading(true);
 
     let assistantSoFar = "";
+    const controller = new AbortController();
+    abortRef.current = controller;
 
     const upsertAssistant = (chunk: string) => {
       assistantSoFar += chunk;
@@ -63,6 +79,7 @@ export function AiChatPanel({
             Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
           },
           body: JSON.stringify({ messages: allMessages }),
+          signal: controller.signal,
         }
       );
 
@@ -97,10 +114,12 @@ export function AiChatPanel({
           }
         }
       }
-    } catch (e) {
+    } catch (e: any) {
+      if (e.name === "AbortError") return;
       console.error("Chat error:", e);
       upsertAssistant("\n\n*Sorry, something went wrong. Please try again.*");
     } finally {
+      abortRef.current = null;
       setIsLoading(false);
     }
   };
@@ -108,7 +127,7 @@ export function AiChatPanel({
   if (!open) return null;
 
   return (
-    <div className="w-80 border-l border-border bg-card flex flex-col h-full shrink-0">
+    <div className="border-l border-border bg-card flex flex-col h-full shrink-0 min-w-0">
       {/* Header */}
       <div className="h-14 border-b border-border flex items-center justify-between px-4 shrink-0">
         <div className="flex items-center gap-2">
@@ -123,12 +142,23 @@ export function AiChatPanel({
       {/* Messages */}
       <ScrollArea className="flex-1 px-4 py-3">
         {messages.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-12 text-center">
+          <div className="flex flex-col items-center justify-center py-8 text-center">
             <Bot className="h-10 w-10 text-muted-foreground mb-3" />
             <p className="text-sm font-medium">How can I help?</p>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-xs text-muted-foreground mt-1 mb-4">
               Ask me anything about topics, experts, or thesis writing.
             </p>
+            <div className="flex flex-col gap-2 w-full">
+              {TEMPLATE_QUESTIONS.map((q) => (
+                <button
+                  key={q}
+                  onClick={() => send(q)}
+                  className="text-left text-xs px-3 py-2 rounded-md border border-border bg-background hover:bg-accent transition-colors text-foreground"
+                >
+                  {q}
+                </button>
+              ))}
+            </div>
           </div>
         )}
         <div className="space-y-3">
@@ -138,13 +168,19 @@ export function AiChatPanel({
               className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
             >
               <div
-                className={`rounded-lg px-3 py-2 text-sm max-w-[85%] whitespace-pre-wrap ${
+                className={`rounded-lg px-3 py-2 text-sm max-w-[85%] ${
                   msg.role === "user"
                     ? "bg-primary text-primary-foreground"
                     : "bg-muted text-foreground"
                 }`}
               >
-                {msg.content}
+                {msg.role === "assistant" ? (
+                  <div className="prose prose-sm dark:prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
+                    <ReactMarkdown>{msg.content}</ReactMarkdown>
+                  </div>
+                ) : (
+                  <span className="whitespace-pre-wrap">{msg.content}</span>
+                )}
               </div>
             </div>
           ))}
@@ -176,9 +212,26 @@ export function AiChatPanel({
             className="text-sm"
             disabled={isLoading}
           />
-          <Button size="icon" type="submit" disabled={!input.trim() || isLoading}>
-            <Send className="h-4 w-4" />
-          </Button>
+          {isLoading ? (
+            <Button
+              size="icon"
+              variant="destructive"
+              type="button"
+              onClick={stop}
+              className="h-10 w-10 shrink-0 aspect-square"
+            >
+              <Square className="h-3.5 w-3.5 fill-current" />
+            </Button>
+          ) : (
+            <Button
+              size="icon"
+              type="submit"
+              disabled={!input.trim()}
+              className="h-10 w-10 shrink-0 aspect-square"
+            >
+              <Send className="h-4 w-4" />
+            </Button>
+          )}
         </form>
       </div>
     </div>
