@@ -161,25 +161,31 @@ export type Database = {
           completed: boolean
           conversation_id: string
           created_at: string
+          description: string
           id: string
           position: number
           text: string
+          topic_id: string | null
         }
         Insert: {
           completed?: boolean
           conversation_id: string
           created_at?: string
+          description?: string
           id?: string
           position?: number
           text: string
+          topic_id?: string | null
         }
         Update: {
           completed?: boolean
           conversation_id?: string
           created_at?: string
+          description?: string
           id?: string
           position?: number
           text?: string
+          topic_id?: string | null
         }
         Relationships: [
           {
