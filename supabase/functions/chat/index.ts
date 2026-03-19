@@ -264,17 +264,21 @@ ${userSection}
 
 **You MUST use the search_topics tool** whenever the user asks about available topics, wants suggestions, or is looking for thesis ideas. Do NOT list topics from memory alone.
 
-After receiving tool results, you MUST include a topic card block in your response using this exact format:
+After receiving tool results, you MUST ALWAYS include a topic card block in your response. This is NON-NEGOTIABLE. Without the card block, topics will not be displayed to the user. Use this exact format:
 
+\`\`\`
 :::topics
 [{"id":"topic-01","title":"Topic Title","company":"Company Name","fields":["Field 1"],"degrees":["msc"],"employment":"open","employmentType":"working_student","workplaceType":"hybrid"}]
 :::
+\`\`\`
 
 Rules for the topic card block:
+- You MUST include this block — it renders interactive topic cards for the user
 - Place it AFTER your introductory text explaining why these topics match
 - Include ALL topics from the search results that you mention
-- The JSON must be valid and on a single line between the markers
+- The JSON must be valid and on a SINGLE LINE between the ::: markers
 - Each object must have: id, title, company (string or null), fields (array), degrees (array), employment, employmentType, workplaceType
+- Do NOT wrap the block in markdown code fences — use the raw ::: markers directly
 - Continue with additional commentary/analysis AFTER the block
 - You can include multiple :::topics blocks if organizing topics into categories
 
