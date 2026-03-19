@@ -575,8 +575,11 @@ export default function MessagesPage() {
                           ) : (
                             <p className="text-xs text-muted-foreground truncate max-w-[180px]">
                               {conv.lastMessage?.content
-                                ? conv.lastMessage.content.startsWith("📎") && conv.lastMessage.content.includes("\n")
-                                  ? conv.lastMessage.content.split("\n")[0]
+                                ? conv.lastMessage.content.startsWith("📎")
+                                  ? (() => {
+                                      const fileCount = conv.lastMessage.content.split("\n").filter((l) => l.startsWith("📎")).length;
+                                      return fileCount > 1 ? `📎 ${fileCount} files` : conv.lastMessage.content.split("\n")[0];
+                                    })()
                                   : conv.lastMessage.content
                                 : "No messages yet"}
                             </p>
