@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Bot, Send, X, Sparkles, Loader2, Square, RotateCcw, Copy, RefreshCw, Paperclip, FileText, Image as ImageIcon } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import { ChatTopicCard, parseTopicBlocks } from "@/components/ChatTopicCard";
 import { toast } from "sonner";
 import { useUserProfile } from "@/contexts/UserProfileContext";
 
@@ -409,9 +410,22 @@ export function AiChatPanel({
                 ) : (
                   <div className="space-y-1.5">
                     <div className="text-sm leading-relaxed">
-                      <div className="prose prose-sm dark:prose-invert max-w-none prose-p:my-1.5 prose-headings:my-2 prose-ul:my-1.5 prose-ol:my-1.5 prose-li:my-0.5 prose-pre:my-2 prose-blockquote:my-2 [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
-                        <ReactMarkdown>{msg.content}</ReactMarkdown>
-                      </div>
+                      {(() => {
+                        const segments = parseTopicBlocks(msg.content);
+                        return segments.map((seg, si) =>
+                          seg.type === "text" ? (
+                            <div key={si} className="prose prose-sm dark:prose-invert max-w-none prose-p:my-1.5 prose-headings:my-2 prose-ul:my-1.5 prose-ol:my-1.5 prose-li:my-0.5 prose-pre:my-2 prose-blockquote:my-2 [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
+                              <ReactMarkdown>{seg.content}</ReactMarkdown>
+                            </div>
+                          ) : (
+                            <div key={si} className="flex flex-col gap-2 my-3">
+                              {seg.topics.map((topic) => (
+                                <ChatTopicCard key={topic.id} topic={topic} />
+                              ))}
+                            </div>
+                          )
+                        );
+                      })()}
                     </div>
                     {(!isLoading || i !== messages.length - 1) && (
                       <div className="flex items-center gap-1">
