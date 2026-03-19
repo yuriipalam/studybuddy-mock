@@ -884,7 +884,7 @@ export default function MessagesPage() {
                     </div>
                   ) : (
                   <div className="space-y-1 px-4">
-                    {groupedMessages.map((group) => (
+                    {groupedTimeline.map((group) => (
                       <div key={group.date}>
                         <div className="flex items-center justify-center my-4">
                           <span className="text-[10px] text-muted-foreground bg-muted px-3 py-0.5 rounded-full">
@@ -892,11 +892,41 @@ export default function MessagesPage() {
                           </span>
                         </div>
                         <div className="space-y-1">
-                          {group.msgs.map((msg, i) => {
+                          {group.items.map((item, i) => {
+                            if (item.type === "call") {
+                              const call = item.data;
+                              const isMyCall = call.caller_id === userId;
+                              const isMissed = call.status === "missed";
+                              const isRejected = call.status === "rejected";
+                              const dur = call.duration > 0 ? formatDuration(call.duration) : null;
+                              return (
+                                <div key={`call-${call.id}`} className="flex justify-center my-3">
+                                  <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/60 px-3 py-1.5 rounded-full">
+                                    {isMissed || isRejected ? (
+                                      <PhoneMissed className="h-3.5 w-3.5 text-destructive" />
+                                    ) : isMyCall ? (
+                                      <PhoneOutgoing className="h-3.5 w-3.5 text-green-500" />
+                                    ) : (
+                                      <PhoneIncoming className="h-3.5 w-3.5 text-green-500" />
+                                    )}
+                                    <span>
+                                      {isMissed ? "Missed" : isRejected ? "Declined" : isMyCall ? "Outgoing" : "Incoming"}{" "}
+                                      {call.call_type} call
+                                      {dur && ` · ${dur}`}
+                                    </span>
+                                    <span className="text-muted-foreground/60">
+                                      {formatTime(call.started_at)}
+                                    </span>
+                                  </div>
+                                </div>
+                              );
+                            }
+                            const msg = item.data;
+                            const prevItem = i > 0 ? group.items[i - 1] : null;
                             const isMe = msg.sender_id === userId;
                             const showAvatar =
                               !isMe &&
-                              (i === 0 || group.msgs[i - 1].sender_id !== msg.sender_id);
+                              (i === 0 || !prevItem || prevItem.type !== "message" || prevItem.data.sender_id !== msg.sender_id);
 
                             // Check if message is a file attachment
                             const isFileMsg = msg.content.startsWith("📎 ");
