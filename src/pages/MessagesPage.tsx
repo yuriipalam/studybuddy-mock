@@ -1054,9 +1054,8 @@ export default function MessagesPage() {
             ) : chatTab === "milestones" ? (
               <div className="flex-1 flex flex-col overflow-hidden">
                 <ScrollArea className="flex-1 px-3 py-3">
-                  {/* Header */}
-                  <div className="flex items-center justify-between px-1 pb-2">
-                    <p className="text-sm text-foreground">Break your goal into milestones</p>
+                  {/* Edit toggle */}
+                  <div className="flex justify-end px-1 pb-2">
                     <Button
                       variant={milestonesEditMode ? "default" : "ghost"}
                       size="sm"
