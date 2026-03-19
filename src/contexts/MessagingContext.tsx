@@ -663,6 +663,7 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
         setActiveConversationId,
         messages,
         sendMessage,
+        sendMessageWithFiles,
         editMessage,
         deleteMessage,
         deleteConversation,
