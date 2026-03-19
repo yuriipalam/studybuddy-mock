@@ -912,13 +912,14 @@ export default function MessagesPage() {
                                     </div>
                                   </div>
                                   {/* Edit/delete buttons - only for own messages */}
-                                  {isMe && !msg.id.startsWith("temp-") && !msg.content.startsWith("📎") && editingId !== msg.id && (
+                                  {isMe && !msg.id.startsWith("temp-") && editingId !== msg.id && (
                                     <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5">
                                       <button
                                         className="p-1 rounded hover:bg-muted"
                                         onClick={() => {
+                                          const textPart = isFileMsg ? getFileMessageText(msg.content) : msg.content;
                                           setEditingId(msg.id);
-                                          setEditInput(msg.content);
+                                          setEditInput(textPart);
                                         }}
                                       >
                                         <Pencil className="h-3 w-3 text-muted-foreground" />
