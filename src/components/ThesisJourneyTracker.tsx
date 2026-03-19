@@ -112,7 +112,7 @@ export function ThesisJourneyTracker({ stages, currentStage }: { stages: Journey
                   >
                     <Icon className="h-3.5 w-3.5" strokeWidth={stage.status === "completed" ? 3 : 2} />
                   </div>
-                  <p className={cn("text-[15px] mt-2 text-center max-w-[100px] leading-tight", config.labelClass)}>
+                  <p className={cn("text-[12.5px] mt-2 text-center max-w-[90px] leading-tight", config.labelClass)}>
                     {stage.label}
                   </p>
                   <p className={cn(
