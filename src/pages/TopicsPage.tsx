@@ -18,6 +18,12 @@ export default function TopicsPage() {
   const [fieldFilter, setFieldFilter] = useState("all");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [bookmarked, setBookmarked] = useState<Set<string>>(new Set());
+  const { awardXp } = useXpEngine();
+
+  const handleProposeTopic = () => {
+    awardXp(XP_TRIGGERS.SUBMIT_TOPIC);
+    toast.success("Topic proposed successfully!");
+  };
 
   useEffect(() => {
     fetchTopics().then(setTopics);
