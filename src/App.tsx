@@ -26,6 +26,7 @@ import UniversitiesPage from "@/pages/UniversitiesPage";
 import UniversityDetailPage from "@/pages/UniversityDetailPage";
 import StudyProgramsPage from "@/pages/StudyProgramsPage";
 import StudyProgramDetailPage from "@/pages/StudyProgramDetailPage";
+import RankingPage from "@/pages/RankingPage";
 import SettingsPage from "@/pages/SettingsPage";
 import NotFound from "@/pages/NotFound";
 
