@@ -1190,7 +1190,7 @@ export default function MessagesPage() {
                   ) : null}
 
                   <form
-                    className="flex items-center gap-2"
+                    className="flex items-end gap-2"
                     onSubmit={(e) => {
                       e.preventDefault();
                       if (improvedText !== null) acceptImprovement();
@@ -1210,24 +1210,35 @@ export default function MessagesPage() {
                       variant="ghost"
                       disabled={uploading}
                       onClick={() => fileInputRef.current?.click()}
-                      className="shrink-0"
+                      className="shrink-0 mb-0.5"
                     >
                       <Paperclip className={cn("h-4 w-4", uploading && "animate-pulse")} />
                     </Button>
-                    <Input
+                    <textarea
                       value={input}
                       onChange={(e) => {
                         handleInputChange(e.target.value);
-                        // If user manually edits after improvement, clear the suggestion state
                         if (improvedText !== null) {
                           setImprovedText(null);
                           setOriginalText(null);
                         }
+                        // Auto-resize
+                        e.target.style.height = "auto";
+                        e.target.style.height = Math.min(e.target.scrollHeight, 96) + "px";
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                          e.preventDefault();
+                          if (improvedText !== null) acceptImprovement();
+                          handleSend();
+                        }
                       }}
                       placeholder="Type a message..."
-                      className="flex-1"
+                      rows={1}
+                      className="flex-1 resize-none overflow-y-auto rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      style={{ maxHeight: "96px" }}
                     />
-                    <Button type="submit" size="icon" disabled={!input.trim() && pendingFiles.length === 0}>
+                    <Button type="submit" size="icon" disabled={!input.trim() && pendingFiles.length === 0} className="shrink-0 mb-0.5">
                       <Send className="h-4 w-4" />
                     </Button>
                   </form>
