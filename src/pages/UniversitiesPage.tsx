@@ -36,7 +36,7 @@ export default function UniversitiesPage() {
           const programCount = studyPrograms.filter((sp) => sp.universityId === uni.id).length;
           const supervisorCount = allSupervisors.filter((s) => s.universityId === uni.id).length;
           return (
-            <Card key={uni.id} className="group overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
+            <Card key={uni.id} className="group overflow-hidden hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate(`/organizations/universities/${uni.id}`)}>
               <CardContent className="p-5 space-y-3">
                 <div className="flex items-center gap-3">
                   <Avatar className="h-12 w-12 rounded-lg">
