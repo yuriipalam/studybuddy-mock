@@ -703,34 +703,35 @@ export default function MessagesPage() {
                             {group.date}
                           </span>
                         </div>
-                        <div className="space-y-2">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                           {group.files.map((f) => (
                             <div
                               key={f.id}
-                              className="flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors group cursor-pointer"
+                              className="flex flex-col rounded-lg border border-border hover:bg-muted/50 transition-colors cursor-pointer overflow-hidden group"
                               onClick={() => handleFileClick(f)}
                             >
-                              {/* Thumbnail for images */}
+                              {/* Thumbnail / icon area */}
                               {f.mime_type.startsWith("image/") ? (
-                                <div className="h-10 w-10 rounded-lg overflow-hidden shrink-0">
+                                <div className="aspect-square overflow-hidden bg-muted">
                                   <img src={getFileUrl(f.file_path)} alt={f.file_name} className="h-full w-full object-cover" />
                                 </div>
                               ) : (
-                                <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                                <div className="aspect-square bg-muted flex flex-col items-center justify-center gap-1">
                                   {getFileIcon(f.mime_type)}
+                                  <span className="text-[10px] text-muted-foreground uppercase font-medium">
+                                    {f.file_name.split(".").pop()}
+                                  </span>
                                 </div>
                               )}
-                              <div className="min-w-0 flex-1">
-                                <p className="text-sm font-medium truncate">{f.file_name}</p>
-                                <p className="text-xs text-muted-foreground">
-                                  {formatFileSize(f.file_size)} · {formatTime(f.created_at)}
+                              <div className="p-2 min-w-0">
+                                <p className="text-xs font-medium truncate">{f.file_name}</p>
+                                <p className="text-[10px] text-muted-foreground">
+                                  {formatFileSize(f.file_size)}
                                 </p>
                               </div>
-                              {isPreviewable(f.mime_type) ? (
-                                <Eye className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
-                              ) : (
-                                <Download className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
-                              )}
+                            </div>
+                          ))}
+                        </div>
                             </div>
                           ))}
                         </div>
