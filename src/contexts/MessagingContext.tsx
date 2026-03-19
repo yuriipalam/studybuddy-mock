@@ -310,6 +310,7 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
         content,
         created_at: new Date().toISOString(),
         read_at: null,
+        edited_at: null,
       };
 
       // Add to messages immediately
