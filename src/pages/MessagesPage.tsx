@@ -613,7 +613,7 @@ export default function MessagesPage() {
                 )}
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <p className="text-sm font-medium">{contact?.user_name || "Unknown"}</p>
+                    <p className="text-base font-semibold">{contact?.user_name || "Unknown"}</p>
                     {contact?.user_role === "supervisor" && (
                       <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 leading-none border-blue-500 text-blue-500">
                         Supervisor
@@ -650,7 +650,7 @@ export default function MessagesPage() {
               <div className="flex px-4 gap-4">
                 <button
                   className={cn(
-                    "pb-2 text-sm font-medium border-b-2 transition-colors",
+                    "pb-2 text-xs font-medium border-b-2 transition-colors",
                     chatTab === "messages"
                       ? "border-primary text-foreground"
                       : "border-transparent text-muted-foreground hover:text-foreground"
@@ -661,7 +661,7 @@ export default function MessagesPage() {
                 </button>
                 <button
                   className={cn(
-                    "pb-2 text-sm font-medium border-b-2 transition-colors",
+                    "pb-2 text-xs font-medium border-b-2 transition-colors",
                     chatTab === "files"
                       ? "border-primary text-foreground"
                       : "border-transparent text-muted-foreground hover:text-foreground"
@@ -672,7 +672,7 @@ export default function MessagesPage() {
                 </button>
                 <button
                   className={cn(
-                    "pb-2 text-sm font-medium border-b-2 transition-colors",
+                    "pb-2 text-xs font-medium border-b-2 transition-colors",
                     chatTab === "milestones"
                       ? "border-primary text-foreground"
                       : "border-transparent text-muted-foreground hover:text-foreground"
