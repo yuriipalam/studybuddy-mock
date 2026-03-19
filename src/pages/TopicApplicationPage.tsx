@@ -296,6 +296,20 @@ export default function TopicApplicationPage() {
         filtered.push(newProject);
         localStorage.setItem("studyond-applied-projects", JSON.stringify(filtered));
 
+        // Notify each supervisor in real-time
+        const studentName = `${currentUser.firstName} ${currentUser.lastName}`;
+        const supervisorIds = topic?.supervisorIds ?? [];
+        if (supervisorIds.length > 0) {
+          const notificationInserts = supervisorIds.map((supId) => ({
+            user_id: supId,
+            title: `New thesis application from ${studentName}`,
+            description: `Applied for: ${topic?.title ?? "a topic"}`,
+            type: "success",
+            xp_amount: 0,
+          }));
+          await supabase.from("notifications").insert(notificationInserts);
+        }
+
         navigate("/topics");
       }
     } catch (e: any) {
