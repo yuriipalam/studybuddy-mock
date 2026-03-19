@@ -15,7 +15,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { MessageSquare, Send, Check, CheckCheck, Pencil, X, Trash2, Paperclip, FileText, Image as ImageIcon, File as FileIcon, Download, Eye, ExternalLink } from "lucide-react";
+import { MessageSquare, Send, Check, CheckCheck, Pencil, X, Trash2, Paperclip, FileText, Image as ImageIcon, File as FileIcon, Download, Eye, ExternalLink, Plus, Circle, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { useMessaging, ChatFile } from "@/contexts/MessagingContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -84,12 +84,15 @@ export default function MessagesPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editInput, setEditInput] = useState("");
   const [deleteConvId, setDeleteConvId] = useState<string | null>(null);
-  const [chatTab, setChatTab] = useState<"messages" | "files">("messages");
+  const [chatTab, setChatTab] = useState<"messages" | "files" | "milestones">("messages");
   const [convFiles, setConvFiles] = useState<ChatFile[]>([]);
   const [filesLoading, setFilesLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [previewFile, setPreviewFile] = useState<ChatFile | null>(null);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  const [milestones, setMilestones] = useState<{ id: string; text: string; completed: boolean }[]>([]);
+  const [newMilestoneText, setNewMilestoneText] = useState("");
+  const [addingMilestone, setAddingMilestone] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
@@ -452,6 +455,17 @@ export default function MessagesPage() {
                 >
                   Files
                 </button>
+                <button
+                  className={cn(
+                    "pb-2 text-sm font-medium border-b-2 transition-colors",
+                    chatTab === "milestones"
+                      ? "border-primary text-foreground"
+                      : "border-transparent text-muted-foreground hover:text-foreground"
+                  )}
+                  onClick={() => setChatTab("milestones")}
+                >
+                  Milestones
+                </button>
               </div>
             </div>
 
@@ -680,7 +694,7 @@ export default function MessagesPage() {
                   </form>
                 </div>
               </>
-            ) : (
+            ) : chatTab === "files" ? (
               /* Files tab */
               <ScrollArea className="flex-1 px-4 py-3">
                 {filesLoading ? (
@@ -738,7 +752,106 @@ export default function MessagesPage() {
                   </div>
                 )}
               </ScrollArea>
-            )}
+            ) : chatTab === "milestones" ? (
+              <ScrollArea className="flex-1 px-4 py-3">
+                <div className="max-w-md mx-auto py-4">
+                  {milestones.map((m, i) => (
+                    <div key={m.id} className="flex items-stretch">
+                      {/* Timeline column */}
+                      <div className="flex flex-col items-center w-6 shrink-0">
+                        <button
+                          onClick={() =>
+                            setMilestones((prev) =>
+                              prev.map((item) =>
+                                item.id === m.id ? { ...item, completed: !item.completed } : item
+                              )
+                            )
+                          }
+                          className="relative z-10 shrink-0"
+                        >
+                          {m.completed ? (
+                            <CheckCircle2 className="h-5 w-5 text-primary" />
+                          ) : (
+                            <Circle className="h-5 w-5 text-muted-foreground" />
+                          )}
+                        </button>
+                        {/* Solid line to next item */}
+                        {i < milestones.length - 1 && (
+                          <div className="w-px flex-1 bg-border" />
+                        )}
+                        {i === milestones.length - 1 && (
+                          <div className="w-px flex-1 border-l border-dashed border-border" />
+                        )}
+                      </div>
+                      {/* Content */}
+                      <div className="flex-1 pb-6 pl-3 min-w-0">
+                        <p className={cn("text-sm", m.completed && "line-through text-muted-foreground")}>
+                          {m.text}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* Add new milestone row */}
+                  <div className="flex items-start">
+                    <div className="flex flex-col items-center w-6 shrink-0">
+                      {!addingMilestone ? (
+                        <button
+                          onClick={() => setAddingMilestone(true)}
+                          className="relative z-10 shrink-0 h-5 w-5 rounded-full border-2 border-dashed border-muted-foreground flex items-center justify-center hover:border-primary hover:text-primary transition-colors text-muted-foreground"
+                        >
+                          <Plus className="h-3 w-3" />
+                        </button>
+                      ) : (
+                        <Circle className="h-5 w-5 text-muted-foreground shrink-0" />
+                      )}
+                    </div>
+                    <div className="flex-1 pl-3 min-w-0">
+                      {addingMilestone ? (
+                        <form
+                          className="flex items-center gap-2"
+                          onSubmit={(e) => {
+                            e.preventDefault();
+                            if (newMilestoneText.trim()) {
+                              setMilestones((prev) => [
+                                ...prev,
+                                { id: crypto.randomUUID(), text: newMilestoneText.trim(), completed: false },
+                              ]);
+                              setNewMilestoneText("");
+                              setAddingMilestone(false);
+                            }
+                          }}
+                        >
+                          <Input
+                            autoFocus
+                            value={newMilestoneText}
+                            onChange={(e) => setNewMilestoneText(e.target.value)}
+                            placeholder="New milestone..."
+                            className="h-7 text-sm"
+                            onKeyDown={(e) => {
+                              if (e.key === "Escape") {
+                                setAddingMilestone(false);
+                                setNewMilestoneText("");
+                              }
+                            }}
+                          />
+                          <Button type="submit" size="sm" className="h-7 px-2" disabled={!newMilestoneText.trim()}>
+                            Add
+                          </Button>
+                        </form>
+                      ) : (
+                        <button
+                          onClick={() => setAddingMilestone(true)}
+                          className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                          Add milestone
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </ScrollArea>
+            ) : null}
           </>
         )}
       </div>
