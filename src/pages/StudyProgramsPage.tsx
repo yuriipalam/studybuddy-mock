@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { fetchStudyPrograms, getUniversity, students as allStudents } from "@/data";
+import { fetchStudyPrograms, getUniversity, students as allStudents, universities } from "@/data";
 import type { StudyProgram } from "@/data/types";
 import { FilterBar } from "@/components/FilterBar";
 import { Card, CardContent } from "@/components/ui/card";
@@ -13,19 +13,28 @@ export default function StudyProgramsPage() {
   const [programs, setPrograms] = useState<StudyProgram[]>([]);
   const [search, setSearch] = useState("");
   const [degreeFilter, setDegreeFilter] = useState("all");
+  const [uniFilter, setUniFilter] = useState("all");
 
   useEffect(() => {
     fetchStudyPrograms().then(setPrograms);
   }, []);
+
+  const uniNames = useMemo(() => {
+    const usedIds = new Set(programs.map((p) => p.universityId));
+    return universities.filter((u) => usedIds.has(u.id)).map((u) => u.name);
+  }, [programs]);
 
   const filtered = useMemo(() => {
     return programs.filter((p) => {
       const uni = getUniversity(p.universityId);
       if (search && !p.name.toLowerCase().includes(search.toLowerCase()) && !(uni?.name ?? "").toLowerCase().includes(search.toLowerCase())) return false;
       if (degreeFilter !== "all" && p.degree !== degreeFilter) return false;
+      if (uniFilter !== "all") {
+        if (uni?.name !== uniFilter) return false;
+      }
       return true;
     });
-  }, [programs, search, degreeFilter]);
+  }, [programs, search, degreeFilter, uniFilter]);
 
   return (
     <div className="p-6 space-y-6">
@@ -35,6 +44,7 @@ export default function StudyProgramsPage() {
         onSearchChange={setSearch}
         searchPlaceholder="Search programs..."
         filters={[
+          { label: "University", options: uniNames, value: uniFilter, onChange: setUniFilter },
           { label: "Degree", options: ["bsc", "msc", "phd"], value: degreeFilter, onChange: setDegreeFilter },
         ]}
       />
