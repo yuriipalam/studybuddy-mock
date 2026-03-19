@@ -36,9 +36,9 @@ export function useXpEngine() {
   const { currentUser } = useAuth();
   const queryClient = useQueryClient();
 
-  const awardXp = useCallback(async (trigger: XpTrigger) => {
-    if (!currentUser) return;
-    const userId = currentUser.id;
+  const awardXp = useCallback(async (trigger: XpTrigger, targetUserId?: string) => {
+    const userId = targetUserId || currentUser?.id;
+    if (!userId) return;
     const isPositive = trigger.xp > 0;
 
     try {
