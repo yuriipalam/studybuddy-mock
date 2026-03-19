@@ -90,6 +90,9 @@ export default function MessagesPage() {
   const [uploading, setUploading] = useState(false);
   const [previewFile, setPreviewFile] = useState<ChatFile | null>(null);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  const [milestones, setMilestones] = useState<{ id: string; text: string; completed: boolean }[]>([]);
+  const [newMilestoneText, setNewMilestoneText] = useState("");
+  const [addingMilestone, setAddingMilestone] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
