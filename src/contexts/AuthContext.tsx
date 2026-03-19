@@ -33,7 +33,7 @@ export const PREDEFINED_ACCOUNTS: AuthAccount[] = [
     id: "supervisor-01",
     firstName: "Martin",
     lastName: "Vechev",
-    email: "martin.vechev@ethz.ch",
+    email: "mikhael2005@gmail.com",
     role: "supervisor",
     avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Martin",
   },
