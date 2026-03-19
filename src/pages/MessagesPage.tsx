@@ -408,29 +408,26 @@ export default function MessagesPage() {
     toast.success("File deleted");
   };
 
-  // Extract the file name from a 📎 message (first line only, ignoring accompanying text)
-  const getFileNameFromMsg = (content: string) => {
-    const firstLine = content.split("\n")[0];
-    return firstLine.slice(2).trim();
-  };
-
-  // Extract accompanying text from a file message (everything after the first line)
+  // Extract accompanying text from a file message (lines that don't start with 📎)
   const getFileMessageText = (content: string) => {
     const lines = content.split("\n");
-    if (lines.length <= 1) return "";
-    return lines.slice(1).join("\n").trim();
+    const textLines = lines.filter((l) => !l.startsWith("📎"));
+    return textLines.join("\n").trim();
   };
 
-  // Find ChatFile matching a file message content
-  const findFileForMessage = useCallback((msgContent: string, messageId?: string): ChatFile | undefined => {
-    if (!msgContent.startsWith("📎")) return undefined;
+  // Find ALL ChatFiles matching a file message (may have multiple 📎 lines)
+  const findFilesForMessage = useCallback((msgContent: string, messageId?: string): ChatFile[] => {
+    if (!msgContent.startsWith("📎")) return [];
     // Prefer matching by message_id for accuracy
     if (messageId) {
-      const byId = convFiles.find((f) => f.message_id === messageId);
-      if (byId) return byId;
+      const byId = convFiles.filter((f) => f.message_id === messageId);
+      if (byId.length > 0) return byId;
     }
-    const fileName = getFileNameFromMsg(msgContent);
-    return convFiles.find((f) => f.file_name === fileName);
+    // Fallback: match by file names in content
+    const fileNames = msgContent.split("\n")
+      .filter((l) => l.startsWith("📎"))
+      .map((l) => l.slice(2).trim());
+    return convFiles.filter((f) => fileNames.includes(f.file_name));
   }, [convFiles]);
 
   // Group files by date
@@ -578,8 +575,11 @@ export default function MessagesPage() {
                           ) : (
                             <p className="text-xs text-muted-foreground truncate max-w-[180px]">
                               {conv.lastMessage?.content
-                                ? conv.lastMessage.content.startsWith("📎") && conv.lastMessage.content.includes("\n")
-                                  ? conv.lastMessage.content.split("\n")[0]
+                                ? conv.lastMessage.content.startsWith("📎")
+                                  ? (() => {
+                                      const fileCount = conv.lastMessage.content.split("\n").filter((l) => l.startsWith("📎")).length;
+                                      return fileCount > 1 ? `📎 ${fileCount} files` : conv.lastMessage.content.split("\n")[0];
+                                    })()
                                   : conv.lastMessage.content
                                 : "No messages yet"}
                             </p>
@@ -822,34 +822,41 @@ export default function MessagesPage() {
                                       </form>
                                     ) : isFileMsg ? (
                                       (() => {
-                                        const chatFile = findFileForMessage(msg.content, msg.id);
+                                        const chatFiles = findFilesForMessage(msg.content, msg.id);
                                         const accompanyingText = getFileMessageText(msg.content);
-                                        if (chatFile) {
-                                          const isImage = chatFile.mime_type.startsWith("image/");
+                                        if (chatFiles.length > 0) {
                                           return (
                                             <div className="space-y-1.5">
-                                              <div
-                                                className={cn("max-w-[220px] -mx-1 -my-0.5 rounded-lg overflow-hidden cursor-pointer border border-border", !isImage && "w-44")}
-                                                onClick={(e) => { e.stopPropagation(); handleFileClick(chatFile); }}
-                                              >
-                                                {isImage ? (
-                                                  <div className="overflow-hidden bg-muted">
-                                                    <img src={getFileUrl(chatFile.file_path)} alt={chatFile.file_name} className="w-full h-auto object-contain max-h-[280px]" />
-                                                  </div>
-                                                ) : (
-                                                  <div className="aspect-square bg-muted/50 flex flex-col items-center justify-center gap-2">
-                                                    {getFileIcon(chatFile.mime_type, "lg")}
-                                                    <span className="text-xs text-muted-foreground uppercase font-medium">
-                                                      {chatFile.file_name.split(".").pop()}
-                                                    </span>
-                                                  </div>
-                                                )}
-                                                {!isImage && (
-                                                  <div className="p-2 min-w-0">
-                                                    <p className={cn("text-xs font-medium truncate", isMe ? "text-primary-foreground" : "text-foreground")}>{chatFile.file_name}</p>
-                                                    <p className={cn("text-[10px]", isMe ? "text-primary-foreground/60" : "text-muted-foreground")}>{formatFileSize(chatFile.file_size)}</p>
-                                                  </div>
-                                                )}
+                                              <div className="flex flex-wrap gap-1.5 -mx-1 -my-0.5">
+                                                {chatFiles.map((chatFile) => {
+                                                  const isImage = chatFile.mime_type.startsWith("image/");
+                                                  return (
+                                                    <div
+                                                      key={chatFile.id}
+                                                      className={cn("rounded-lg overflow-hidden cursor-pointer border border-border", isImage ? "max-w-[220px]" : "w-44")}
+                                                      onClick={(e) => { e.stopPropagation(); handleFileClick(chatFile); }}
+                                                    >
+                                                      {isImage ? (
+                                                        <div className="overflow-hidden bg-muted">
+                                                          <img src={getFileUrl(chatFile.file_path)} alt={chatFile.file_name} className="w-full h-auto object-contain max-h-[280px]" />
+                                                        </div>
+                                                      ) : (
+                                                        <div className="aspect-square bg-muted/50 flex flex-col items-center justify-center gap-2">
+                                                          {getFileIcon(chatFile.mime_type, "lg")}
+                                                          <span className="text-xs text-muted-foreground uppercase font-medium">
+                                                            {chatFile.file_name.split(".").pop()}
+                                                          </span>
+                                                        </div>
+                                                      )}
+                                                      {!isImage && (
+                                                        <div className="p-2 min-w-0">
+                                                          <p className={cn("text-xs font-medium truncate", isMe ? "text-primary-foreground" : "text-foreground")}>{chatFile.file_name}</p>
+                                                          <p className={cn("text-[10px]", isMe ? "text-primary-foreground/60" : "text-muted-foreground")}>{formatFileSize(chatFile.file_size)}</p>
+                                                        </div>
+                                                      )}
+                                                    </div>
+                                                  );
+                                                })}
                                               </div>
                                               {accompanyingText && (
                                                 <span className="whitespace-pre-wrap [overflow-wrap:anywhere]">{accompanyingText}</span>
@@ -857,10 +864,19 @@ export default function MessagesPage() {
                                             </div>
                                           );
                                         }
+                                        // Fallback: files not yet loaded
+                                        const fileNames = msg.content.split("\n").filter((l) => l.startsWith("📎")).map((l) => l.slice(2).trim());
                                         return (
-                                          <div className="flex items-center gap-1.5">
-                                            <Paperclip className="h-3.5 w-3.5 shrink-0" />
-                                            <span>{getFileNameFromMsg(msg.content)}</span>
+                                          <div className="space-y-1">
+                                            {fileNames.map((name, j) => (
+                                              <div key={j} className="flex items-center gap-1.5">
+                                                <Paperclip className="h-3.5 w-3.5 shrink-0" />
+                                                <span>{name}</span>
+                                              </div>
+                                            ))}
+                                            {accompanyingText && (
+                                              <span className="whitespace-pre-wrap [overflow-wrap:anywhere]">{accompanyingText}</span>
+                                            )}
                                           </div>
                                         );
                                       })()
