@@ -962,7 +962,14 @@ export default function MessagesPage() {
                                         );
                                       })()
                                     ) : (
-                                      msg.content
+                                      <div
+                                        className={cn(
+                                          "prose prose-sm max-w-none [&_p]:my-0 [&_ul]:my-1 [&_ol]:my-1 [&_li]:my-0.5 [overflow-wrap:anywhere]",
+                                          isMe && "prose-invert"
+                                        )}
+                                      >
+                                        <ReactMarkdown>{msg.content}</ReactMarkdown>
+                                      </div>
                                     )}
                                     <div className={cn(
                                       "flex items-center gap-1 mt-0.5",
