@@ -29,14 +29,14 @@ export default function FloatingAdvice() {
   const isStudent = currentUser?.role === "student";
 
   const fetchAdvice = useCallback(async () => {
-    if (cooldownRef.current || loading) return;
+    if (cooldownRef.current || loading || !isStudent) return;
 
     setLoading(true);
     cooldownRef.current = true;
 
     try {
       const userProfile = profile
-        ? `Name: ${profile.firstName} ${profile.lastName}, Fields: ${profile.fields?.join(", ") || "not set"}, Skills: ${profile.skills?.join(", ") || "not set"}, About: ${profile.about || "not set"}`
+        ? `Name: ${profile.firstName} ${profile.lastName}, Fields: ${profile.fieldIds?.join(", ") || "not set"}, Skills: ${profile.skills || "not set"}, About: ${profile.about || "not set"}`
         : undefined;
 
       const { data, error } = await supabase.functions.invoke("thesis-advice", {
