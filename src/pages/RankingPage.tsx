@@ -221,7 +221,7 @@ function LeaderboardTable({ users }: { users: LeaderboardUser[] }) {
               )}
             </div>
           </div>
-          <span className="text-sm font-bold text-primary text-right">{youUser.xp.toLocaleString()}</span>
+          <span className="text-sm font-bold text-primary text-right">{youUser.xp.toLocaleString()} <span className="text-xs font-medium text-primary/60">XP</span></span>
           <span className={cn(
             "text-xs font-semibold text-right flex items-center justify-end gap-0.5",
             youUser.change > 0 ? "text-emerald-500" : youUser.change < 0 ? "text-destructive" : "text-muted-foreground"
