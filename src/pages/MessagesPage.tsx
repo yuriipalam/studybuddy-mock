@@ -285,9 +285,10 @@ export default function MessagesPage() {
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
 
     if (pendingFiles.length > 0) {
-      setUploading(true);
-      await sendMessageWithFiles(activeConversationId, content, pendingFiles);
+      const filesToSend = [...pendingFiles];
       setPendingFiles([]);
+      setUploading(true);
+      await sendMessageWithFiles(activeConversationId, content, filesToSend);
       setUploading(false);
       if (chatTab === "files") loadFiles();
     } else {
