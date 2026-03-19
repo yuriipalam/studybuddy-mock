@@ -31,7 +31,7 @@ export default function LoginPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center space-y-2">
           <div className="flex justify-center mb-2">
-            <img src="/src/assets/studyond.svg" alt="StudyOnd" className="h-8" />
+            <img src={logo} alt="StudyOnd" className="h-8" />
           </div>
           <CardTitle className="text-2xl">Welcome to StudyOnd</CardTitle>
           <CardDescription>Select an account to continue</CardDescription>
