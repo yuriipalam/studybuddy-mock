@@ -4,7 +4,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -16,7 +15,6 @@ const registerSchema = z.object({
   firstName: z.string().trim().min(1, "First name is required").max(50),
   lastName: z.string().trim().min(1, "Last name is required").max(50),
   email: z.string().trim().email("Invalid email address").max(255),
-  role: z.enum(["student", "supervisor"]),
   university: z.string().trim().min(1, "University is required").max(200),
 });
 
@@ -24,7 +22,6 @@ export default function RegisterPage() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState<string>("student");
   const [university, setUniversity] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -36,7 +33,7 @@ export default function RegisterPage() {
     e.preventDefault();
     setErrors({});
 
-    const result = registerSchema.safeParse({ firstName, lastName, email, role, university });
+    const result = registerSchema.safeParse({ firstName, lastName, email, university });
     if (!result.success) {
       const fieldErrors: Record<string, string> = {};
       result.error.issues.forEach((issue) => {
@@ -50,11 +47,11 @@ export default function RegisterPage() {
     setIsSubmitting(true);
     try {
       const avatarSeed = result.data.firstName;
+      // Insert without role — role will be set during onboarding
       const { data: inserted, error } = await supabase.from("user_accounts").insert({
         first_name: result.data.firstName,
         last_name: result.data.lastName,
         email: result.data.email,
-        role: result.data.role,
         university: result.data.university,
         avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${avatarSeed}`,
       } as any).select().single();
@@ -68,7 +65,7 @@ export default function RegisterPage() {
         return;
       }
 
-      // Store the newly created account for onboarding auto-login
+      // Store the newly created account for onboarding
       if (inserted) {
         localStorage.setItem("studyond-pending-user", JSON.stringify({
           id: inserted.id,
@@ -151,20 +148,6 @@ export default function RegisterPage() {
                 maxLength={200}
               />
               {errors.university && <p className="text-xs text-destructive">{errors.university}</p>}
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="role">I am a</Label>
-              <Select value={role} onValueChange={setRole}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="student">Student</SelectItem>
-                  <SelectItem value="supervisor">Supervisor</SelectItem>
-                </SelectContent>
-              </Select>
-              {errors.role && <p className="text-xs text-destructive">{errors.role}</p>}
             </div>
 
             <Button type="submit" className="w-full" disabled={isSubmitting}>
