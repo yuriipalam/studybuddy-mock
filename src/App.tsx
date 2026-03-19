@@ -29,6 +29,7 @@ import StudyProgramDetailPage from "@/pages/StudyProgramDetailPage";
 import RankingPage from "@/pages/RankingPage";
 import SettingsPage from "@/pages/SettingsPage";
 import OnboardingPage from "@/pages/OnboardingPage";
+import RegisterPage from "@/pages/RegisterPage";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -79,7 +80,8 @@ const App = () => (
           <AuthProvider>
             <Routes>
               <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<OnboardingPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/onboarding" element={<OnboardingPage />} />
               <Route path="/*" element={<ProtectedRoutes />} />
             </Routes>
           </AuthProvider>
