@@ -650,7 +650,7 @@ export default function MessagesPage() {
               <div className="flex px-4 gap-4">
                 <button
                   className={cn(
-                    "pb-2 text-sm font-medium border-b-2 transition-colors",
+                    "pb-2 text-xs font-medium border-b-2 transition-colors",
                     chatTab === "messages"
                       ? "border-primary text-foreground"
                       : "border-transparent text-muted-foreground hover:text-foreground"
