@@ -67,7 +67,7 @@ export default function FloatingAdvice() {
         cooldownRef.current = false;
       }, COOLDOWN * 1000);
     }
-  }, [location.pathname, profile, loading]);
+  }, [location.pathname, profile, loading, isStudent]);
 
   // Reset idle timer on activity
   const resetIdleTimer = useCallback(() => {
