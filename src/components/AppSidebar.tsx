@@ -51,9 +51,9 @@ export function AppSidebar() {
   const location = useLocation();
   const currentPath = location.pathname;
 
-  const isActive = (path: string) => currentPath === path;
-  const isPeopleActive = peopleSubItems.some((i) => isActive(i.url));
-  const isOrgActive = orgSubItems.some((i) => isActive(i.url));
+  const isActive = (path: string) => currentPath === path || currentPath.startsWith(path + "/");
+  const isPeopleActive = peopleSubItems.some((i) => currentPath === i.url || currentPath.startsWith(i.url + "/"));
+  const isOrgActive = orgSubItems.some((i) => currentPath === i.url || currentPath.startsWith(i.url + "/"));
 
   return (
     <Sidebar collapsible="icon">
