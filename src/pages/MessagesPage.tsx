@@ -843,7 +843,7 @@ export default function MessagesPage() {
                                     )}
                                   </div>
                                 )}
-                                <div className={cn("flex items-center gap-1 max-w-[85%] sm:max-w-[70%] md:max-w-[60%] lg:max-w-[40%] min-w-0", isMe && "flex-row-reverse")}>
+                                <div className={cn("flex items-center gap-1 max-w-[95%] sm:max-w-[85%] md:max-w-[70%] lg:max-w-[50%] min-w-0", isMe && "flex-row-reverse")}>
                                   <div
                                     className={cn(
                                       "rounded-2xl px-3.5 py-2 text-sm break-words overflow-hidden min-w-0 [overflow-wrap:anywhere]",
