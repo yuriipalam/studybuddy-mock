@@ -36,6 +36,34 @@ const TOPICS = [
   { id: "topic-35", title: "Consumer Adoption of Autonomous Mobility Services", description: "Study consumer attitudes and adoption barriers for autonomous transportation services in Swiss cities.", type: "topic", degrees: ["msc"], fieldIds: ["field-15","field-13"], companyId: null, expertIds: [], supervisorIds: ["supervisor-05"], employment: "no", employmentType: null, workplaceType: null },
 ];
 
+const SUPERVISORS = [
+  { id: "supervisor-01", firstName: "Martin", lastName: "Vechev", title: "Prof. Dr.", universityId: "uni-01", researchInterests: ["reliable AI", "automated reasoning", "program synthesis"], about: "Full professor at ETH Zurich leading research on building reliable and trustworthy AI systems.", objectives: ["student_matching", "research_collaboration"], fieldIds: ["field-02"] },
+  { id: "supervisor-02", firstName: "Sibylle", lastName: "Hechberger", title: "Prof. Dr.", universityId: "uni-01", researchInterests: ["computational mechanics", "digital twins", "additive manufacturing", "structural optimization"], about: "I lead the Computational Mechanics group at ETH Zurich, focusing on simulation-driven design and digital twin technologies.", objectives: ["student_matching", "research_collaboration", "funding_access"], fieldIds: ["field-01", "field-02"] },
+  { id: "supervisor-03", firstName: "Carmela", lastName: "Troncoso", title: "Prof. Dr.", universityId: "uni-02", researchInterests: ["privacy engineering", "security analytics", "machine learning for security"], about: "Associate professor at EPFL heading the SPRING lab. Co-designed the DP-3T protocol.", objectives: ["student_matching", "network_expansion"], fieldIds: ["field-02"] },
+  { id: "supervisor-04", firstName: "Bruno", lastName: "Correia", title: "Prof. Dr.", universityId: "uni-02", researchInterests: ["computational protein design", "synthetic biology", "machine learning for drug discovery"], about: null, objectives: ["research_collaboration", "funding_access"], fieldIds: ["field-04", "field-02"] },
+  { id: "supervisor-05", firstName: "Jean-Philippe", lastName: "Bonardi", title: "Prof. Dr.", universityId: "uni-02", researchInterests: ["climate policy", "energy transition", "environmental economics"], about: "Full professor at EPFL and director of the Enterprise for Society Center (E4S).", objectives: ["student_matching", "research_collaboration", "network_expansion"], fieldIds: ["field-08", "field-06", "field-14"] },
+  { id: "supervisor-06", firstName: "Andreas", lastName: "Herrmann", title: "Prof. Dr.", universityId: "uni-03", researchInterests: ["consumer behavior", "digital marketing", "autonomous mobility"], about: "Director of the Institute for Customer Insight at the University of St. Gallen.", objectives: ["student_matching", "project_management"], fieldIds: ["field-15", "field-13"] },
+  { id: "supervisor-07", firstName: "Miriam", lastName: "Meckel", title: "Prof. Dr.", universityId: "uni-03", researchInterests: ["digital transformation", "media economics", "AI ethics"], about: null, objectives: ["student_matching", "network_expansion"], fieldIds: ["field-15", "field-02"] },
+  { id: "supervisor-08", firstName: "Wolfgang", lastName: "Stölzle", title: "Prof. Dr.", universityId: "uni-03", researchInterests: ["logistics management", "supply chain resilience", "smart mobility"], about: "Chair of Logistics Management at HSG with over 20 years of experience.", objectives: ["research_collaboration", "network_expansion", "project_management"], fieldIds: ["field-11", "field-13"] },
+  { id: "supervisor-09", firstName: "Abraham", lastName: "Bernstein", title: "Prof. Dr.", universityId: "uni-04", researchInterests: ["knowledge graphs", "semantic web", "human-AI collaboration"], about: "Professor of Informatics at the University of Zurich and co-director of the Digital Society Initiative.", objectives: ["student_matching", "research_collaboration"], fieldIds: ["field-02"] },
+  { id: "supervisor-10", firstName: "Lena", lastName: "Doppel", title: "Prof. Dr.", universityId: "uni-04", researchInterests: ["behavioral economics", "decision-making under uncertainty", "experimental methods"], about: "Associate professor at the University of Zurich specializing in behavioral and experimental economics.", objectives: ["student_matching", "funding_access"], fieldIds: ["field-14", "field-16"] },
+  { id: "supervisor-11", firstName: "Isabelle", lastName: "Stadelmann-Steffen", title: "Prof. Dr.", universityId: "uni-05", researchInterests: ["political behavior", "climate policy", "direct democracy"], about: "Full professor of Comparative Politics at the University of Bern.", objectives: ["research_collaboration", "funding_access"], fieldIds: ["field-17", "field-08"] },
+  { id: "supervisor-12", firstName: "Thomas", lastName: "Stocker", title: "Prof. Dr.", universityId: "uni-05", researchInterests: ["climate modeling", "paleoclimatology", "carbon cycle dynamics"], about: "Professor of Climate and Environmental Physics at the University of Bern and former co-chair of IPCC Working Group I.", objectives: ["student_matching", "research_collaboration", "network_expansion"], fieldIds: ["field-06", "field-08"] },
+  { id: "supervisor-13", firstName: "Torsten", lastName: "Schwede", title: "Prof. Dr.", universityId: "uni-06", researchInterests: ["structural bioinformatics", "protein modeling", "computational biology"], about: null, objectives: ["student_matching", "research_collaboration"], fieldIds: ["field-04", "field-02"] },
+  { id: "supervisor-14", firstName: "Claudia", lastName: "Buser", title: "Prof. Dr.", universityId: "uni-06", researchInterests: ["pharmaceutical innovation", "drug regulation", "health economics"], about: "Associate professor at the University of Basel researching the economics of pharmaceutical innovation.", objectives: ["network_expansion", "project_management"], fieldIds: ["field-05", "field-14"] },
+  { id: "supervisor-15", firstName: "Georg", lastName: "von Krogh", title: "Prof. Dr.", universityId: "uni-06", researchInterests: ["digital business models", "technology management", "open innovation"], about: null, objectives: ["student_matching", "research_collaboration"], fieldIds: ["field-13", "field-02"] },
+  { id: "supervisor-16", firstName: "Elena", lastName: "Gavagnin", title: "Prof. Dr.", universityId: "uni-07", researchInterests: ["natural language processing", "multilingual AI", "corpus linguistics"], about: "Professor at ZHAW's Institute of Applied Information Technology.", objectives: ["student_matching", "project_management"], fieldIds: ["field-02", "field-15"] },
+  { id: "supervisor-17", firstName: "Daniel", lastName: "Schilter", title: "Prof. Dr.", universityId: "uni-07", researchInterests: ["production systems", "lean management", "Industry 4.0"], about: null, objectives: ["student_matching", "network_expansion"], fieldIds: ["field-01", "field-11"] },
+  { id: "supervisor-18", firstName: "Petra", lastName: "Kugler", title: "Prof. Dr.", universityId: "uni-07", researchInterests: ["digital business transformation", "IT governance", "enterprise architecture"], about: "Head of the Center for Digital Business at ZHAW.", objectives: ["research_collaboration", "network_expansion", "project_management"], fieldIds: ["field-13", "field-02"] },
+  { id: "supervisor-19", firstName: "Manfred", lastName: "Vogel", title: "Prof. Dr.", universityId: "uni-08", researchInterests: ["applied machine learning", "computer vision", "time-series analysis"], about: "Professor at FHNW's School of Engineering, leading the Applied Machine Learning group.", objectives: ["student_matching", "research_collaboration"], fieldIds: ["field-02"] },
+  { id: "supervisor-20", firstName: "Regula", lastName: "Baertschi", title: "Prof. Dr.", universityId: "uni-08", researchInterests: ["process automation", "smart manufacturing", "robotics"], about: null, objectives: ["student_matching", "funding_access"], fieldIds: ["field-01"] },
+  { id: "supervisor-21", firstName: "Nicole", lastName: "Bischof", title: "Prof. Dr.", universityId: "uni-08", researchInterests: ["digital marketing analytics", "consumer data platforms", "marketing automation"], about: "Professor of Digital Marketing at FHNW School of Business.", objectives: ["research_collaboration", "network_expansion"], fieldIds: ["field-15", "field-02"] },
+  { id: "supervisor-22", firstName: "Marco", lastName: "Züger", title: "Prof. Dr.", universityId: "uni-09", researchInterests: ["software engineering", "developer productivity", "DevOps"], about: null, objectives: ["student_matching", "project_management"], fieldIds: ["field-02"] },
+  { id: "supervisor-23", firstName: "Sandra", lastName: "Tretter", title: "Prof. Dr.", universityId: "uni-09", researchInterests: ["renewable energy systems", "energy storage", "grid integration"], about: "Professor of Energy Systems at OST.", objectives: ["student_matching", "research_collaboration", "funding_access"], fieldIds: ["field-01", "field-06"] },
+  { id: "supervisor-24", firstName: "Marc", lastName: "Langheinrich", title: "Prof. Dr.", universityId: "uni-10", researchInterests: ["ubiquitous computing", "privacy-aware systems", "IoT security"], about: null, objectives: ["student_matching", "network_expansion"], fieldIds: ["field-02"] },
+  { id: "supervisor-25", firstName: "Silvia", lastName: "Bentivegna", title: "Prof. Dr.", universityId: "uni-10", researchInterests: ["health communication", "digital health literacy", "public engagement with science"], about: "Associate professor at USI's Faculty of Communication, Culture and Society.", objectives: ["research_collaboration", "network_expansion", "project_management"], fieldIds: ["field-15", "field-05"] },
+];
+
 const FIELDS: Record<string, string> = {
   "field-01": "Engineering & Technology", "field-02": "Computer Science & Information Systems",
   "field-03": "Natural Sciences", "field-04": "Life Sciences & Biotechnology",
@@ -66,10 +94,10 @@ const EXPERTS: Record<string, string> = {
   "expert-19": "Martin Steiner", "expert-20": "Sophie Anderegg",
 };
 
-const SUPERVISORS: Record<string, string> = {
-  "supervisor-01": "Prof. Dr. Martin Vechev", "supervisor-02": "Prof. Dr. Sibylle Hechberger",
-  "supervisor-03": "Prof. Dr. Carmela Troncoso", "supervisor-04": "Prof. Dr. Bruno Correia",
-  "supervisor-05": "Prof. Dr. Andreas Herrmann",
+const UNIVERSITIES: Record<string, string> = {
+  "uni-01": "ETH Zurich", "uni-02": "EPFL", "uni-03": "University of St. Gallen (HSG)",
+  "uni-04": "University of Zurich", "uni-05": "University of Bern", "uni-06": "University of Basel",
+  "uni-07": "ZHAW", "uni-08": "FHNW", "uni-09": "OST", "uni-10": "USI",
 };
 
 // ── Tool definitions ────────────────────────────────────────────────
@@ -89,23 +117,34 @@ const TOOLS = [
       required: ["query"],
     },
   },
+  {
+    name: "search_supervisors",
+    description: "Search for thesis supervisors on the Studyond platform. Use this when the user is looking for a supervisor, wants supervisor recommendations, or needs academic guidance for their thesis. IMPORTANT: Before calling this tool, you MUST first understand the user's thesis topic or research area. If the user hasn't told you their thesis topic yet, ASK THEM FIRST — do not call this tool without knowing what they're working on.",
+    input_schema: {
+      type: "object",
+      properties: {
+        query: { type: "string", description: "Search keywords describing the thesis topic or research area the user needs supervision for" },
+        field_ids: { type: "array", items: { type: "string" }, description: "Optional filter by field IDs" },
+        university_id: { type: "string", description: "Optional filter by university ID (e.g. uni-01 for ETH Zurich)" },
+        max_results: { type: "number", description: "Maximum number of results to return (default 5)" },
+      },
+      required: ["query"],
+    },
+  },
 ];
 
 function searchTopics(params: { query: string; field_ids?: string[]; degree?: string; max_results?: number }) {
   const max = params.max_results ?? 5;
   let results = [...TOPICS];
 
-  // Filter by degree
   if (params.degree) {
     results = results.filter(t => t.degrees.includes(params.degree!));
   }
 
-  // Filter by field
   if (params.field_ids?.length) {
     results = results.filter(t => t.fieldIds.some(f => params.field_ids!.includes(f)));
   }
 
-  // Simple keyword search in title + description
   const keywords = params.query.toLowerCase().split(/\s+/).filter(Boolean);
   if (keywords.length > 0) {
     results = results.map(t => {
@@ -127,10 +166,54 @@ function searchTopics(params: { query: string; field_ids?: string[]; degree?: st
     fields: t.fieldIds.map(f => FIELDS[f]).filter(Boolean),
     company: t.companyId ? COMPANIES[t.companyId] : null,
     experts: t.expertIds.map(e => EXPERTS[e]).filter(Boolean),
-    supervisors: t.supervisorIds.map(s => SUPERVISORS[s]).filter(Boolean),
+    supervisors: t.supervisorIds.map(s => SUPERVISORS.find(sv => sv.id === s)).filter(Boolean).map(s => `${s!.title} ${s!.firstName} ${s!.lastName}`),
     employment: t.employment,
     employmentType: t.employmentType,
     workplaceType: t.workplaceType,
+  }));
+}
+
+function searchSupervisors(params: { query: string; field_ids?: string[]; university_id?: string; max_results?: number }) {
+  const max = params.max_results ?? 5;
+  let results = [...SUPERVISORS];
+
+  if (params.university_id) {
+    results = results.filter(s => s.universityId === params.university_id);
+  }
+
+  if (params.field_ids?.length) {
+    results = results.filter(s => s.fieldIds.some(f => params.field_ids!.includes(f)));
+  }
+
+  const keywords = params.query.toLowerCase().split(/\s+/).filter(Boolean);
+  if (keywords.length > 0) {
+    results = results.map(s => {
+      const text = `${s.firstName} ${s.lastName} ${s.researchInterests.join(" ")} ${s.about || ""}`.toLowerCase();
+      const fieldText = s.fieldIds.map(f => FIELDS[f] || "").join(" ").toLowerCase();
+      const uniText = (UNIVERSITIES[s.universityId] || "").toLowerCase();
+      const fullText = `${text} ${fieldText} ${uniText}`;
+      const score = keywords.reduce((sc, kw) => sc + (fullText.includes(kw) ? 1 : 0), 0);
+      return { ...s, score };
+    }).filter(s => (s as any).score > 0).sort((a, b) => (b as any).score - (a as any).score);
+  }
+
+  // Also boost supervisors who are open to student_matching
+  results.sort((a, b) => {
+    const aMatch = a.objectives.includes("student_matching") ? 1 : 0;
+    const bMatch = b.objectives.includes("student_matching") ? 1 : 0;
+    if ((a as any).score !== (b as any).score) return ((b as any).score || 0) - ((a as any).score || 0);
+    return bMatch - aMatch;
+  });
+
+  return results.slice(0, max).map(s => ({
+    id: s.id,
+    name: `${s.title} ${s.firstName} ${s.lastName}`,
+    university: UNIVERSITIES[s.universityId] || s.universityId,
+    researchInterests: s.researchInterests,
+    fields: s.fieldIds.map(f => FIELDS[f]).filter(Boolean),
+    about: s.about,
+    openToStudents: s.objectives.includes("student_matching"),
+    objectives: s.objectives,
   }));
 }
 
@@ -161,7 +244,7 @@ ${userSection}
 
 1. **Be proactive**: If the user's profile lacks information, gently ask them to provide more details.
 2. **Give specific recommendations**: Always reference actual topics with expert/supervisor names, companies, and fields.
-3. **Explain your reasoning**: Tell the user WHY a topic is a good match based on their skills and interests.
+3. **Explain your reasoning**: Tell the user WHY a topic or supervisor is a good match based on their skills and interests.
 4. **Be encouraging**: Thesis students are often anxious. Be supportive.
 5. **Always use Markdown formatting**: Structure every response with markdown — use headers (##, ###), bullet points, numbered lists, **bold**, *italics*, code blocks, and tables where appropriate. Never output plain unformatted text.
 6. **Ask clarifying questions** when needed.
@@ -187,6 +270,28 @@ Rules for the topic card block:
 - Each object must have: id, title, company (string or null), fields (array), degrees (array), employment, employmentType, workplaceType
 - Continue with additional commentary/analysis AFTER the block
 - You can include multiple :::topics blocks if organizing topics into categories
+
+## CRITICAL: Using the search_supervisors Tool
+
+**You MUST use the search_supervisors tool** whenever the user asks for help finding a supervisor.
+
+**HOWEVER — BEFORE calling search_supervisors, you MUST first know the user's thesis topic or research area.** If the user says something like "help me find a supervisor" but hasn't told you their thesis topic or area of interest:
+1. First ASK them: "What's your thesis topic or research area? I need to understand what you're working on to find the best supervisor match."
+2. Check their profile for clues (fields of study, skills, about section)
+3. Only call search_supervisors AFTER you have a clear understanding of their research direction
+
+After receiving supervisor search results, you MUST include a supervisor card block:
+
+:::supervisors
+[{"id":"supervisor-01","name":"Prof. Dr. Martin Vechev","university":"ETH Zurich","researchInterests":["reliable AI","automated reasoning"],"fields":["Computer Science & Information Systems"],"openToStudents":true}]
+:::
+
+Rules for the supervisor card block:
+- Place it AFTER your introductory text
+- Include ALL supervisors from results that you mention
+- The JSON must be valid and on a single line between the markers
+- Each object must have: id, name, university, researchInterests (array), fields (array), openToStudents (boolean)
+- Continue with your analysis of why each supervisor is a good match AFTER the block
 
 ## Important Rules
 - Do NOT include the current user in lists of students
@@ -237,7 +342,6 @@ Rules for the topic card block:
 
     if (!toolUseBlock) {
       // No tool call — stream a simple response
-      // Re-do the call with streaming for consistent UX
       const streamResponse = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
         headers: {
@@ -271,11 +375,13 @@ Rules for the topic card block:
 
     if (toolName === "search_topics") {
       toolResult = searchTopics(toolInput);
+    } else if (toolName === "search_supervisors") {
+      toolResult = searchSupervisors(toolInput);
     } else {
       toolResult = { error: `Unknown tool: ${toolName}` };
     }
 
-    // Collect any text blocks from the first response to include as context
+    // Collect any text blocks from the first response
     const prefixTexts = firstResult.content
       .filter((b: any) => b.type === "text")
       .map((b: any) => b.text)
@@ -320,7 +426,6 @@ Rules for the topic card block:
       });
     }
 
-    // If there was prefix text from before the tool call, prepend it
     return streamAnthropicResponse(finalResponse, prefixTexts || undefined);
 
   } catch (e) {
@@ -336,7 +441,6 @@ function streamAnthropicResponse(response: Response, prefixText?: string) {
   const encoder = new TextEncoder();
   const readable = new ReadableStream({
     async start(controller) {
-      // Send prefix text if any
       if (prefixText) {
         const chunk = JSON.stringify({ choices: [{ delta: { content: prefixText } }] });
         controller.enqueue(encoder.encode(`data: ${chunk}\n\n`));
