@@ -8,6 +8,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Bookmark, BookmarkCheck, Sparkles, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useXpEngine, XP_TRIGGERS } from "@/hooks/useXpEngine";
+import { toast } from "sonner";
 
 export default function TopicsPage() {
   const [topicList, setTopics] = useState<Topic[]>([]);
