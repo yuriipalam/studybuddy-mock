@@ -116,6 +116,7 @@ export default function FloatingAdvice() {
     cooldownRef.current = false;
     fetchAdvice();
   };
+  if (!isStudent) return null;
 
   return (
     <div

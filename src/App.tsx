@@ -61,6 +61,7 @@ function ProtectedRoutes() {
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <FloatingAdvice />
         </Layout>
       </MessagingProvider>
     </UserProfileProvider>
