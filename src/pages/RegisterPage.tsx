@@ -48,13 +48,13 @@ export default function RegisterPage() {
     setIsSubmitting(true);
     try {
       const avatarSeed = result.data.firstName;
-      const { error } = await supabase.from("user_accounts").insert({
+      const { data: inserted, error } = await supabase.from("user_accounts").insert({
         first_name: result.data.firstName,
         last_name: result.data.lastName,
         email: result.data.email,
         role: result.data.role,
         avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${avatarSeed}`,
-      } as any);
+      } as any).select().single();
 
       if (error) {
         if (error.code === "23505") {
@@ -65,7 +65,19 @@ export default function RegisterPage() {
         return;
       }
 
-      toast.success("Account created! You can now sign in.");
+      // Store the newly created account for onboarding auto-login
+      if (inserted) {
+        localStorage.setItem("studyond-pending-user", JSON.stringify({
+          id: inserted.id,
+          firstName: inserted.first_name,
+          lastName: inserted.last_name,
+          email: inserted.email,
+          role: inserted.role,
+          avatar: inserted.avatar,
+        }));
+      }
+
+      toast.success("Account created!");
       navigate("/onboarding");
     } catch (err: any) {
       console.error("Registration error:", err);

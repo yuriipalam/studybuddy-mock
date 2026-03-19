@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCreateJourney } from "@/hooks/useThesisJourney";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Compass, Lightbulb, Users, PenTool, Sparkles, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -47,6 +48,7 @@ export default function OnboardingPage() {
   const [selected, setSelected] = useState<ThesisStage | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
   const createJourney = useCreateJourney();
 
   const handleContinue = async () => {
@@ -55,6 +57,22 @@ export default function OnboardingPage() {
 
     // Save to localStorage for use after login
     localStorage.setItem("onboarding_stage", selected);
+
+    // Auto-login if we have a pending registered user
+    const pendingUserStr = localStorage.getItem("studyond-pending-user");
+    if (pendingUserStr) {
+      try {
+        const pendingUser = JSON.parse(pendingUserStr);
+        localStorage.removeItem("studyond-pending-user");
+        await login(pendingUser.id, [pendingUser]);
+        toast.success("Great choice! Let's get started.");
+        setIsSaving(false);
+        navigate("/");
+        return;
+      } catch (e) {
+        console.error("Auto-login failed:", e);
+      }
+    }
 
     toast.success("Great choice! Let's get started.");
     setIsSaving(false);
