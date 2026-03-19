@@ -634,7 +634,21 @@ export default function MessagesPage() {
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <p className="text-base font-semibold">{contact?.user_name || "Unknown"}</p>
+                    <span
+                      className="text-base font-semibold cursor-pointer hover:text-primary transition-colors"
+                      onClick={() => {
+                        if (!contact) return;
+                        const roleRouteMap: Record<string, string> = {
+                          student: "/people/students/",
+                          supervisor: "/people/supervisors/",
+                          expert: "/people/experts/",
+                        };
+                        const base = roleRouteMap[contact.user_role || ""];
+                        if (base) navigate(`${base}${contact.user_id}`);
+                      }}
+                    >
+                      {contact?.user_name || "Unknown"}
+                    </span>
                     {contact?.user_role === "supervisor" && (
                       <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 leading-none border-blue-500 text-blue-500">
                         Supervisor
