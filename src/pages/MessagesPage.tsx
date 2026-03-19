@@ -685,19 +685,33 @@ export default function MessagesPage() {
                 {pendingFiles.length > 0 && (
                   <div className="border-t border-border px-3 pt-2">
                     <div className="flex flex-wrap gap-2 max-w-2xl mx-auto">
-                      {pendingFiles.map((file, idx) => (
-                        <div key={idx} className="flex items-center gap-1.5 bg-muted rounded-lg px-2.5 py-1.5 text-xs">
-                          <Paperclip className="h-3 w-3 shrink-0 text-muted-foreground" />
-                          <span className="truncate max-w-[120px]">{file.name}</span>
-                          <button
-                            type="button"
-                            className="p-0.5 rounded hover:bg-background"
-                            onClick={() => setPendingFiles((prev) => prev.filter((_, i) => i !== idx))}
-                          >
-                            <X className="h-3 w-3 text-muted-foreground" />
-                          </button>
-                        </div>
-                      ))}
+                      {pendingFiles.map((file, idx) => {
+                        const isImage = file.type.startsWith("image/");
+                        const ext = file.name.split(".").pop()?.toUpperCase() || "FILE";
+                        return (
+                          <div key={idx} className="relative h-16 w-16 rounded-lg border border-border bg-muted overflow-hidden group">
+                            {isImage ? (
+                              <img
+                                src={URL.createObjectURL(file)}
+                                alt={file.name}
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <div className="h-full w-full flex flex-col items-center justify-center gap-0.5">
+                                <FileIcon className="h-5 w-5 text-muted-foreground" />
+                                <span className="text-[9px] text-muted-foreground font-medium">{ext}</span>
+                              </div>
+                            )}
+                            <button
+                              type="button"
+                              className="absolute top-0.5 right-0.5 h-4 w-4 rounded-full bg-foreground/70 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                              onClick={() => setPendingFiles((prev) => prev.filter((_, i) => i !== idx))}
+                            >
+                              <X className="h-2.5 w-2.5 text-background" />
+                            </button>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
