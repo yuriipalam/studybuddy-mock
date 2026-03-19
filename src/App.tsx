@@ -8,7 +8,6 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Layout } from "@/components/Layout";
-import FloatingAdvice from "@/components/FloatingAdvice";
 import LoginPage from "@/pages/LoginPage";
 import HomePage from "@/pages/HomePage";
 import MessagesPage from "@/pages/MessagesPage";
@@ -61,7 +60,6 @@ function ProtectedRoutes() {
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
-          <FloatingAdvice />
         </Layout>
       </MessagingProvider>
     </UserProfileProvider>
