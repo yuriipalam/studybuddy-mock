@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   Mic, MicOff, Video, VideoOff, MonitorUp, PhoneOff, Phone as PhoneIcon,
 } from "lucide-react";
-import type { CallState } from "@/hooks/useWebRTC";
+import type { CallState } from "@/contexts/CallContext";
 import { cn } from "@/lib/utils";
 
 interface CallOverlayProps {
@@ -53,7 +53,6 @@ export default function CallOverlay({
   onToggleCamera,
   onShareScreen,
 }: CallOverlayProps) {
-  // Wire remote video element
   const remoteRef = useRef<HTMLVideoElement>(null);
   const localRef = useRef<HTMLVideoElement>(null);
 
@@ -68,37 +67,39 @@ export default function CallOverlay({
 
   if (callState === "idle") return null;
 
-  // Incoming call dialog
+  // Incoming call dialog — fixed full-screen overlay
   if (callState === "incoming") {
     return (
-      <div className="absolute inset-0 z-50 flex items-center justify-center bg-background/90 backdrop-blur-sm">
-        <div className="flex flex-col items-center gap-6 p-8 rounded-2xl bg-card border shadow-xl max-w-xs text-center">
-          <Avatar className="h-20 w-20">
-            <AvatarFallback className="text-2xl bg-primary text-primary-foreground">
-              {callerName.charAt(0).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
+      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-background/90 backdrop-blur-sm">
+        <div className="flex flex-col items-center gap-6 p-8 rounded-2xl bg-card border shadow-xl max-w-xs text-center animate-in fade-in zoom-in-95 duration-300">
+          <div className="relative">
+            <Avatar className="h-24 w-24 ring-4 ring-primary/30 animate-pulse">
+              <AvatarFallback className="text-3xl bg-primary text-primary-foreground">
+                {callerName.charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+          </div>
           <div>
-            <p className="text-lg font-semibold text-foreground">{callerName}</p>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xl font-bold text-foreground">{callerName}</p>
+            <p className="text-sm text-muted-foreground mt-1">
               Incoming {incomingCallVideo ? "video" : "voice"} call…
             </p>
           </div>
-          <div className="flex gap-4">
+          <div className="flex gap-6">
             <Button
               size="lg"
               variant="destructive"
-              className="rounded-full h-14 w-14"
+              className="rounded-full h-16 w-16 shadow-lg"
               onClick={onReject}
             >
-              <PhoneOff className="h-6 w-6" />
+              <PhoneOff className="h-7 w-7" />
             </Button>
             <Button
               size="lg"
-              className="rounded-full h-14 w-14 bg-green-600 hover:bg-green-700 text-white"
+              className="rounded-full h-16 w-16 bg-green-600 hover:bg-green-700 text-white shadow-lg"
               onClick={onAnswer}
             >
-              <PhoneIcon className="h-6 w-6" />
+              <PhoneIcon className="h-7 w-7" />
             </Button>
           </div>
         </div>
@@ -109,7 +110,7 @@ export default function CallOverlay({
   const showName = contactName || "Contact";
 
   return (
-    <div className="absolute inset-0 z-50 flex flex-col bg-background/95 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[100] flex flex-col bg-background/95 backdrop-blur-sm">
       {/* Main video / avatar area */}
       <div className="flex-1 relative flex items-center justify-center overflow-hidden">
         {isVideo ? (

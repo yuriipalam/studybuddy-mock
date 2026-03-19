@@ -16,9 +16,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { MessageSquare, Send, Check, CheckCheck, Pencil, X, Trash2, Paperclip, FileText, Image as ImageIcon, File as FileIcon, Download, Eye, ExternalLink, Plus, Circle, CheckCircle2, Pin, PinOff, Loader2, Sparkles, Phone, Video } from "lucide-react";
-import { useWebRTC } from "@/hooks/useWebRTC";
-import CallOverlay from "@/components/CallOverlay";
+import { MessageSquare, Send, Check, CheckCheck, Pencil, X, Trash2, Paperclip, FileText, Image as ImageIcon, File as FileIcon, Download, Eye, ExternalLink, Plus, Circle, CheckCircle2, Pin, PinOff, Loader2, Sparkles, Phone, Video, PhoneIncoming, PhoneOutgoing, PhoneMissed } from "lucide-react";
+import { useCall } from "@/contexts/CallContext";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
 import { useMessaging, ChatFile } from "@/contexts/MessagingContext";
@@ -40,6 +39,12 @@ function formatDate(dateStr: string) {
   if (diffDays === 0) return "Today";
   if (diffDays === 1) return "Yesterday";
   return d.toLocaleDateString([], { month: "short", day: "numeric" });
+}
+
+function formatDuration(s: number) {
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  return `${m.toString().padStart(2, "0")}:${sec.toString().padStart(2, "0")}`;
 }
 
 function ReadReceipt({ isMe, readAt }: { isMe: boolean; readAt: string | null }) {
@@ -247,11 +252,7 @@ export default function MessagesPage() {
 
   const activeContact = activeConv ? getContact(activeConv) : null;
 
-  const webrtc = useWebRTC({
-    conversationId: activeConversationId,
-    userId,
-    contactName: activeContact?.user_name,
-  });
+  const { startCall } = useCall();
 
   const filteredConvs = conversations
     .filter((c) => {
@@ -480,6 +481,53 @@ export default function MessagesPage() {
     }
   }
 
+  // Fetch call history for active conversation
+  const [callHistory, setCallHistory] = useState<any[]>([]);
+  useEffect(() => {
+    if (!activeConversationId) { setCallHistory([]); return; }
+    let cancelled = false;
+    supabase
+      .from("call_history")
+      .select("*")
+      .eq("conversation_id", activeConversationId)
+      .order("started_at", { ascending: true })
+      .then(({ data }) => {
+        if (!cancelled && data) setCallHistory(data);
+      });
+    // Subscribe to new call history entries
+    const channel = supabase.channel(`call-history-${activeConversationId}`)
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "call_history", filter: `conversation_id=eq.${activeConversationId}` }, (payload) => {
+        setCallHistory((prev) => [...prev, payload.new]);
+      })
+      .subscribe();
+    return () => { cancelled = true; supabase.removeChannel(channel); };
+  }, [activeConversationId]);
+
+  // Merge messages and call history for display
+  type TimelineItem = { type: "message"; data: typeof messages[0] } | { type: "call"; data: any };
+  const timeline: TimelineItem[] = [
+    ...messages.map((m) => ({ type: "message" as const, data: m })),
+    ...callHistory.map((c) => ({ type: "call" as const, data: c })),
+  ].sort((a, b) => {
+    const aTime = a.type === "message" ? a.data.created_at : a.data.started_at;
+    const bTime = b.type === "message" ? b.data.created_at : b.data.started_at;
+    return new Date(aTime).getTime() - new Date(bTime).getTime();
+  });
+
+  // Group timeline by date
+  const groupedTimeline: { date: string; items: TimelineItem[] }[] = [];
+  let currentTimelineDate = "";
+  for (const item of timeline) {
+    const time = item.type === "message" ? item.data.created_at : item.data.started_at;
+    const d = formatDate(time);
+    if (d !== currentTimelineDate) {
+      currentTimelineDate = d;
+      groupedTimeline.push({ date: d, items: [item] });
+    } else {
+      groupedTimeline[groupedTimeline.length - 1].items.push(item);
+    }
+  }
+
   const handleImproveMessage = async () => {
     if (!input.trim() || improving) return;
     setImproving(true);
@@ -687,25 +735,7 @@ export default function MessagesPage() {
           </div>
         ) : (
           <div className="relative flex-1 flex flex-col min-h-0">
-            <CallOverlay
-              callState={webrtc.callState}
-              isVideo={webrtc.isVideo}
-              isMuted={webrtc.isMuted}
-              isCameraOff={webrtc.isCameraOff}
-              isScreenSharing={webrtc.isScreenSharing}
-              callDuration={webrtc.callDuration}
-              callerName={webrtc.callerName}
-              contactName={contact?.user_name || "Contact"}
-              incomingCallVideo={webrtc.incomingCallVideo}
-              localVideoRef={webrtc.localVideoRef}
-              remoteVideoRef={webrtc.remoteVideoRef}
-              onAnswer={webrtc.answerCall}
-              onReject={webrtc.rejectCall}
-              onHangUp={webrtc.hangUp}
-              onToggleMute={webrtc.toggleMute}
-              onToggleCamera={webrtc.toggleCamera}
-              onShareScreen={webrtc.shareScreen}
-            />
+            {/* Call overlay is now rendered globally by CallProvider */}
             {/* Chat header */}
             <div className="border-b border-border">
               <div className="flex items-center gap-3 px-4 py-3">
@@ -768,11 +798,11 @@ export default function MessagesPage() {
                   </p>
                 </div>
                 <div className="flex items-center gap-1">
-                  <Button
+                   <Button
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8 rounded-full"
-                    onClick={() => webrtc.startCall(false)}
+                    onClick={() => contact && activeConversationId && startCall(activeConversationId, contact.user_id, contact.user_name, false)}
                     title="Voice call"
                   >
                     <Phone className="h-4 w-4" />
@@ -781,7 +811,7 @@ export default function MessagesPage() {
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8 rounded-full"
-                    onClick={() => webrtc.startCall(true)}
+                    onClick={() => contact && activeConversationId && startCall(activeConversationId, contact.user_id, contact.user_name, true)}
                     title="Video call"
                   >
                     <Video className="h-4 w-4" />
@@ -860,7 +890,7 @@ export default function MessagesPage() {
                     </div>
                   ) : (
                   <div className="space-y-1 px-4">
-                    {groupedMessages.map((group) => (
+                    {groupedTimeline.map((group) => (
                       <div key={group.date}>
                         <div className="flex items-center justify-center my-4">
                           <span className="text-[10px] text-muted-foreground bg-muted px-3 py-0.5 rounded-full">
@@ -868,15 +898,45 @@ export default function MessagesPage() {
                           </span>
                         </div>
                         <div className="space-y-1">
-                          {group.msgs.map((msg, i) => {
+                          {group.items.map((item, i) => {
+                            if (item.type === "call") {
+                              const call = item.data;
+                              const isMyCall = call.caller_id === userId;
+                              const isMissed = call.status === "missed";
+                              const isRejected = call.status === "rejected";
+                              const dur = call.duration > 0 ? formatDuration(call.duration) : null;
+                              return (
+                                <div key={`call-${call.id}`} className="flex justify-center my-3">
+                                  <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/60 px-3 py-1.5 rounded-full">
+                                    {isMissed || isRejected ? (
+                                      <PhoneMissed className="h-3.5 w-3.5 text-destructive" />
+                                    ) : isMyCall ? (
+                                      <PhoneOutgoing className="h-3.5 w-3.5 text-green-500" />
+                                    ) : (
+                                      <PhoneIncoming className="h-3.5 w-3.5 text-green-500" />
+                                    )}
+                                    <span>
+                                      {isMissed ? "Missed" : isRejected ? "Declined" : isMyCall ? "Outgoing" : "Incoming"}{" "}
+                                      {call.call_type} call
+                                      {dur && ` · ${dur}`}
+                                    </span>
+                                    <span className="text-muted-foreground/60">
+                                      {formatTime(call.started_at)}
+                                    </span>
+                                  </div>
+                                </div>
+                              );
+                            }
+                            const msg = item.data;
+                            const prevItem = i > 0 ? group.items[i - 1] : null;
                             const isMe = msg.sender_id === userId;
                             const showAvatar =
                               !isMe &&
-                              (i === 0 || group.msgs[i - 1].sender_id !== msg.sender_id);
+                              (i === 0 || !prevItem || prevItem.type !== "message" || prevItem.data.sender_id !== msg.sender_id);
 
                             // Check if message is a file attachment
                             const isFileMsg = msg.content.startsWith("📎 ");
-                            const senderChanged = i > 0 && group.msgs[i - 1].sender_id !== msg.sender_id;
+                            const senderChanged = i > 0 && prevItem && prevItem.type === "message" && prevItem.data.sender_id !== msg.sender_id;
 
                             return (
                               <div key={msg.id} className={cn("flex w-full group", isMe ? "justify-end" : "justify-start", senderChanged && "mt-3")}>
