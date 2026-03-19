@@ -1072,7 +1072,7 @@ export default function MessagesPage() {
                                 value={editMilestoneText}
                                 onChange={(e) => setEditMilestoneText(e.target.value.slice(0, 150))}
                                 className="h-7 text-sm"
-                                placeholder="Milestone name (max 150 chars)"
+                                 placeholder="Milestone name"
                                 maxLength={150}
                                 onKeyDown={(e) => {
                                   if (e.key === "Escape") setEditingMilestoneId(null);
@@ -1082,7 +1082,7 @@ export default function MessagesPage() {
                                 value={editMilestoneDesc}
                                 onChange={(e) => setEditMilestoneDesc(e.target.value.slice(0, 300))}
                                 className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-xs text-foreground resize-none focus:outline-none focus:ring-1 focus:ring-ring"
-                                placeholder="Description (max 300 chars)"
+                                placeholder="Description"
                                 maxLength={300}
                                 rows={2}
                               />
@@ -1168,7 +1168,7 @@ export default function MessagesPage() {
                               autoFocus
                               value={newMilestoneText}
                               onChange={(e) => setNewMilestoneText(e.target.value.slice(0, 150))}
-                              placeholder="Milestone name (max 150 chars)"
+                              placeholder="Milestone name"
                               maxLength={150}
                               className="h-7 text-sm"
                               onKeyDown={(e) => {
@@ -1183,7 +1183,7 @@ export default function MessagesPage() {
                               value={newMilestoneDesc}
                               onChange={(e) => setNewMilestoneDesc(e.target.value.slice(0, 300))}
                               className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-xs text-foreground resize-none focus:outline-none focus:ring-1 focus:ring-ring"
-                              placeholder="Description (optional, max 300 chars)"
+                              placeholder="Description"
                               maxLength={300}
                               rows={2}
                             />
