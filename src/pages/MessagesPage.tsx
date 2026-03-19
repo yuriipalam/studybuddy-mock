@@ -185,7 +185,7 @@ export default function MessagesPage() {
                   <div
                     key={conv.id}
                     className={cn(
-                      "flex items-center gap-3 px-3 py-3 cursor-pointer border-b border-border hover:bg-muted/50 transition-colors",
+                      "flex items-center gap-3 px-3 py-3 cursor-pointer border-b border-border hover:bg-muted/50 transition-colors group/conv relative",
                       isActive && "bg-muted"
                     )}
                     onClick={() => setActiveConversationId(conv.id)}
@@ -220,6 +220,15 @@ export default function MessagesPage() {
                         )}
                       </div>
                     </div>
+                    <button
+                      className="absolute right-2 top-2 opacity-0 group-hover/conv:opacity-100 transition-opacity p-1 rounded hover:bg-destructive/10"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteConversation(conv.id);
+                      }}
+                    >
+                      <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                    </button>
                   </div>
                 );
               })}
