@@ -48,6 +48,7 @@ export default function OnboardingPage() {
   const [selected, setSelected] = useState<ThesisStage | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
   const createJourney = useCreateJourney();
 
   const handleContinue = async () => {
