@@ -786,8 +786,8 @@ export default function MessagesPage() {
                                         if (chatFile) {
                                           const isImage = chatFile.mime_type.startsWith("image/");
                                           return (
-                                            <div
-                                              className="w-44 -mx-1 -my-0.5 rounded-lg overflow-hidden cursor-pointer"
+                                             <div
+                                              className="w-44 -mx-1 -my-0.5 rounded-lg overflow-hidden cursor-pointer border border-border"
                                               onClick={(e) => { e.stopPropagation(); handleFileClick(chatFile); }}
                                             >
                                               {isImage ? (
@@ -803,8 +803,8 @@ export default function MessagesPage() {
                                                 </div>
                                               )}
                                               <div className="p-2 min-w-0">
-                                                <p className="text-xs font-medium truncate">{chatFile.file_name}</p>
-                                                <p className="text-[10px] text-muted-foreground">{formatFileSize(chatFile.file_size)}</p>
+                                                <p className={cn("text-xs font-medium truncate", isMe ? "text-primary-foreground" : "text-foreground")}>{chatFile.file_name}</p>
+                                                <p className={cn("text-[10px]", isMe ? "text-primary-foreground/60" : "text-muted-foreground")}>{formatFileSize(chatFile.file_size)}</p>
                                               </div>
                                             </div>
                                           );
