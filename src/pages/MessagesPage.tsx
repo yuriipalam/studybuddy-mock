@@ -55,6 +55,7 @@ function TypingIndicator() {
       <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50 animate-bounce [animation-delay:300ms]" />
     </div>
   );
+}
 
 function OnlineIndicator({ size = "md" }: { size?: "sm" | "md" }) {
   const s = size === "sm" ? "h-2.5 w-2.5 border-[1.5px]" : "h-3 w-3 border-2";
