@@ -47,9 +47,21 @@ export default function StudentRequestsPage() {
 
   const supervisorId = currentUser?.id ?? "";
 
-  // Get all projects that involve this supervisor or are proposed (unassigned) at same university
+  // Merge static projects with dynamically applied projects from localStorage
   const relevantProjects = useMemo(() => {
-    return allProjects.filter((p) => {
+    const appliedProjects: ThesisProject[] = (() => {
+      try {
+        return JSON.parse(localStorage.getItem("studyond-applied-projects") || "[]");
+      } catch {
+        return [];
+      }
+    })();
+
+    const combined = [...allProjects, ...appliedProjects.filter(
+      (ap) => !allProjects.some((p) => p.id === ap.id)
+    )];
+
+    return combined.filter((p) => {
       // Projects directly assigned to this supervisor
       if (p.supervisorIds.includes(supervisorId)) return true;
       // Proposed projects at same university (supervisor can pick up)
