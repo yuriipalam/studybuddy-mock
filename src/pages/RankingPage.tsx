@@ -163,20 +163,24 @@ function LeaderboardTable({ users }: { users: LeaderboardUser[] }) {
       {regularUsers.map((user) => (
         <div
           key={user.rank}
-          className="grid grid-cols-[48px_1fr_100px_60px] items-center px-4 py-3 border-b border-border last:border-b-0 hover:bg-muted/20 transition-colors"
+          className="grid grid-cols-[48px_1fr_100px_60px] items-center px-4 py-3 border-b border-border/50 last:border-b-0 hover:bg-muted/20 transition-colors"
         >
-          <span className="text-sm font-bold text-foreground">#{user.rank}</span>
+          <span className="text-sm font-medium text-muted-foreground">#{user.rank}</span>
           <div className="flex items-center gap-3 min-w-0">
             <Avatar className="h-8 w-8 shrink-0">
               <AvatarImage src={user.avatar} />
               <AvatarFallback className="text-[10px] font-semibold">{getInitials(user.name)}</AvatarFallback>
             </Avatar>
-            <div className="min-w-0">
-              <p className="text-sm font-medium text-foreground truncate">{user.name}</p>
-              {user.institute && <p className="text-[10px] text-muted-foreground truncate">{user.institute}</p>}
+            <div className="flex items-center gap-2 min-w-0">
+              <p className="text-sm font-semibold text-foreground truncate">{user.name}</p>
+              {user.institute && (
+                <span className="shrink-0 text-[10px] font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border/50">
+                  {user.institute}
+                </span>
+              )}
             </div>
           </div>
-          <span className="text-sm font-semibold text-foreground text-right">{user.xp.toLocaleString()}</span>
+          <span className="text-sm font-bold text-foreground text-right">{user.xp.toLocaleString()} <span className="text-xs font-medium text-muted-foreground">XP</span></span>
           <span className={cn(
             "text-xs font-semibold text-right flex items-center justify-end gap-0.5",
             user.change > 0 ? "text-emerald-500" : user.change < 0 ? "text-destructive" : "text-muted-foreground"
@@ -208,12 +212,16 @@ function LeaderboardTable({ users }: { users: LeaderboardUser[] }) {
               <AvatarImage src={youUser.avatar} />
               <AvatarFallback className="text-[10px] font-semibold">{getInitials(youUser.name)}</AvatarFallback>
             </Avatar>
-            <div className="min-w-0">
+            <div className="flex items-center gap-2 min-w-0">
               <p className="text-sm font-semibold text-primary truncate">{youUser.name} <span className="text-xs font-normal text-primary/60">(You)</span></p>
-              {youUser.institute && <p className="text-[10px] text-muted-foreground truncate">{youUser.institute}</p>}
+              {youUser.institute && (
+                <span className="shrink-0 text-[10px] font-medium px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+                  {youUser.institute}
+                </span>
+              )}
             </div>
           </div>
-          <span className="text-sm font-bold text-primary text-right">{youUser.xp.toLocaleString()}</span>
+          <span className="text-sm font-bold text-primary text-right">{youUser.xp.toLocaleString()} <span className="text-xs font-medium text-primary/60">XP</span></span>
           <span className={cn(
             "text-xs font-semibold text-right flex items-center justify-end gap-0.5",
             youUser.change > 0 ? "text-emerald-500" : youUser.change < 0 ? "text-destructive" : "text-muted-foreground"
