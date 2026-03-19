@@ -55,6 +55,25 @@ function TypingIndicator() {
       <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50 animate-bounce [animation-delay:300ms]" />
     </div>
   );
+
+function OnlineIndicator({ size = "md" }: { size?: "sm" | "md" }) {
+  const s = size === "sm" ? "h-2.5 w-2.5 border-[1.5px]" : "h-3 w-3 border-2";
+  return (
+    <span className={cn("absolute bottom-0 right-0 rounded-full bg-green-500 border-background", s)} />
+  );
+}
+
+// Simulate online status — in production this would come from presence channels
+function useOnlineStatus(userIds: string[]) {
+  // Deterministic: hash the user_id to decide online/offline for demo
+  const onlineSet = new Set(
+    userIds.filter((id) => {
+      let h = 0;
+      for (let i = 0; i < id.length; i++) h = ((h << 5) - h + id.charCodeAt(i)) | 0;
+      return Math.abs(h) % 3 !== 0; // ~66% online
+    })
+  );
+  return (userId: string) => onlineSet.has(userId);
 }
 
 export default function MessagesPage() {
