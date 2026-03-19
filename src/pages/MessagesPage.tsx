@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import { useMessaging, ChatFile } from "@/contexts/MessagingContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { getStudent, getSupervisor, getExpert, getUniversity, getCompany, getFieldNames } from "@/data";
 import { cn } from "@/lib/utils";
 
 function formatTime(dateStr: string) {
