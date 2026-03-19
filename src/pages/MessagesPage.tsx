@@ -448,6 +448,7 @@ export default function MessagesPage() {
                   .map((w) => w[0])
                   .join("")
                   .slice(0, 2) || "?";
+                const isPinned = pinnedIds.has(conv.id);
 
                 const convTyping = (typingUsers[conv.id] || []).filter(
                   (t) => t.userId !== userId
