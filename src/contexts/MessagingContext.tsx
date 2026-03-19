@@ -84,9 +84,9 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
   const userId = currentUser?.id;
 
   // Load conversations for the current user
-  const loadConversations = useCallback(async () => {
+  const loadConversations = useCallback(async (showLoading = false) => {
     if (!userId) return;
-    setLoading(true);
+    if (showLoading) setLoading(true);
 
     const { data: participations } = await supabase
       .from("conversation_participants")
@@ -205,7 +205,7 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
   );
 
   useEffect(() => {
-    loadConversations();
+    loadConversations(true);
   }, [loadConversations]);
 
   useEffect(() => {
