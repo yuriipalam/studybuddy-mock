@@ -199,8 +199,10 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
               return [...prev, newMsg];
             });
 
-            // Update conversation list
-            loadConversations();
+            // Update conversation list in background (only for messages from others)
+            if (newMsg.sender_id !== userId) {
+              loadConversations();
+            }
           } else if (payload.eventType === "UPDATE") {
             const updated = payload.new as DbMessage;
             setMessages((prev) =>

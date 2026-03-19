@@ -17,10 +17,12 @@ function formatTime(dateStr: string) {
 function formatDate(dateStr: string) {
   const d = new Date(dateStr);
   const now = new Date();
-  const diff = now.getTime() - d.getTime();
-  const days = Math.floor(diff / 86400000);
-  if (days === 0) return "Today";
-  if (days === 1) return "Yesterday";
+  // Compare by calendar date to avoid timezone issues
+  const dDate = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const nowDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const diffDays = Math.round((nowDate.getTime() - dDate.getTime()) / 86400000);
+  if (diffDays === 0) return "Today";
+  if (diffDays === 1) return "Yesterday";
   return d.toLocaleDateString([], { month: "short", day: "numeric" });
 }
 
@@ -315,19 +317,27 @@ export default function MessagesPage() {
                 ))}
 
                 {/* Typing indicator */}
-                {activeTyping.length > 0 && (
-                  <div className="flex items-center gap-2 pt-1">
-                    <Avatar className="h-7 w-7">
-                      {contact?.user_avatar && <AvatarImage src={contact.user_avatar} />}
-                      <AvatarFallback className="text-[10px]">
-                        {contact?.user_name?.split(" ").map((w) => w[0]).join("").slice(0, 2)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="bg-muted rounded-2xl rounded-bl-md px-4 py-2.5">
-                      <TypingIndicator />
+                {activeTyping.length > 0 && (() => {
+                  const lastMsg = messages[messages.length - 1];
+                  const showAvatar = !lastMsg || lastMsg.sender_id === userId;
+                  return (
+                    <div className="flex items-center gap-2 pt-1">
+                      <div className="w-7 mr-2 shrink-0">
+                        {showAvatar && (
+                          <Avatar className="h-7 w-7">
+                            {contact?.user_avatar && <AvatarImage src={contact.user_avatar} />}
+                            <AvatarFallback className="text-[10px]">
+                              {contact?.user_name?.split(" ").map((w) => w[0]).join("").slice(0, 2)}
+                            </AvatarFallback>
+                          </Avatar>
+                        )}
+                      </div>
+                      <div className="bg-muted rounded-2xl rounded-bl-md px-4 py-2.5">
+                        <TypingIndicator />
+                      </div>
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
 
                 <div ref={bottomRef} />
               </div>
