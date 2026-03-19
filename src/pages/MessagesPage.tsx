@@ -1135,11 +1135,57 @@ export default function MessagesPage() {
                 )}
 
                 {/* Input */}
-                <div className="border-t border-border p-3">
+                <div className="border-t border-border p-3 space-y-2">
+                  {/* Improve button / accept-decline bar */}
+                  {improvedText !== null ? (
+                    <div className="flex items-center gap-2 px-1">
+                      <Sparkles className="h-3.5 w-3.5 text-primary shrink-0" />
+                      <span className="text-xs text-muted-foreground flex-1">Message improved</span>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 px-2 text-xs gap-1 text-destructive hover:text-destructive"
+                        onClick={declineImprovement}
+                      >
+                        <X className="h-3 w-3" />
+                        Revert
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        className="h-7 px-2 text-xs gap-1"
+                        onClick={acceptImprovement}
+                      >
+                        <Check className="h-3 w-3" />
+                        Accept
+                      </Button>
+                    </div>
+                  ) : input.trim().length > 2 ? (
+                    <div className="flex justify-end px-1">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 px-2.5 text-xs gap-1.5 text-muted-foreground hover:text-foreground"
+                        disabled={improving}
+                        onClick={handleImproveMessage}
+                      >
+                        {improving ? (
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                        ) : (
+                          <Sparkles className="h-3 w-3" />
+                        )}
+                        {improving ? "Improving…" : "Improve message"}
+                      </Button>
+                    </div>
+                  ) : null}
+
                   <form
                     className="flex items-center gap-2"
                     onSubmit={(e) => {
                       e.preventDefault();
+                      if (improvedText !== null) acceptImprovement();
                       handleSend();
                     }}
                   >
@@ -1162,7 +1208,14 @@ export default function MessagesPage() {
                     </Button>
                     <Input
                       value={input}
-                      onChange={(e) => handleInputChange(e.target.value)}
+                      onChange={(e) => {
+                        handleInputChange(e.target.value);
+                        // If user manually edits after improvement, clear the suggestion state
+                        if (improvedText !== null) {
+                          setImprovedText(null);
+                          setOriginalText(null);
+                        }
+                      }}
                       placeholder="Type a message..."
                       className="flex-1"
                     />
