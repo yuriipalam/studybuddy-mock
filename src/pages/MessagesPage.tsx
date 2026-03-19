@@ -434,6 +434,7 @@ export default function MessagesPage() {
 
                 <div ref={bottomRef} />
               </div>
+              )}
             </ScrollArea>
 
             {/* Input */}
