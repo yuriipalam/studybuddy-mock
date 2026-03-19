@@ -1053,7 +1053,7 @@ export default function MessagesPage() {
                 <ScrollArea className="flex-1 px-3 py-3">
                   {/* Edit toggle */}
                   <div className="flex items-center justify-between px-1 pb-2">
-                    <p className="text-sm text-foreground">Break your goal into milestones</p>
+                    <p className="text-lg text-foreground">Break your goal into milestones</p>
                     <Button
                       variant={milestonesEditMode ? "default" : "ghost"}
                       size="sm"
