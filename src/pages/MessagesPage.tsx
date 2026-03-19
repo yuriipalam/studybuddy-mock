@@ -16,7 +16,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { MessageSquare, Send, Check, CheckCheck, Pencil, X, Trash2, Paperclip, FileText, Image as ImageIcon, File as FileIcon, Download, Eye, ExternalLink, Plus, Circle, CheckCircle2, Pin, PinOff, Loader2 } from "lucide-react";
+import { MessageSquare, Send, Check, CheckCheck, Pencil, X, Trash2, Paperclip, FileText, Image as ImageIcon, File as FileIcon, Download, Eye, ExternalLink, Plus, Circle, CheckCircle2, Pin, PinOff, Loader2, Sparkles } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
 import { useMessaging, ChatFile } from "@/contexts/MessagingContext";
@@ -129,6 +129,9 @@ export default function MessagesPage() {
   const [editMilestoneDesc, setEditMilestoneDesc] = useState("");
   const [milestonesLoading, setMilestonesLoading] = useState(false);
   const [expandedMilestoneId, setExpandedMilestoneId] = useState<string | null>(null);
+  const [improving, setImproving] = useState(false);
+  const [improvedText, setImprovedText] = useState<string | null>(null);
+  const [originalText, setOriginalText] = useState<string | null>(null);
 
   // Load milestones from DB when conversation changes; seed defaults if empty
   useEffect(() => {
@@ -466,6 +469,53 @@ export default function MessagesPage() {
       groupedMessages[groupedMessages.length - 1].msgs.push(msg);
     }
   }
+
+  const handleImproveMessage = async () => {
+    if (!input.trim() || improving) return;
+    setImproving(true);
+    setOriginalText(input);
+    try {
+      const resp = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/improve-message`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({ message: input }),
+        }
+      );
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => ({ error: "Failed" }));
+        throw new Error(err.error || "Failed to improve message");
+      }
+      const { improved } = await resp.json();
+      if (improved && improved !== input) {
+        setImprovedText(improved);
+        setInput(improved);
+      } else {
+        toast.info("Your message already looks great!");
+        setOriginalText(null);
+      }
+    } catch (e: any) {
+      toast.error(e.message || "Failed to improve message");
+      setOriginalText(null);
+    } finally {
+      setImproving(false);
+    }
+  };
+
+  const acceptImprovement = () => {
+    setImprovedText(null);
+    setOriginalText(null);
+  };
+
+  const declineImprovement = () => {
+    if (originalText !== null) setInput(originalText);
+    setImprovedText(null);
+    setOriginalText(null);
+  };
 
   const contact = activeConv ? getContact(activeConv) : null;
   const contactInitials = contact?.user_name
@@ -1085,11 +1135,57 @@ export default function MessagesPage() {
                 )}
 
                 {/* Input */}
-                <div className="border-t border-border p-3">
+                <div className="border-t border-border p-3 space-y-2">
+                  {/* Improve button / accept-decline bar */}
+                  {improvedText !== null ? (
+                    <div className="flex items-center gap-2 px-1">
+                      <Sparkles className="h-3.5 w-3.5 text-primary shrink-0" />
+                      <span className="text-xs text-muted-foreground flex-1">Message improved</span>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 px-2 text-xs gap-1 text-destructive hover:text-destructive"
+                        onClick={declineImprovement}
+                      >
+                        <X className="h-3 w-3" />
+                        Revert
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        className="h-7 px-2 text-xs gap-1"
+                        onClick={acceptImprovement}
+                      >
+                        <Check className="h-3 w-3" />
+                        Accept
+                      </Button>
+                    </div>
+                  ) : input.trim().length > 2 ? (
+                    <div className="flex justify-end px-1">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 px-2.5 text-xs gap-1.5 text-muted-foreground hover:text-foreground"
+                        disabled={improving}
+                        onClick={handleImproveMessage}
+                      >
+                        {improving ? (
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                        ) : (
+                          <Sparkles className="h-3 w-3" />
+                        )}
+                        {improving ? "Improving…" : "Improve message"}
+                      </Button>
+                    </div>
+                  ) : null}
+
                   <form
                     className="flex items-center gap-2"
                     onSubmit={(e) => {
                       e.preventDefault();
+                      if (improvedText !== null) acceptImprovement();
                       handleSend();
                     }}
                   >
@@ -1112,7 +1208,14 @@ export default function MessagesPage() {
                     </Button>
                     <Input
                       value={input}
-                      onChange={(e) => handleInputChange(e.target.value)}
+                      onChange={(e) => {
+                        handleInputChange(e.target.value);
+                        // If user manually edits after improvement, clear the suggestion state
+                        if (improvedText !== null) {
+                          setImprovedText(null);
+                          setOriginalText(null);
+                        }
+                      }}
                       placeholder="Type a message..."
                       className="flex-1"
                     />
