@@ -135,6 +135,68 @@ export default function MessagesPage() {
     await sendMessage(activeConversationId, content);
   };
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || !activeConversationId) return;
+    setUploading(true);
+    for (const file of Array.from(files)) {
+      await uploadFile(activeConversationId, file);
+    }
+    setUploading(false);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    // Refresh files if on files tab
+    if (chatTab === "files") loadFiles();
+  };
+
+  const loadFiles = useCallback(async () => {
+    if (!activeConversationId) return;
+    setFilesLoading(true);
+    const files = await getConversationFiles(activeConversationId);
+    setConvFiles(files);
+    setFilesLoading(false);
+  }, [activeConversationId, getConversationFiles]);
+
+  useEffect(() => {
+    if (chatTab === "files" && activeConversationId) {
+      loadFiles();
+    }
+  }, [chatTab, activeConversationId, loadFiles]);
+
+  // Reset tab when switching conversations
+  useEffect(() => {
+    setChatTab("messages");
+  }, [activeConversationId]);
+
+  const getFileUrl = (filePath: string) => {
+    const { data } = supabase.storage.from("chat-files").getPublicUrl(filePath);
+    return data.publicUrl;
+  };
+
+  const getFileIcon = (mimeType: string) => {
+    if (mimeType.startsWith("image/")) return <ImageIcon className="h-4 w-4 text-primary" />;
+    if (mimeType.includes("pdf")) return <FileText className="h-4 w-4 text-destructive" />;
+    return <FileIcon className="h-4 w-4 text-muted-foreground" />;
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
+
+  // Group files by date
+  const groupedFiles: { date: string; files: ChatFile[] }[] = [];
+  let currentFileDate = "";
+  for (const f of convFiles) {
+    const d = formatDate(f.created_at);
+    if (d !== currentFileDate) {
+      currentFileDate = d;
+      groupedFiles.push({ date: d, files: [f] });
+    } else {
+      groupedFiles[groupedFiles.length - 1].files.push(f);
+    }
+  };
+
   const activeTyping = activeConversationId
     ? (typingUsers[activeConversationId] || []).filter((t) => t.userId !== userId)
     : [];
