@@ -1,5 +1,6 @@
 import { Home, MessageSquare, FolderKanban, BookOpen, Briefcase, Users, Building2, Settings, GraduationCap, UserCheck, User, School, LogOut, Trophy } from "lucide-react";
 import studyondLogo from "@/assets/studyond.svg";
+import studyondLogoLight from "@/assets/studyond-light.svg";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
