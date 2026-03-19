@@ -811,7 +811,7 @@ export default function MessagesPage() {
                 >
                   Files
                 </button>
-                {contact?.user_role === "supervisor" && (
+                {(contact?.user_role === "supervisor" || currentUser?.role === "supervisor") && (
                   <button
                     className={cn(
                       "pb-2 text-xs font-medium border-b-2 transition-colors",
