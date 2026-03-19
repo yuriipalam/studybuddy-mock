@@ -176,16 +176,25 @@ export function AppSidebar() {
               </NavLink>
             </SidebarMenuButton>
           </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton onClick={handleLogout}>
+              <LogOut className="h-4 w-4" />
+              <span>Sign out</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
         </SidebarMenu>
-        {!collapsed && (
+        {!collapsed && currentUser && (
           <div className="flex items-center gap-3 px-3 py-2 border-t border-border">
             <Avatar className="h-8 w-8">
-              <AvatarImage src={mockUser.avatar} />
-              <AvatarFallback>AJ</AvatarFallback>
+              <AvatarImage src={currentUser.avatar} />
+              <AvatarFallback>{currentUser.firstName[0]}{currentUser.lastName[0]}</AvatarFallback>
             </Avatar>
             <div className="flex flex-col min-w-0">
-              <span className="text-sm font-medium truncate">{mockUser.name}</span>
-              <span className="text-xs text-muted-foreground truncate">{mockUser.email}</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-sm font-medium truncate">{currentUser.firstName} {currentUser.lastName}</span>
+                <Badge variant="outline" className="text-[10px] capitalize px-1 py-0">{currentUser.role}</Badge>
+              </div>
+              <span className="text-xs text-muted-foreground truncate">{currentUser.email}</span>
             </div>
           </div>
         )}
