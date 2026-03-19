@@ -1168,7 +1168,7 @@ export default function MessagesPage() {
                               autoFocus
                               value={newMilestoneText}
                               onChange={(e) => setNewMilestoneText(e.target.value.slice(0, 150))}
-                              placeholder="Milestone name (max 150 chars)"
+                              placeholder="Milestone name"
                               maxLength={150}
                               className="h-7 text-sm"
                               onKeyDown={(e) => {
