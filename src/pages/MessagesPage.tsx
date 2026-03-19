@@ -16,7 +16,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { MessageSquare, Send, Check, CheckCheck, Pencil, X, Trash2, Paperclip, FileText, Image as ImageIcon, File as FileIcon, Download, Eye, ExternalLink, Plus, Circle, CheckCircle2, Pin, PinOff } from "lucide-react";
+import { MessageSquare, Send, Check, CheckCheck, Pencil, X, Trash2, Paperclip, FileText, Image as ImageIcon, File as FileIcon, Download, Eye, ExternalLink, Plus, Circle, CheckCircle2, Pin, PinOff, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useMessaging, ChatFile } from "@/contexts/MessagingContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -800,36 +800,72 @@ export default function MessagesPage() {
                                     )}
                                   >
                                     {editingId === msg.id ? (
-                                      <form
-                                        className="flex items-center gap-1.5"
-                                        onSubmit={(e) => {
-                                          e.preventDefault();
-                                          if (editInput.trim() && editInput.trim() !== msg.content) {
-                                            editMessage(msg.id, editInput.trim());
-                                          }
-                                          setEditingId(null);
-                                        }}
-                                      >
-                                        <input
-                                          autoFocus
-                                          className="bg-transparent outline-none flex-1 min-w-0 text-sm"
-                                          value={editInput}
-                                          onChange={(e) => setEditInput(e.target.value)}
-                                          onKeyDown={(e) => {
-                                            if (e.key === "Escape") setEditingId(null);
-                                          }}
-                                        />
-                                        <Button type="submit" size="icon" variant="ghost" className="h-5 w-5 shrink-0">
-                                          <Check className="h-3 w-3" />
-                                        </Button>
-                                        <Button type="button" size="icon" variant="ghost" className="h-5 w-5 shrink-0" onClick={() => setEditingId(null)}>
-                                          <X className="h-3 w-3" />
-                                        </Button>
-                                      </form>
+                                      (() => {
+                                        // For file messages, show the file previews above the edit input
+                                        const editChatFiles = isFileMsg ? findFilesForMessage(msg.content, msg.id) : [];
+                                        const filePrefix = msg.content.split("\n").filter((l: string) => l.startsWith("📎")).join("\n");
+                                        return (
+                                          <div className="space-y-1.5">
+                                            {editChatFiles.length > 0 && (
+                                              <div className="flex flex-wrap gap-1.5">
+                                                {editChatFiles.map((chatFile) => {
+                                                  const isImage = chatFile.mime_type.startsWith("image/");
+                                                  return (
+                                                    <div key={chatFile.id} className="rounded-lg overflow-hidden w-20 h-20">
+                                                      {isImage ? (
+                                                        <img src={getFileUrl(chatFile.file_path)} alt={chatFile.file_name} className="w-full h-full object-cover" />
+                                                      ) : (
+                                                        <div className="w-full h-full bg-muted/50 flex flex-col items-center justify-center gap-1 p-1">
+                                                          {getFileIcon(chatFile.mime_type, "lg")}
+                                                          <span className="text-[9px] text-muted-foreground uppercase font-medium truncate w-full text-center">
+                                                            {chatFile.file_name.split(".").pop()}
+                                                          </span>
+                                                        </div>
+                                                      )}
+                                                    </div>
+                                                  );
+                                                })}
+                                              </div>
+                                            )}
+                                            <form
+                                              className="flex items-center gap-1.5"
+                                              onSubmit={(e) => {
+                                                e.preventDefault();
+                                                const newText = editInput.trim();
+                                                const newContent = isFileMsg
+                                                  ? (newText ? `${filePrefix}\n${newText}` : filePrefix)
+                                                  : newText;
+                                                if (newContent && newContent !== msg.content) {
+                                                  editMessage(msg.id, newContent);
+                                                }
+                                                setEditingId(null);
+                                              }}
+                                            >
+                                              <input
+                                                autoFocus
+                                                className="bg-transparent outline-none flex-1 min-w-0 text-sm"
+                                                value={editInput}
+                                                onChange={(e) => setEditInput(e.target.value)}
+                                                onKeyDown={(e) => {
+                                                  if (e.key === "Escape") setEditingId(null);
+                                                }}
+                                                placeholder={isFileMsg ? "Add a caption..." : undefined}
+                                              />
+                                              <Button type="submit" size="icon" variant="ghost" className="h-5 w-5 shrink-0">
+                                                <Check className="h-3 w-3" />
+                                              </Button>
+                                              <Button type="button" size="icon" variant="ghost" className="h-5 w-5 shrink-0" onClick={() => setEditingId(null)}>
+                                                <X className="h-3 w-3" />
+                                              </Button>
+                                            </form>
+                                          </div>
+                                        );
+                                      })()
                                     ) : isFileMsg ? (
                                       (() => {
                                         const chatFiles = findFilesForMessage(msg.content, msg.id);
                                         const accompanyingText = getFileMessageText(msg.content);
+                                        const isTemp = msg.id.startsWith("temp-");
                                         if (chatFiles.length > 0) {
                                           return (
                                             <div className="space-y-1.5">
@@ -840,26 +876,19 @@ export default function MessagesPage() {
                                                     <div
                                                       key={chatFile.id}
                                                       className={cn(
-                                                        "rounded-lg overflow-hidden cursor-pointer border border-border",
-                                                        isImage ? "w-20 h-20" : "w-44"
+                                                        "rounded-lg overflow-hidden cursor-pointer w-20 h-20"
                                                       )}
                                                       onClick={(e) => { e.stopPropagation(); handleFileClick(chatFile); }}
                                                     >
                                                       {isImage ? (
                                                         <img src={getFileUrl(chatFile.file_path)} alt={chatFile.file_name} className="w-full h-full object-cover" />
                                                       ) : (
-                                                        <>
-                                                          <div className="aspect-square bg-muted/50 flex flex-col items-center justify-center gap-2">
-                                                            {getFileIcon(chatFile.mime_type, "lg")}
-                                                            <span className="text-xs text-muted-foreground uppercase font-medium">
-                                                              {chatFile.file_name.split(".").pop()}
-                                                            </span>
-                                                          </div>
-                                                          <div className="p-2 min-w-0">
-                                                            <p className={cn("text-xs font-medium truncate", isMe ? "text-primary-foreground" : "text-foreground")}>{chatFile.file_name}</p>
-                                                            <p className={cn("text-[10px]", isMe ? "text-primary-foreground/60" : "text-muted-foreground")}>{formatFileSize(chatFile.file_size)}</p>
-                                                          </div>
-                                                        </>
+                                                        <div className="w-full h-full bg-muted/50 flex flex-col items-center justify-center gap-1 p-1">
+                                                          {getFileIcon(chatFile.mime_type, "lg")}
+                                                          <span className="text-[9px] text-muted-foreground uppercase font-medium truncate w-full text-center">
+                                                            {chatFile.file_name.split(".").pop()}
+                                                          </span>
+                                                        </div>
                                                       )}
                                                     </div>
                                                   );
@@ -871,16 +900,22 @@ export default function MessagesPage() {
                                             </div>
                                           );
                                         }
-                                        // Fallback: files not yet loaded
+                                        // Fallback: files not yet loaded (optimistic / uploading)
                                         const fileNames = msg.content.split("\n").filter((l) => l.startsWith("📎")).map((l) => l.slice(2).trim());
                                         return (
-                                          <div className="space-y-1">
-                                            {fileNames.map((name, j) => (
-                                              <div key={j} className="flex items-center gap-1.5">
-                                                <Paperclip className="h-3.5 w-3.5 shrink-0" />
-                                                <span>{name}</span>
-                                              </div>
-                                            ))}
+                                          <div className="space-y-1.5">
+                                            <div className="flex flex-wrap gap-1.5">
+                                              {fileNames.map((name, j) => (
+                                                <div key={j} className="w-20 h-20 rounded-lg bg-muted/50 flex flex-col items-center justify-center gap-1 p-1">
+                                                  {isTemp ? (
+                                                    <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                                                  ) : (
+                                                    <Paperclip className="h-5 w-5 text-muted-foreground" />
+                                                  )}
+                                                  <span className="text-[9px] text-muted-foreground truncate w-full text-center">{name}</span>
+                                                </div>
+                                              ))}
+                                            </div>
                                             {accompanyingText && (
                                               <span className="whitespace-pre-wrap [overflow-wrap:anywhere]">{accompanyingText}</span>
                                             )}
@@ -912,13 +947,14 @@ export default function MessagesPage() {
                                     </div>
                                   </div>
                                   {/* Edit/delete buttons - only for own messages */}
-                                  {isMe && !msg.id.startsWith("temp-") && !msg.content.startsWith("📎") && editingId !== msg.id && (
+                                  {isMe && !msg.id.startsWith("temp-") && editingId !== msg.id && (
                                     <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5">
                                       <button
                                         className="p-1 rounded hover:bg-muted"
                                         onClick={() => {
+                                          const textPart = isFileMsg ? getFileMessageText(msg.content) : msg.content;
                                           setEditingId(msg.id);
-                                          setEditInput(msg.content);
+                                          setEditInput(textPart);
                                         }}
                                       >
                                         <Pencil className="h-3 w-3 text-muted-foreground" />
