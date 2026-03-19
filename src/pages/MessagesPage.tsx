@@ -90,15 +90,18 @@ export default function MessagesPage() {
   const [uploading, setUploading] = useState(false);
   const [previewFile, setPreviewFile] = useState<ChatFile | null>(null);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
-  const [milestones, setMilestones] = useState<{ id: string; text: string; completed: boolean }[]>([]);
+  const [milestones, setMilestones] = useState<{ id: string; text: string; description: string; completed: boolean }[]>([]);
   const [newMilestoneText, setNewMilestoneText] = useState("");
+  const [newMilestoneDesc, setNewMilestoneDesc] = useState("");
   const [addingMilestone, setAddingMilestone] = useState(false);
   const [milestonesEditMode, setMilestonesEditMode] = useState(false);
   const [editingMilestoneId, setEditingMilestoneId] = useState<string | null>(null);
   const [editMilestoneText, setEditMilestoneText] = useState("");
+  const [editMilestoneDesc, setEditMilestoneDesc] = useState("");
   const [milestonesLoading, setMilestonesLoading] = useState(false);
+  const [expandedMilestoneId, setExpandedMilestoneId] = useState<string | null>(null);
 
-  // Load milestones from DB when conversation changes
+  // Load milestones from DB when conversation changes; seed defaults if empty
   useEffect(() => {
     if (!activeConversationId) { setMilestones([]); return; }
     let cancelled = false;
@@ -109,8 +112,27 @@ export default function MessagesPage() {
         .select("*")
         .eq("conversation_id", activeConversationId)
         .order("position", { ascending: true });
-      if (!cancelled && data) {
-        setMilestones(data.map((r: any) => ({ id: r.id, text: r.text, completed: r.completed })));
+      if (cancelled) return;
+      if (data && data.length > 0) {
+        setMilestones(data.map((r: any) => ({ id: r.id, text: r.text, description: r.description || "", completed: r.completed })));
+      } else {
+        // Auto-seed with default milestones
+        const { getDefaultMilestones } = await import("@/data/topicMilestones");
+        const defaults = getDefaultMilestones(); // generic for now
+        const rows = defaults.map((m, i) => ({
+          conversation_id: activeConversationId,
+          text: m.text.slice(0, 150),
+          description: m.description.slice(0, 300),
+          position: i,
+          completed: false,
+        }));
+        const { data: inserted } = await supabase
+          .from("milestones")
+          .insert(rows)
+          .select();
+        if (!cancelled && inserted) {
+          setMilestones(inserted.map((r: any) => ({ id: r.id, text: r.text, description: r.description || "", completed: r.completed })));
+        }
       }
       setMilestonesLoading(false);
     };
@@ -118,15 +140,15 @@ export default function MessagesPage() {
     return () => { cancelled = true; };
   }, [activeConversationId]);
 
-  const dbAddMilestone = async (text: string) => {
+  const dbAddMilestone = async (text: string, description: string = "") => {
     if (!activeConversationId) return;
     const position = milestones.length;
     const { data } = await supabase
       .from("milestones")
-      .insert({ conversation_id: activeConversationId, text, position, completed: false })
+      .insert({ conversation_id: activeConversationId, text: text.slice(0, 150), description: description.slice(0, 300), position, completed: false })
       .select()
       .single();
-    if (data) setMilestones((prev) => [...prev, { id: data.id, text: data.text, completed: data.completed }]);
+    if (data) setMilestones((prev) => [...prev, { id: data.id, text: data.text, description: data.description || "", completed: data.completed }]);
   };
 
   const dbToggleMilestone = async (id: string, completed: boolean) => {
@@ -134,9 +156,9 @@ export default function MessagesPage() {
     await supabase.from("milestones").update({ completed }).eq("id", id);
   };
 
-  const dbEditMilestone = async (id: string, text: string) => {
-    setMilestones((prev) => prev.map((m) => (m.id === id ? { ...m, text } : m)));
-    await supabase.from("milestones").update({ text }).eq("id", id);
+  const dbEditMilestone = async (id: string, text: string, description: string) => {
+    setMilestones((prev) => prev.map((m) => (m.id === id ? { ...m, text, description } : m)));
+    await supabase.from("milestones").update({ text: text.slice(0, 150), description: description.slice(0, 300) }).eq("id", id);
   };
 
   const dbDeleteMilestone = async (id: string) => {
