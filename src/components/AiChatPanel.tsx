@@ -538,13 +538,13 @@ export function AiChatPanel({
             type="button"
             variant="ghost"
             size="icon"
-            className="absolute left-2 top-1 h-7 w-7 text-muted-foreground hover:text-foreground"
+            className="absolute left-2 top-1/2 -translate-y-1/2 h-7 w-7 text-muted-foreground hover:text-foreground"
             onClick={() => fileInputRef.current?.click()}
             disabled={isLoading}
           >
             <Paperclip className="h-4 w-4" />
           </Button>
-          <div className="absolute right-2 top-1 flex items-center gap-1">
+          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
             {isLoading ? (
               <Button
                 size="icon"
