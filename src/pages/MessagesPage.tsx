@@ -884,12 +884,8 @@ export default function MessagesPage() {
                         <div className="flex flex-col items-center w-6 shrink-0">
                           <button
                             onClick={() =>
-                              !milestonesEditMode &&
-                              setMilestones((prev) =>
-                                prev.map((item) =>
-                                  item.id === m.id ? { ...item, completed: !item.completed } : item
-                                )
-                              )
+                              !milestonesEditMode && dbToggleMilestone(m.id, !m.completed)
+                            }
                             }
                             className="relative z-10 shrink-0"
                           >
