@@ -949,7 +949,14 @@ export default function MessagesPage() {
                                                 );
                                               })}
                                               {accompanyingText && (
-                                                <span className="whitespace-pre-wrap [overflow-wrap:anywhere]">{accompanyingText}</span>
+                                                <div
+                                                  className={cn(
+                                                    "prose prose-sm max-w-none [&_p]:my-0 [&_ul]:my-1 [&_ol]:my-1 [&_li]:my-0.5 [overflow-wrap:anywhere]",
+                                                    isMe && "prose-invert"
+                                                  )}
+                                                >
+                                                  <ReactMarkdown>{accompanyingText}</ReactMarkdown>
+                                                </div>
                                               )}
                                             </div>
                                         );
