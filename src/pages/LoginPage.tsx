@@ -37,6 +37,19 @@ export default function LoginPage() {
           <CardDescription>Select an account to continue</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
+          <Button variant="outline" className="w-full" onClick={() => navigate("/register")}>
+            Register
+          </Button>
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-border" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-card px-2 text-muted-foreground">or sign in</span>
+            </div>
+          </div>
+
           <Select value={selectedId} onValueChange={setSelectedId}>
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Choose an account…" />
