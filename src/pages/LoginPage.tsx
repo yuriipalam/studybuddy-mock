@@ -13,7 +13,9 @@ import studyondLogoLight from "@/assets/studyond-light.svg";
 export default function LoginPage() {
   const [selectedId, setSelectedId] = useState<string>("");
   const { login } = useAuth();
+  const { resolvedTheme } = useTheme();
   const navigate = useNavigate();
+  const logo = resolvedTheme === "dark" ? studyondLogoLight : studyondLogo;
 
   const selectedAccount = PREDEFINED_ACCOUNTS.find((a) => a.id === selectedId);
 
