@@ -55,12 +55,15 @@ const MessagingContext = createContext<MessagingContextType | null>(null);
 export function MessagingProvider({ children }: { children: React.ReactNode }) {
   const { currentUser } = useAuth();
   const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
+  const [activeConversationId, setActiveConversationIdRaw] = useState<string | null>(null);
   const [messages, setMessages] = useState<DbMessage[]>([]);
   const [typingUsers, setTypingUsers] = useState<TypingState>({});
   const [loading, setLoading] = useState(true);
   const channelRef = useRef<RealtimeChannel | null>(null);
   const typingChannelRef = useRef<RealtimeChannel | null>(null);
+
+  // Cache: conversationId -> messages
+  const messageCacheRef = useRef<Record<string, DbMessage[]>>({});
 
   const userId = currentUser?.id;
 
@@ -145,14 +148,39 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
+    // Show cached data immediately if available
+    const cached = messageCacheRef.current[activeConversationId];
+    if (cached) {
+      setMessages(cached);
+    }
+
     const { data } = await supabase
       .from("messages")
       .select("*")
       .eq("conversation_id", activeConversationId)
       .order("created_at", { ascending: true });
 
-    setMessages((data as DbMessage[]) || []);
+    const msgs = (data as DbMessage[]) || [];
+    setMessages(msgs);
+    messageCacheRef.current[activeConversationId] = msgs;
   }, [activeConversationId]);
+
+  // Custom setter that caches current messages before switching
+  const setActiveConversationId = useCallback(
+    (id: string | null) => {
+      setActiveConversationIdRaw((prevId) => {
+        // Cache current messages for the conversation we're leaving
+        if (prevId) {
+          setMessages((currentMsgs) => {
+            messageCacheRef.current[prevId] = currentMsgs;
+            return currentMsgs;
+          });
+        }
+        return id;
+      });
+    },
+    []
+  );
 
   useEffect(() => {
     loadConversations();
@@ -176,7 +204,6 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
             const newMsg = payload.new as DbMessage;
 
             setMessages((prev) => {
-              // Check if this is for the active conversation
               const isActiveConv =
                 (prev.length > 0 && prev[0].conversation_id === newMsg.conversation_id) ||
                 (prev.length === 0 && activeConversationId === newMsg.conversation_id);
@@ -287,7 +314,6 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
     (conversationId: string, isTyping: boolean) => {
       if (!userId || !currentUser) return;
 
-      // Use the already-subscribed channel for active conversation
       const channel = typingChannelRef.current;
       if (!channel) return;
 
@@ -304,7 +330,6 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
     async (conversationId: string, content: string) => {
       if (!userId) return;
 
-      // Optimistic message
       const tempMsg: DbMessage = {
         id: `temp-${crypto.randomUUID()}`,
         conversation_id: conversationId,
@@ -315,20 +340,16 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
         edited_at: null,
       };
 
-      // Add to messages immediately
       setMessages((prev) => [...prev, tempMsg]);
 
-      // Optimistically update conversation lastMessage
       setConversations((prev) =>
         prev.map((c) =>
           c.id === conversationId ? { ...c, lastMessage: tempMsg } : c
         )
       );
 
-      // Stop typing indicator
       setTyping(conversationId, false);
 
-      // Actually send
       const { error } = await supabase.from("messages").insert({
         conversation_id: conversationId,
         sender_id: userId,
@@ -336,7 +357,6 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
       });
 
       if (error) {
-        // Remove optimistic message on error
         setMessages((prev) => prev.filter((m) => m.id !== tempMsg.id));
         toast.error("Failed to send message");
       }
@@ -396,11 +416,33 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
         },
       ]);
 
-      await loadConversations();
+      // Optimistically add conversation to state
+      const newConv: Conversation = {
+        id: conv.id,
+        created_at: conv.created_at,
+        participants: [
+          {
+            user_id: userId,
+            user_name: `${currentUser.firstName} ${currentUser.lastName}`,
+            user_avatar: currentUser.avatar || null,
+            user_role: currentUser.role,
+          },
+          {
+            user_id: contact.id,
+            user_name: contact.name,
+            user_avatar: contact.avatar || null,
+            user_role: contact.role,
+          },
+        ],
+        unreadCount: 0,
+      };
+
+      setConversations((prev) => [newConv, ...prev]);
       setActiveConversationId(conv.id);
+      setMessages([]);
       return conv.id;
     },
-    [userId, currentUser, loadConversations]
+    [userId, currentUser, setActiveConversationId]
   );
 
   const getConversationByContact = useCallback(
@@ -447,7 +489,6 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
 
       const editedAt = new Date().toISOString();
 
-      // Optimistic update
       setMessages((prev) =>
         prev.map((m) =>
           m.id === messageId ? { ...m, content: newContent, edited_at: editedAt } : m
@@ -462,7 +503,6 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
 
       if (error) {
         toast.error("Failed to edit message");
-        // Reload to restore original
         loadMessages();
       }
     },
@@ -473,10 +513,8 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
     async (messageId: string) => {
       if (!userId) return;
 
-      // Store for rollback
       const backup = messages;
 
-      // Optimistic remove
       setMessages((prev) => prev.filter((m) => m.id !== messageId));
 
       const { error } = await supabase
@@ -489,7 +527,6 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
         toast.error("Failed to delete message");
         setMessages(backup);
       } else {
-        // Refresh conversations to update lastMessage
         loadConversations();
       }
     },
@@ -500,14 +537,15 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
     async (conversationId: string) => {
       if (!userId) return;
 
-      // Optimistic remove
       setConversations((prev) => prev.filter((c) => c.id !== conversationId));
       if (activeConversationId === conversationId) {
-        setActiveConversationId(null);
+        setActiveConversationIdRaw(null);
         setMessages([]);
       }
 
-      // Delete messages, participants, then conversation
+      // Clear cache
+      delete messageCacheRef.current[conversationId];
+
       await supabase.from("messages").delete().eq("conversation_id", conversationId);
       await supabase.from("conversation_participants").delete().eq("conversation_id", conversationId);
       const { error } = await supabase.from("conversations").delete().eq("id", conversationId);
