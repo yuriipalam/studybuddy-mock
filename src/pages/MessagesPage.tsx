@@ -174,6 +174,39 @@ export default function MessagesPage() {
 
   const userId = currentUser?.id;
 
+  // Load pinned conversations
+  useEffect(() => {
+    if (!userId) return;
+    let cancelled = false;
+    supabase
+      .from("pinned_conversations")
+      .select("conversation_id")
+      .eq("user_id", userId)
+      .then(({ data }) => {
+        if (!cancelled && data) {
+          setPinnedIds(new Set(data.map((r: any) => r.conversation_id)));
+        }
+      });
+    return () => { cancelled = true; };
+  }, [userId]);
+
+  const MAX_PINS = 5;
+
+  const togglePin = async (conversationId: string) => {
+    if (!userId) return;
+    if (pinnedIds.has(conversationId)) {
+      setPinnedIds((prev) => { const next = new Set(prev); next.delete(conversationId); return next; });
+      await supabase.from("pinned_conversations").delete().eq("user_id", userId).eq("conversation_id", conversationId);
+    } else {
+      if (pinnedIds.size >= MAX_PINS) {
+        toast.error(`You can pin up to ${MAX_PINS} chats`);
+        return;
+      }
+      setPinnedIds((prev) => new Set(prev).add(conversationId));
+      await supabase.from("pinned_conversations").insert({ user_id: userId, conversation_id: conversationId });
+    }
+  };
+
   const activeConv = conversations.find((c) => c.id === activeConversationId);
 
   const getContact = (conv: typeof conversations[0]) =>
