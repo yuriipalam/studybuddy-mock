@@ -376,27 +376,46 @@ const RankingPage = () => {
       {activeTab === "my-status" && (
         <div className="flex flex-col gap-6">
           {/* Hero points card */}
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[hsl(260,60%,22%)] via-[hsl(240,50%,20%)] to-[hsl(220,55%,18%)] p-8 shadow-xl">
-            <div className="flex items-center justify-between">
-              <div className="flex flex-col gap-3">
-                <span className="text-xs font-semibold uppercase tracking-widest text-white/50">
-                  Total Points
-                </span>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-5xl font-extrabold text-white">{me.xp.toLocaleString()}</span>
-                  <span className="text-lg font-medium text-white/60">XP</span>
-                </div>
-                <div className="mt-1 flex items-center gap-3">
-                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-xs font-semibold text-emerald-400">
-                    <ArrowUp className="h-3 w-3" />
-                    +195 this week
-                  </span>
-                  <span className="text-sm text-white/40">Rank #{me.rank} globally</span>
+          {(() => {
+            const { data: activities } = useXpActivity();
+            // Calculate XP earned this week
+            const weekAgo = new Date();
+            weekAgo.setDate(weekAgo.getDate() - 7);
+            const weeklyXp = (activities ?? [])
+              .filter((a) => new Date(a.created_at) >= weekAgo)
+              .reduce((sum, a) => sum + a.xp_amount, 0);
+
+            return (
+              <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[hsl(260,60%,22%)] via-[hsl(240,50%,20%)] to-[hsl(220,55%,18%)] p-8 shadow-xl">
+                <div className="flex items-center justify-between">
+                  <div className="flex flex-col gap-3">
+                    <span className="text-xs font-semibold uppercase tracking-widest text-white/50">
+                      Total Points
+                    </span>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-5xl font-extrabold text-white">{me.xp.toLocaleString()}</span>
+                      <span className="text-lg font-medium text-white/60">XP</span>
+                    </div>
+                    <div className="mt-1 flex items-center gap-3">
+                      {weeklyXp !== 0 && (
+                        <span className={cn(
+                          "inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold",
+                          weeklyXp > 0
+                            ? "bg-emerald-500/20 text-emerald-400"
+                            : "bg-destructive/20 text-destructive"
+                        )}>
+                          {weeklyXp > 0 ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}
+                          {weeklyXp > 0 ? "+" : ""}{weeklyXp} this week
+                        </span>
+                      )}
+                      <span className="text-sm text-white/40">Rank #{me.rank} globally</span>
+                    </div>
+                  </div>
+                  <Trophy className="h-28 w-28 text-white/10" strokeWidth={1} />
                 </div>
               </div>
-              <Trophy className="h-28 w-28 text-white/10" strokeWidth={1} />
-            </div>
-          </div>
+            );
+          })()}
 
           {/* Next step card */}
           <div className="flex items-center gap-4 rounded-xl border border-border bg-card p-4 shadow-sm">
