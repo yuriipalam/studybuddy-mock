@@ -1072,9 +1072,10 @@ export default function MessagesPage() {
                     const completed = milestones.filter((m) => m.completed).length;
                     const total = milestones.length;
                     const pct = Math.round((completed / total) * 100);
+                    const barColor = pct < 40 ? "bg-orange-500" : pct < 75 ? "bg-yellow-500" : "bg-green-500";
                     return (
                       <div className="flex items-center gap-2 px-1 pr-4 pb-3">
-                        <Progress value={pct} className="flex-1 h-2" />
+                        <Progress value={pct} className="flex-1 h-2" indicatorClassName={barColor} />
                         <span className="text-xs text-muted-foreground shrink-0">{pct}%</span>
                       </div>
                     );
