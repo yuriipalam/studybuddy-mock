@@ -15,7 +15,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { MessageSquare, Send, Check, CheckCheck, Pencil, X, Trash2, Paperclip, FileText, Image as ImageIcon, File as FileIcon, Download, Eye } from "lucide-react";
+import { MessageSquare, Send, Check, CheckCheck, Pencil, X, Trash2, Paperclip, FileText, Image as ImageIcon, File as FileIcon, Download, Eye, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { useMessaging, ChatFile } from "@/contexts/MessagingContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -66,6 +66,7 @@ export default function MessagesPage() {
     setActiveConversationId,
     messages,
     sendMessage,
+    sendMessageWithFiles,
     editMessage,
     deleteMessage,
     deleteConversation,
@@ -88,6 +89,7 @@ export default function MessagesPage() {
   const [filesLoading, setFilesLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [previewFile, setPreviewFile] = useState<ChatFile | null>(null);
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   const bottomRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
@@ -131,16 +133,26 @@ export default function MessagesPage() {
   );
 
   const handleSend = async () => {
-    if (!input.trim() || !activeConversationId) return;
+    if (!input.trim() && pendingFiles.length === 0) return;
+    if (!activeConversationId) return;
     const content = input.trim();
     setInput("");
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-    await sendMessage(activeConversationId, content);
+
+    if (pendingFiles.length > 0) {
+      setUploading(true);
+      await sendMessageWithFiles(activeConversationId, content, pendingFiles);
+      setPendingFiles([]);
+      setUploading(false);
+      if (chatTab === "files") loadFiles();
+    } else {
+      await sendMessage(activeConversationId, content);
+    }
   };
 
   const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || !activeConversationId) return;
     const validFiles = Array.from(files).filter((file) => {
@@ -150,14 +162,10 @@ export default function MessagesPage() {
       }
       return true;
     });
-    if (validFiles.length === 0) return;
-    setUploading(true);
-    for (const file of validFiles) {
-      await uploadFile(activeConversationId, file);
+    if (validFiles.length > 0) {
+      setPendingFiles((prev) => [...prev, ...validFiles]);
     }
-    setUploading(false);
     if (fileInputRef.current) fileInputRef.current.value = "";
-    if (chatTab === "files") loadFiles();
   };
 
   const loadFiles = useCallback(async () => {
@@ -177,6 +185,7 @@ export default function MessagesPage() {
   // Reset tab when switching conversations
   useEffect(() => {
     setChatTab("messages");
+    setPendingFiles([]);
   }, [activeConversationId]);
 
   const getFileUrl = (filePath: string) => {
@@ -185,7 +194,7 @@ export default function MessagesPage() {
   };
 
   const isPreviewable = (mimeType: string) => {
-    return mimeType.startsWith("image/") || mimeType === "application/pdf" || mimeType.startsWith("text/");
+    return mimeType.startsWith("image/");
   };
 
   const getFileIcon = (mimeType: string) => {
@@ -202,11 +211,13 @@ export default function MessagesPage() {
   };
 
   const handleFileClick = (f: ChatFile) => {
-    if (isPreviewable(f.mime_type)) {
+    const url = getFileUrl(f.file_path);
+    if (f.mime_type.startsWith("image/")) {
       setPreviewFile(f);
+    } else if (f.mime_type === "application/pdf") {
+      window.open(url, "_blank", "noopener,noreferrer");
     } else {
       // Download non-previewable files
-      const url = getFileUrl(f.file_path);
       const a = document.createElement("a");
       a.href = url;
       a.download = f.file_name;
@@ -609,6 +620,27 @@ export default function MessagesPage() {
                   )}
                 </ScrollArea>
 
+                {/* Pending files preview */}
+                {pendingFiles.length > 0 && (
+                  <div className="border-t border-border px-3 pt-2">
+                    <div className="flex flex-wrap gap-2 max-w-2xl mx-auto">
+                      {pendingFiles.map((file, idx) => (
+                        <div key={idx} className="flex items-center gap-1.5 bg-muted rounded-lg px-2.5 py-1.5 text-xs">
+                          <Paperclip className="h-3 w-3 shrink-0 text-muted-foreground" />
+                          <span className="truncate max-w-[120px]">{file.name}</span>
+                          <button
+                            type="button"
+                            className="p-0.5 rounded hover:bg-background"
+                            onClick={() => setPendingFiles((prev) => prev.filter((_, i) => i !== idx))}
+                          >
+                            <X className="h-3 w-3 text-muted-foreground" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Input */}
                 <div className="border-t border-border p-3">
                   <form
@@ -641,7 +673,7 @@ export default function MessagesPage() {
                       placeholder="Type a message..."
                       className="flex-1"
                     />
-                    <Button type="submit" size="icon" disabled={!input.trim()}>
+                    <Button type="submit" size="icon" disabled={!input.trim() && pendingFiles.length === 0}>
                       <Send className="h-4 w-4" />
                     </Button>
                   </form>
@@ -671,34 +703,32 @@ export default function MessagesPage() {
                             {group.date}
                           </span>
                         </div>
-                        <div className="space-y-2">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                           {group.files.map((f) => (
                             <div
                               key={f.id}
-                              className="flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors group cursor-pointer"
+                              className="flex flex-col rounded-lg border border-border hover:bg-muted/50 transition-colors cursor-pointer overflow-hidden group"
                               onClick={() => handleFileClick(f)}
                             >
-                              {/* Thumbnail for images */}
+                              {/* Thumbnail / icon area */}
                               {f.mime_type.startsWith("image/") ? (
-                                <div className="h-10 w-10 rounded-lg overflow-hidden shrink-0">
+                                <div className="aspect-square overflow-hidden bg-muted">
                                   <img src={getFileUrl(f.file_path)} alt={f.file_name} className="h-full w-full object-cover" />
                                 </div>
                               ) : (
-                                <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                                <div className="aspect-square bg-muted flex flex-col items-center justify-center gap-1">
                                   {getFileIcon(f.mime_type)}
+                                  <span className="text-[10px] text-muted-foreground uppercase font-medium">
+                                    {f.file_name.split(".").pop()}
+                                  </span>
                                 </div>
                               )}
-                              <div className="min-w-0 flex-1">
-                                <p className="text-sm font-medium truncate">{f.file_name}</p>
-                                <p className="text-xs text-muted-foreground">
-                                  {formatFileSize(f.file_size)} · {formatTime(f.created_at)}
+                              <div className="p-2 min-w-0">
+                                <p className="text-xs font-medium truncate">{f.file_name}</p>
+                                <p className="text-[10px] text-muted-foreground">
+                                  {formatFileSize(f.file_size)}
                                 </p>
                               </div>
-                              {isPreviewable(f.mime_type) ? (
-                                <Eye className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
-                              ) : (
-                                <Download className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
-                              )}
                             </div>
                           ))}
                         </div>
@@ -750,20 +780,6 @@ export default function MessagesPage() {
                 src={getFileUrl(previewFile.file_path)}
                 alt={previewFile.file_name}
                 className="w-full h-auto rounded-md"
-              />
-            )}
-            {previewFile?.mime_type === "application/pdf" && (
-              <iframe
-                src={getFileUrl(previewFile.file_path)}
-                className="w-full h-[60vh] rounded-md border border-border"
-                title={previewFile.file_name}
-              />
-            )}
-            {previewFile?.mime_type.startsWith("text/") && (
-              <iframe
-                src={getFileUrl(previewFile.file_path)}
-                className="w-full h-[60vh] rounded-md border border-border bg-background"
-                title={previewFile.file_name}
               />
             )}
           </div>
