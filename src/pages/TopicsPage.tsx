@@ -78,6 +78,12 @@ export default function TopicsPage() {
     return "";
   };
 
+  const getContactProfileUrl = (t: Topic): string | null => {
+    if (t.expertIds.length > 0) return `/people/experts/${t.expertIds[0]}`;
+    if (t.supervisorIds.length > 0) return `/people/supervisors/${t.supervisorIds[0]}`;
+    return null;
+  };
+
   return (
     <div className="flex flex-col h-[calc(100vh-3.5rem)]">
       <div className="p-4 border-b border-border space-y-3">
@@ -147,12 +153,21 @@ export default function TopicsPage() {
                 <h2 className="ds-title-md mt-1">{selected.title}</h2>
               </div>
               {getContactName(selected) && (
-                <div className="flex items-center gap-3">
+                <div
+                  className={cn(
+                    "flex items-center gap-3",
+                    getContactProfileUrl(selected) && "cursor-pointer hover:bg-muted/50 rounded-lg p-2 -m-2 transition-colors"
+                  )}
+                  onClick={() => {
+                    const url = getContactProfileUrl(selected);
+                    if (url) navigate(url);
+                  }}
+                >
                   <Avatar className="h-8 w-8">
                     <AvatarFallback>{getContactName(selected)[0]}</AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="ds-label">{getContactName(selected)}</p>
+                    <p className={cn("ds-label", getContactProfileUrl(selected) && "text-primary hover:underline")}>{getContactName(selected)}</p>
                     <p className="ds-caption text-muted-foreground">Contact Person</p>
                   </div>
                 </div>
