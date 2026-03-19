@@ -12,6 +12,7 @@ import { useMessaging } from "@/contexts/MessagingContext";
 export default function ExpertDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { startConversation } = useMessaging();
   const expert = getExpert(id || "");
   const company = expert ? getCompany(expert.companyId) : undefined;
 
