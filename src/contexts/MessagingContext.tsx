@@ -205,7 +205,7 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
   );
 
   useEffect(() => {
-    loadConversations();
+    loadConversations(true);
   }, [loadConversations]);
 
   useEffect(() => {
