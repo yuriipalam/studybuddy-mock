@@ -452,7 +452,7 @@ export default function MessagesPage() {
     .slice(0, 2) || "?";
 
   return (
-    <div className="flex h-[calc(100vh-3.5rem)] overflow-hidden">
+    <div className="flex h-full">
       {/* Left panel - conversation list */}
       <div className="w-80 shrink-0 border-r border-border flex flex-col">
         <div className="p-3 border-b border-border">
@@ -584,7 +584,7 @@ export default function MessagesPage() {
       </div>
 
       {/* Right panel - chat */}
-      <div className="flex-1 flex flex-col min-h-0 min-w-0 overflow-hidden">
+      <div className="flex-1 flex flex-col min-h-0 min-w-0">
         {!activeConv ? (
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
