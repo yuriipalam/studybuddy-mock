@@ -676,10 +676,23 @@ export default function MessagesPage() {
                                         </Button>
                                       </form>
                                     ) : isFileMsg ? (
-                                      <div className="flex items-center gap-1.5">
-                                        <Paperclip className="h-3.5 w-3.5 shrink-0" />
-                                        <span>{msg.content.slice(2)}</span>
-                                      </div>
+                                      (() => {
+                                        const chatFile = findFileForMessage(msg.content);
+                                        return (
+                                          <div
+                                            className={cn("flex items-center gap-1.5", chatFile && "cursor-pointer hover:underline")}
+                                            onClick={(e) => {
+                                              if (chatFile) {
+                                                e.stopPropagation();
+                                                handleFileClick(chatFile);
+                                              }
+                                            }}
+                                          >
+                                            <Paperclip className="h-3.5 w-3.5 shrink-0" />
+                                            <span>{msg.content.slice(2)}</span>
+                                          </div>
+                                        );
+                                      })()
                                     ) : (
                                       msg.content
                                     )}
