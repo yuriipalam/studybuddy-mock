@@ -13,6 +13,7 @@ import { useXpEngine, XP_TRIGGERS } from "@/hooks/useXpEngine";
 import { toast } from "sonner";
 
 export default function TopicsPage() {
+  const navigate = useNavigate();
   const [topicList, setTopics] = useState<Topic[]>([]);
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
