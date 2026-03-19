@@ -41,7 +41,7 @@ export default function HomePage() {
         <p className="text-muted-foreground mt-1">What would you like to do today?</p>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+      <div className="flex flex-wrap gap-4">
         {actionCards.map((card) => (
           <Card
             key={card.title}
