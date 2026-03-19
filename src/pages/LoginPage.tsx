@@ -53,6 +53,23 @@ export default function LoginPage() {
 
   const selectedAccount = allAccounts.find((a) => a.id === selectedId);
 
+  const isDbAccount = (id: string) => id.startsWith("db-");
+
+  const handleDelete = async (account: AuthAccount) => {
+    if (!isDbAccount(account.id)) return;
+    const dbId = account.id.replace("db-", "");
+    try {
+      const { error } = await supabase.from("user_accounts").delete().eq("id", dbId);
+      if (error) throw error;
+      setAllAccounts((prev) => prev.filter((a) => a.id !== account.id));
+      if (selectedId === account.id) setSelectedId("");
+      toast.success(`${account.firstName} ${account.lastName} removed`);
+    } catch (e) {
+      console.error("Delete failed:", e);
+      toast.error("Failed to remove account");
+    }
+  };
+
   const handleLogin = () => {
     if (selectedId) {
       login(selectedId, allAccounts);
