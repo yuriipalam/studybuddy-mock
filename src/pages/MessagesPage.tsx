@@ -15,7 +15,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { MessageSquare, Send, Check, CheckCheck, Pencil, X, Trash2, Paperclip, FileText, Image as ImageIcon, File as FileIcon, Download } from "lucide-react";
+import { MessageSquare, Send, Check, CheckCheck, Pencil, X, Trash2, Paperclip, FileText, Image as ImageIcon, File as FileIcon, Download, Eye } from "lucide-react";
+import { toast } from "sonner";
 import { useMessaging, ChatFile } from "@/contexts/MessagingContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -85,6 +86,7 @@ export default function MessagesPage() {
   const [convFiles, setConvFiles] = useState<ChatFile[]>([]);
   const [filesLoading, setFilesLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [previewFile, setPreviewFile] = useState<ChatFile | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
@@ -135,16 +137,25 @@ export default function MessagesPage() {
     await sendMessage(activeConversationId, content);
   };
 
+  const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || !activeConversationId) return;
+    const validFiles = Array.from(files).filter((file) => {
+      if (file.size > MAX_FILE_SIZE) {
+        toast.error(`"${file.name}" exceeds 100MB limit`);
+        return false;
+      }
+      return true;
+    });
+    if (validFiles.length === 0) return;
     setUploading(true);
-    for (const file of Array.from(files)) {
+    for (const file of validFiles) {
       await uploadFile(activeConversationId, file);
     }
     setUploading(false);
     if (fileInputRef.current) fileInputRef.current.value = "";
-    // Refresh files if on files tab
     if (chatTab === "files") loadFiles();
   };
 
@@ -172,9 +183,14 @@ export default function MessagesPage() {
     return data.publicUrl;
   };
 
+  const isPreviewable = (mimeType: string) => {
+    return mimeType.startsWith("image/") || mimeType === "application/pdf" || mimeType.startsWith("text/");
+  };
+
   const getFileIcon = (mimeType: string) => {
     if (mimeType.startsWith("image/")) return <ImageIcon className="h-4 w-4 text-primary" />;
     if (mimeType.includes("pdf")) return <FileText className="h-4 w-4 text-destructive" />;
+    if (mimeType.startsWith("text/")) return <FileText className="h-4 w-4 text-accent-foreground" />;
     return <FileIcon className="h-4 w-4 text-muted-foreground" />;
   };
 
@@ -182,6 +198,19 @@ export default function MessagesPage() {
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
+
+  const handleFileClick = (f: ChatFile) => {
+    if (isPreviewable(f.mime_type)) {
+      setPreviewFile(f);
+    } else {
+      // Download non-previewable files
+      const url = getFileUrl(f.file_path);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = f.file_name;
+      a.click();
+    }
   };
 
   // Group files by date
@@ -621,24 +650,33 @@ export default function MessagesPage() {
                         </div>
                         <div className="space-y-2">
                           {group.files.map((f) => (
-                            <a
+                            <div
                               key={f.id}
-                              href={getFileUrl(f.file_path)}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors group"
+                              className="flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors group cursor-pointer"
+                              onClick={() => handleFileClick(f)}
                             >
-                              <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
-                                {getFileIcon(f.mime_type)}
-                              </div>
+                              {/* Thumbnail for images */}
+                              {f.mime_type.startsWith("image/") ? (
+                                <div className="h-10 w-10 rounded-lg overflow-hidden shrink-0">
+                                  <img src={getFileUrl(f.file_path)} alt={f.file_name} className="h-full w-full object-cover" />
+                                </div>
+                              ) : (
+                                <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                                  {getFileIcon(f.mime_type)}
+                                </div>
+                              )}
                               <div className="min-w-0 flex-1">
                                 <p className="text-sm font-medium truncate">{f.file_name}</p>
                                 <p className="text-xs text-muted-foreground">
                                   {formatFileSize(f.file_size)} · {formatTime(f.created_at)}
                                 </p>
                               </div>
-                              <Download className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
-                            </a>
+                              {isPreviewable(f.mime_type) ? (
+                                <Eye className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                              ) : (
+                                <Download className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                              )}
+                            </div>
                           ))}
                         </div>
                       </div>
@@ -670,6 +708,55 @@ export default function MessagesPage() {
               }}
             >
               Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      {/* File preview dialog */}
+      <AlertDialog open={!!previewFile} onOpenChange={(open) => !open && setPreviewFile(null)}>
+        <AlertDialogContent className="max-w-3xl max-h-[85vh] flex flex-col">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 truncate">
+              {previewFile && getFileIcon(previewFile.mime_type)}
+              <span className="truncate">{previewFile?.file_name}</span>
+            </AlertDialogTitle>
+          </AlertDialogHeader>
+          <div className="flex-1 overflow-auto min-h-0">
+            {previewFile?.mime_type.startsWith("image/") && (
+              <img
+                src={getFileUrl(previewFile.file_path)}
+                alt={previewFile.file_name}
+                className="w-full h-auto rounded-md"
+              />
+            )}
+            {previewFile?.mime_type === "application/pdf" && (
+              <iframe
+                src={getFileUrl(previewFile.file_path)}
+                className="w-full h-[60vh] rounded-md border border-border"
+                title={previewFile.file_name}
+              />
+            )}
+            {previewFile?.mime_type.startsWith("text/") && (
+              <iframe
+                src={getFileUrl(previewFile.file_path)}
+                className="w-full h-[60vh] rounded-md border border-border bg-background"
+                title={previewFile.file_name}
+              />
+            )}
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Close</AlertDialogCancel>
+            <AlertDialogAction asChild>
+              <a
+                href={getFileUrl(previewFile?.file_path || "")}
+                download={previewFile?.file_name}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5"
+              >
+                <Download className="h-4 w-4" />
+                Download
+              </a>
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
