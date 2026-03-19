@@ -409,8 +409,13 @@ export default function MessagesPage() {
   };
 
   // Find ChatFile matching a file message content
-  const findFileForMessage = useCallback((msgContent: string): ChatFile | undefined => {
+  const findFileForMessage = useCallback((msgContent: string, messageId?: string): ChatFile | undefined => {
     if (!msgContent.startsWith("📎")) return undefined;
+    // Prefer matching by message_id for accuracy
+    if (messageId) {
+      const byId = convFiles.find((f) => f.message_id === messageId);
+      if (byId) return byId;
+    }
     const fileName = msgContent.slice(2).trim();
     return convFiles.find((f) => f.file_name === fileName);
   }, [convFiles]);
