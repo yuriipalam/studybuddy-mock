@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Bot, Send, X, Sparkles, Loader2, Square } from "lucide-react";
+import { Bot, Send, X, Sparkles, Loader2, Square, RotateCcw } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 
 type Message = { role: "user" | "assistant"; content: string };
@@ -40,6 +40,12 @@ export function AiChatPanel({
     abortRef.current?.abort();
     abortRef.current = null;
     setIsLoading(false);
+  };
+
+  const resetChat = () => {
+    stop();
+    setMessages([]);
+    setInput("");
   };
 
   const send = async (text?: string) => {
@@ -127,72 +133,81 @@ export function AiChatPanel({
   if (!open) return null;
 
   return (
-    <div className="border-l border-border bg-card flex flex-col h-full shrink-0 min-w-0">
+    <div className="border-l border-border bg-card flex flex-col h-full min-w-0 overflow-hidden">
       {/* Header */}
       <div className="h-14 border-b border-border flex items-center justify-between px-4 shrink-0">
         <div className="flex items-center gap-2">
           <Sparkles className="h-4 w-4 text-foreground" />
           <span className="font-semibold text-sm">AI Assistant</span>
         </div>
-        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onClose}>
-          <X className="h-4 w-4" />
-        </Button>
+        <div className="flex items-center gap-1">
+          {messages.length > 0 && (
+            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={resetChat} title="Reset chat">
+              <RotateCcw className="h-3.5 w-3.5" />
+            </Button>
+          )}
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onClose}>
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
 
       {/* Messages */}
-      <ScrollArea className="flex-1 px-4 py-3">
-        {messages.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-8 text-center">
-            <Bot className="h-10 w-10 text-muted-foreground mb-3" />
-            <p className="text-sm font-medium">How can I help?</p>
-            <p className="text-xs text-muted-foreground mt-1 mb-4">
-              Ask me anything about topics, experts, or thesis writing.
-            </p>
-            <div className="flex flex-col gap-2 w-full">
-              {TEMPLATE_QUESTIONS.map((q) => (
-                <button
-                  key={q}
-                  onClick={() => send(q)}
-                  className="text-left text-xs px-3 py-2 rounded-md border border-border bg-background hover:bg-accent transition-colors text-foreground"
-                >
-                  {q}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-        <div className="space-y-3">
-          {messages.map((msg, i) => (
-            <div
-              key={i}
-              className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-            >
-              <div
-                className={`rounded-lg px-3 py-2 text-sm max-w-[85%] ${
-                  msg.role === "user"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-foreground"
-                }`}
-              >
-                {msg.role === "assistant" ? (
-                  <div className="prose prose-sm dark:prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
-                    <ReactMarkdown>{msg.content}</ReactMarkdown>
-                  </div>
-                ) : (
-                  <span className="whitespace-pre-wrap">{msg.content}</span>
-                )}
-              </div>
-            </div>
-          ))}
-          {isLoading && messages[messages.length - 1]?.role !== "assistant" && (
-            <div className="flex justify-start">
-              <div className="bg-muted rounded-lg px-3 py-2">
-                <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+      <ScrollArea className="flex-1 min-h-0">
+        <div className="px-4 py-3">
+          {messages.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-8 text-center">
+              <Bot className="h-10 w-10 text-muted-foreground mb-3" />
+              <p className="text-sm font-medium">How can I help?</p>
+              <p className="text-xs text-muted-foreground mt-1 mb-4">
+                Ask me anything about topics, experts, or thesis writing.
+              </p>
+              <div className="flex flex-col gap-2 w-full">
+                {TEMPLATE_QUESTIONS.map((q) => (
+                  <button
+                    key={q}
+                    onClick={() => send(q)}
+                    className="text-left text-xs px-3 py-2 rounded-md border border-border bg-background hover:bg-accent transition-colors text-foreground"
+                  >
+                    {q}
+                  </button>
+                ))}
               </div>
             </div>
           )}
+          <div className="space-y-3">
+            {messages.map((msg, i) => (
+              <div
+                key={i}
+                className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+              >
+                <div
+                  className={`rounded-lg px-3 py-2 text-sm max-w-[85%] ${
+                    msg.role === "user"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-foreground"
+                  }`}
+                >
+                  {msg.role === "assistant" ? (
+                    <div className="prose prose-sm dark:prose-invert max-w-none prose-p:my-1.5 prose-headings:my-2 prose-ul:my-1.5 prose-ol:my-1.5 prose-li:my-0.5 prose-pre:my-2 prose-blockquote:my-2 [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
+                      <ReactMarkdown>{msg.content}</ReactMarkdown>
+                    </div>
+                  ) : (
+                    <span className="whitespace-pre-wrap">{msg.content}</span>
+                  )}
+                </div>
+              </div>
+            ))}
+            {isLoading && messages[messages.length - 1]?.role !== "assistant" && (
+              <div className="flex justify-start">
+                <div className="bg-muted rounded-lg px-3 py-2">
+                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                </div>
+              </div>
+            )}
+          </div>
+          <div ref={scrollRef} />
         </div>
-        <div ref={scrollRef} />
       </ScrollArea>
 
       {/* Input */}
@@ -218,7 +233,7 @@ export function AiChatPanel({
               variant="destructive"
               type="button"
               onClick={stop}
-              className="h-10 w-10 shrink-0 aspect-square"
+              className="h-10 w-10 shrink-0"
             >
               <Square className="h-3.5 w-3.5 fill-current" />
             </Button>
@@ -227,7 +242,7 @@ export function AiChatPanel({
               size="icon"
               type="submit"
               disabled={!input.trim()}
-              className="h-10 w-10 shrink-0 aspect-square"
+              className="h-10 w-10 shrink-0"
             >
               <Send className="h-4 w-4" />
             </Button>
