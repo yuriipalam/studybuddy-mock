@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { FolderKanban, Clock, CheckCircle2, XCircle, BookOpen, ArrowRight } from "lucide-react";
+import { FolderKanban, Clock, CheckCircle2, XCircle, BookOpen, ArrowRight, MessageSquare } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
