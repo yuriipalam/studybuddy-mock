@@ -1049,23 +1049,23 @@ export default function MessagesPage() {
               </ScrollArea>
             ) : chatTab === "milestones" ? (
               <div className="flex-1 flex flex-col overflow-hidden">
-                {/* Edit mode toggle */}
-                <div className="flex justify-end px-4 pt-2">
-                  <Button
-                    variant={milestonesEditMode ? "default" : "ghost"}
-                    size="sm"
-                    className="h-7 text-xs gap-1"
-                    onClick={() => {
-                      setMilestonesEditMode((v) => !v);
-                      setEditingMilestoneId(null);
-                    }}
-                  >
-                    {milestonesEditMode ? <Check className="h-3 w-3" /> : <Pencil className="h-3 w-3" />}
-                    {milestonesEditMode ? "Done" : "Edit"}
-                  </Button>
-                  <p className="text-sm text-foreground px-3">Break your goal into milestones</p>
-                </div>
                 <ScrollArea className="flex-1 px-3 py-3">
+                  {/* Header */}
+                  <div className="flex items-center justify-between px-1 pb-2">
+                    <p className="text-sm text-foreground">Break your goal into milestones</p>
+                    <Button
+                      variant={milestonesEditMode ? "default" : "ghost"}
+                      size="sm"
+                      className="h-7 text-xs gap-1"
+                      onClick={() => {
+                        setMilestonesEditMode((v) => !v);
+                        setEditingMilestoneId(null);
+                      }}
+                    >
+                      {milestonesEditMode ? <Check className="h-3 w-3" /> : <Pencil className="h-3 w-3" />}
+                      {milestonesEditMode ? "Done" : "Edit"}
+                    </Button>
+                  </div>
                   <div className="py-2">
                     {milestones.map((m, i) => (
                       <div key={m.id} className="flex items-stretch">
