@@ -13,6 +13,8 @@ import ExpertsPage from "@/pages/ExpertsPage";
 import StudentsPage from "@/pages/StudentsPage";
 import SupervisorsPage from "@/pages/SupervisorsPage";
 import CompaniesPage from "@/pages/CompaniesPage";
+import CompanyDetailPage from "@/pages/CompanyDetailPage";
+import UniversitiesPage from "@/pages/UniversitiesPage";
 import StudyProgramsPage from "@/pages/StudyProgramsPage";
 import SettingsPage from "@/pages/SettingsPage";
 import NotFound from "@/pages/NotFound";
