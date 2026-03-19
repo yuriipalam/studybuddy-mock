@@ -1,8 +1,9 @@
 import { useState, useEffect, useMemo } from "react";
-import { fetchStudyPrograms, StudyProgram } from "@/data/mockStudyPrograms";
+import { fetchStudyPrograms, getUniversity, students as allStudents } from "@/data";
+import type { StudyProgram } from "@/data/types";
 import { FilterBar } from "@/components/FilterBar";
 import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Users } from "lucide-react";
 
@@ -17,7 +18,8 @@ export default function StudyProgramsPage() {
 
   const filtered = useMemo(() => {
     return programs.filter((p) => {
-      if (search && !p.name.toLowerCase().includes(search.toLowerCase()) && !p.university.toLowerCase().includes(search.toLowerCase())) return false;
+      const uni = getUniversity(p.universityId);
+      if (search && !p.name.toLowerCase().includes(search.toLowerCase()) && !(uni?.name ?? "").toLowerCase().includes(search.toLowerCase())) return false;
       if (degreeFilter !== "all" && p.degree !== degreeFilter) return false;
       return true;
     });
@@ -25,38 +27,45 @@ export default function StudyProgramsPage() {
 
   return (
     <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold">Study Programs</h1>
+      <h1 className="ds-title-lg">Study Programs</h1>
       <FilterBar
         searchValue={search}
         onSearchChange={setSearch}
         searchPlaceholder="Search programs..."
         filters={[
-          { label: "Degree", options: ["BSc", "MSc"], value: degreeFilter, onChange: setDegreeFilter },
+          { label: "Degree", options: ["bsc", "msc", "phd"], value: degreeFilter, onChange: setDegreeFilter },
         ]}
       />
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {filtered.map((program) => (
-          <Card key={program.id} className="hover:shadow-md transition-shadow cursor-pointer">
-            <CardContent className="p-5 space-y-3">
-              <div className="flex items-center gap-3">
-                <Avatar className="h-12 w-12 rounded-lg">
-                  <AvatarImage src={program.universityLogo} />
-                  <AvatarFallback className="rounded-lg">{program.university[0]}</AvatarFallback>
-                </Avatar>
-                <div>
-                  <h3 className="font-semibold text-sm">{program.name}</h3>
-                  <p className="text-xs text-muted-foreground">{program.university}</p>
+      <div className="grid-4-col">
+        {filtered.map((program) => {
+          const uni = getUniversity(program.universityId);
+          const studentCount = allStudents.filter((s) => s.studyProgramId === program.id).length;
+          return (
+            <Card key={program.id} className="group overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
+              <CardContent className="p-5 space-y-3">
+                <div className="flex items-center gap-3">
+                  <Avatar className="h-12 w-12 rounded-lg">
+                    <AvatarFallback className="rounded-lg text-sm font-semibold">
+                      {(uni?.name ?? "").slice(0, 2).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <h3 className="ds-title-cards leading-tight transition-colors group-hover:text-primary">{program.name}</h3>
+                    <p className="ds-caption text-muted-foreground">{uni?.name ?? ""}</p>
+                  </div>
                 </div>
-              </div>
-              <Badge variant="secondary">{program.degree}</Badge>
-              <p className="text-xs text-muted-foreground line-clamp-2">{program.description}</p>
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <Users className="h-3.5 w-3.5" />
-                {program.activeStudents} active students
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+                <Badge variant="secondary">{program.degree.toUpperCase()}</Badge>
+                {program.about && (
+                  <p className="ds-small text-muted-foreground line-clamp-2">{program.about}</p>
+                )}
+                <div className="flex items-center gap-1 ds-caption text-muted-foreground">
+                  <Users className="size-3.5" />
+                  {studentCount} students on platform
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
     </div>
   );

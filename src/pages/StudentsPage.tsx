@@ -1,12 +1,13 @@
 import { useState, useEffect, useMemo } from "react";
-import { fetchStudents, Student } from "@/data/mockStudents";
+import { fetchStudents, getUniversity, getStudyProgram, getFieldNames } from "@/data";
+import type { Student } from "@/data/types";
 import { FilterBar } from "@/components/FilterBar";
 import { EntityCard } from "@/components/EntityCard";
 
 export default function StudentsPage() {
   const [students, setStudents] = useState<Student[]>([]);
   const [search, setSearch] = useState("");
-  const [levelFilter, setLevelFilter] = useState("all");
+  const [degreeFilter, setDegreeFilter] = useState("all");
 
   useEffect(() => {
     fetchStudents().then(setStudents);
@@ -14,34 +15,40 @@ export default function StudentsPage() {
 
   const filtered = useMemo(() => {
     return students.filter((s) => {
-      if (search && !s.name.toLowerCase().includes(search.toLowerCase())) return false;
-      if (levelFilter !== "all" && s.level !== levelFilter) return false;
+      const name = `${s.firstName} ${s.lastName}`;
+      if (search && !name.toLowerCase().includes(search.toLowerCase())) return false;
+      if (degreeFilter !== "all" && s.degree !== degreeFilter) return false;
       return true;
     });
-  }, [students, search, levelFilter]);
+  }, [students, search, degreeFilter]);
 
   return (
     <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold">Students</h1>
+      <h1 className="ds-title-lg">Students</h1>
       <FilterBar
         searchValue={search}
         onSearchChange={setSearch}
         searchPlaceholder="Search students..."
         filters={[
-          { label: "Level", options: ["Bachelor", "Master"], value: levelFilter, onChange: setLevelFilter },
+          { label: "Degree", options: ["bsc", "msc", "phd"], value: degreeFilter, onChange: setDegreeFilter },
         ]}
       />
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {filtered.map((student) => (
-          <EntityCard
-            key={student.id}
-            name={student.name}
-            avatar={student.avatar}
-            subtitle={`${student.university} · ${student.field}`}
-            secondaryText={student.level}
-            tags={student.tags}
-          />
-        ))}
+      <div className="grid-4-col">
+        {filtered.map((student) => {
+          const uni = getUniversity(student.universityId);
+          const program = getStudyProgram(student.studyProgramId);
+          const fieldNames = getFieldNames(student.fieldIds);
+          return (
+            <EntityCard
+              key={student.id}
+              name={`${student.firstName} ${student.lastName}`}
+              avatar={`https://api.dicebear.com/7.x/avataaars/svg?seed=${student.firstName}`}
+              subtitle={`${uni?.name ?? ""} · ${program?.name ?? ""}`}
+              secondaryText={student.degree.toUpperCase()}
+              tags={fieldNames}
+            />
+          );
+        })}
       </div>
     </div>
   );
