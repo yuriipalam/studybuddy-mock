@@ -91,8 +91,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return null;
   });
 
-  const login = useCallback(async (accountId: string) => {
-    const account = PREDEFINED_ACCOUNTS.find((a) => a.id === accountId);
+  const login = useCallback(async (accountId: string, accounts?: AuthAccount[]) => {
+    const searchList = accounts ?? [...PREDEFINED_ACCOUNTS, ...dbAccounts];
+    const account = searchList.find((a) => a.id === accountId);
+    if (accounts) {
+      const dbOnly = accounts.filter(a => !PREDEFINED_ACCOUNTS.some(p => p.id === a.id));
+      localStorage.setItem("studyond-db-accounts", JSON.stringify(dbOnly));
+      setDbAccounts(dbOnly);
+    }
     if (account) {
       setCurrentUser(account);
       localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({ id: account.id }));
