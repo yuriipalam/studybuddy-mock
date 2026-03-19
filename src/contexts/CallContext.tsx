@@ -359,7 +359,18 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
     const video = incomingCallVideo;
     setIsVideo(video);
 
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video });
+    // Always request both audio and video so toggling works
+    const stream = await navigator.mediaDevices.getUserMedia({
+      audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+      video: { facingMode: "user" },
+    });
+
+    // For voice-only calls, disable video track but keep it available
+    if (!video) {
+      stream.getVideoTracks().forEach((t) => { t.enabled = false; });
+      setIsCameraOff(true);
+    }
+
     localStreamRef.current = stream;
     if (localVideoRef.current) localVideoRef.current.srcObject = stream;
 
