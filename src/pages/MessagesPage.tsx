@@ -311,19 +311,28 @@ export default function MessagesPage() {
   };
 
   const handleFileClick = (f: ChatFile) => {
-    const url = getFileUrl(f.file_path);
     if (f.mime_type.startsWith("image/")) {
       setPreviewFile(f);
-    } else if (f.mime_type === "application/pdf") {
-      window.open(url, "_blank", "noopener,noreferrer");
     } else {
-      // Download non-previewable files
+      // Download file directly to avoid ad-blocker issues with window.open
+      const url = getFileUrl(f.file_path);
       const a = document.createElement("a");
       a.href = url;
       a.download = f.file_name;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      document.body.appendChild(a);
       a.click();
+      document.body.removeChild(a);
     }
   };
+
+  // Find ChatFile matching a file message content
+  const findFileForMessage = useCallback((msgContent: string): ChatFile | undefined => {
+    if (!msgContent.startsWith("📎")) return undefined;
+    const fileName = msgContent.slice(2);
+    return convFiles.find((f) => f.file_name === fileName);
+  }, [convFiles]);
 
   // Group files by date
   const groupedFiles: { date: string; files: ChatFile[] }[] = [];
