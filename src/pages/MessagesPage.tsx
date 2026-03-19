@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { MessageSquare, Send, Check, CheckCheck, Pencil, X } from "lucide-react";
+import { MessageSquare, Send, Check, CheckCheck, Pencil, X, Trash2 } from "lucide-react";
 import { useMessaging } from "@/contexts/MessagingContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
