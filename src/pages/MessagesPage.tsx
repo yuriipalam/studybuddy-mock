@@ -796,12 +796,12 @@ export default function MessagesPage() {
                                           const isImage = chatFile.mime_type.startsWith("image/");
                                           return (
                                              <div
-                                              className="w-44 -mx-1 -my-0.5 rounded-lg overflow-hidden cursor-pointer border border-border"
+                                              className={cn("max-w-[220px] -mx-1 -my-0.5 rounded-lg overflow-hidden cursor-pointer border border-border", !isImage && "w-44")}
                                               onClick={(e) => { e.stopPropagation(); handleFileClick(chatFile); }}
                                             >
                                               {isImage ? (
-                                                <div className="aspect-square overflow-hidden bg-muted">
-                                                  <img src={getFileUrl(chatFile.file_path)} alt={chatFile.file_name} className="h-full w-full object-cover" />
+                                                <div className="overflow-hidden bg-muted">
+                                                  <img src={getFileUrl(chatFile.file_path)} alt={chatFile.file_name} className="w-full h-auto object-contain max-h-[280px]" />
                                                 </div>
                                               ) : (
                                                 <div className="aspect-square bg-muted/50 flex flex-col items-center justify-center gap-2">
@@ -811,10 +811,12 @@ export default function MessagesPage() {
                                                   </span>
                                                 </div>
                                               )}
-                                              <div className="p-2 min-w-0">
-                                                <p className={cn("text-xs font-medium truncate", isMe ? "text-primary-foreground" : "text-foreground")}>{chatFile.file_name}</p>
-                                                <p className={cn("text-[10px]", isMe ? "text-primary-foreground/60" : "text-muted-foreground")}>{formatFileSize(chatFile.file_size)}</p>
-                                              </div>
+                                              {!isImage && (
+                                                <div className="p-2 min-w-0">
+                                                  <p className={cn("text-xs font-medium truncate", isMe ? "text-primary-foreground" : "text-foreground")}>{chatFile.file_name}</p>
+                                                  <p className={cn("text-[10px]", isMe ? "text-primary-foreground/60" : "text-muted-foreground")}>{formatFileSize(chatFile.file_size)}</p>
+                                                </div>
+                                              )}
                                             </div>
                                           );
                                         }
