@@ -139,7 +139,7 @@ export function TopBar({ onToggleChat, chatOpen }: { onToggleChat: () => void; c
             </div>
           </PopoverContent>
         </Popover>
-        <Button variant="outline" size="sm" className="gap-1.5">
+        <Button variant="outline" size="sm" className="gap-1.5" onClick={handleInvite}>
           <UserPlus className="h-3.5 w-3.5" />
           Invite
         </Button>
