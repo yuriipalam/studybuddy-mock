@@ -174,16 +174,14 @@ export default function CallOverlay({
           {isMuted ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
         </Button>
 
-        {isVideo && (
-          <Button
-            variant={isCameraOff ? "destructive" : "outline"}
-            size="icon"
-            className="rounded-full h-12 w-12"
-            onClick={onToggleCamera}
-          >
-            {isCameraOff ? <VideoOff className="h-5 w-5" /> : <Video className="h-5 w-5" />}
-          </Button>
-        )}
+        <Button
+          variant={isCameraOff ? "destructive" : "outline"}
+          size="icon"
+          className="rounded-full h-12 w-12"
+          onClick={onToggleCamera}
+        >
+          {isCameraOff ? <VideoOff className="h-5 w-5" /> : <Video className="h-5 w-5" />}
+        </Button>
 
         <Button
           variant={isScreenSharing ? "default" : "outline"}
