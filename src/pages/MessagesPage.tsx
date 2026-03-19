@@ -748,6 +748,26 @@ export default function MessagesPage() {
                     })()}
                   </p>
                 </div>
+                <div className="flex items-center gap-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 rounded-full"
+                    onClick={() => webrtc.startCall(false)}
+                    title="Voice call"
+                  >
+                    <Phone className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 rounded-full"
+                    onClick={() => webrtc.startCall(true)}
+                    title="Video call"
+                  >
+                    <Video className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
               <div className="flex px-4 gap-4">
                 <button
