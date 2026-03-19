@@ -12,6 +12,7 @@ import { useMessaging } from "@/contexts/MessagingContext";
 export default function SupervisorDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { startConversation } = useMessaging();
   const supervisor = getSupervisor(id || "");
   const university = supervisor ? getUniversity(supervisor.universityId) : undefined;
 
