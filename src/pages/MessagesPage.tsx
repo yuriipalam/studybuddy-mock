@@ -99,6 +99,8 @@ export default function MessagesPage() {
   const bottomRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const [dragging, setDragging] = useState(false);
+  const dragCounterRef = useRef(0);
 
   const userId = currentUser?.id;
 
