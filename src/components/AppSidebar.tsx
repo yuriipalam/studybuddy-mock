@@ -55,6 +55,8 @@ export function AppSidebar() {
   const navigate = useNavigate();
   const currentPath = location.pathname;
   const { currentUser, logout } = useAuth();
+  const { resolvedTheme } = useTheme();
+  const logo = resolvedTheme === "dark" ? studyondLogoLight : studyondLogo;
 
   const handleLogout = () => {
     logout();
