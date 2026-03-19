@@ -23,6 +23,7 @@ const actionCards: ActionCard[] = [
 
 export default function HomePage() {
   const navigate = useNavigate();
+  const { currentUser } = useAuth();
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
 
