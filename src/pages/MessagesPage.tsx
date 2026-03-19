@@ -620,6 +620,27 @@ export default function MessagesPage() {
                   )}
                 </ScrollArea>
 
+                {/* Pending files preview */}
+                {pendingFiles.length > 0 && (
+                  <div className="border-t border-border px-3 pt-2">
+                    <div className="flex flex-wrap gap-2 max-w-2xl mx-auto">
+                      {pendingFiles.map((file, idx) => (
+                        <div key={idx} className="flex items-center gap-1.5 bg-muted rounded-lg px-2.5 py-1.5 text-xs">
+                          <Paperclip className="h-3 w-3 shrink-0 text-muted-foreground" />
+                          <span className="truncate max-w-[120px]">{file.name}</span>
+                          <button
+                            type="button"
+                            className="p-0.5 rounded hover:bg-background"
+                            onClick={() => setPendingFiles((prev) => prev.filter((_, i) => i !== idx))}
+                          >
+                            <X className="h-3 w-3 text-muted-foreground" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Input */}
                 <div className="border-t border-border p-3">
                   <form
@@ -652,7 +673,7 @@ export default function MessagesPage() {
                       placeholder="Type a message..."
                       className="flex-1"
                     />
-                    <Button type="submit" size="icon" disabled={!input.trim()}>
+                    <Button type="submit" size="icon" disabled={!input.trim() && pendingFiles.length === 0}>
                       <Send className="h-4 w-4" />
                     </Button>
                   </form>
