@@ -49,6 +49,7 @@ function ProtectedRoutes() {
             <Route path="/messages" element={<MessagesPage />} />
             <Route path="/projects" element={<ProjectsPage />} />
             <Route path="/topics" element={<TopicsPage />} />
+            <Route path="/topics/:topicId/apply" element={<TopicApplicationPage />} />
             <Route path="/jobs" element={<JobsPage />} />
             <Route path="/people/experts" element={<ExpertsPage />} />
             <Route path="/people/experts/:id" element={<ExpertDetailPage />} />

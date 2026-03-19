@@ -178,7 +178,7 @@ export default function TopicsPage() {
                   {bookmarked.has(selected.id) ? <BookmarkCheck className="size-4" /> : <Bookmark className="size-4" />}
                   {bookmarked.has(selected.id) ? "Bookmarked" : "Bookmark"}
                 </Button>
-                <Button>Apply</Button>
+                <Button onClick={() => navigate(`/topics/${selected.id}/apply`)}>Apply</Button>
               </div>
             </div>
           </ScrollArea>
