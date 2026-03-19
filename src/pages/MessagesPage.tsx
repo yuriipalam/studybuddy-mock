@@ -736,16 +736,34 @@ export default function MessagesPage() {
                                     ) : isFileMsg ? (
                                       (() => {
                                         const chatFile = findFileForMessage(msg.content);
+                                        if (chatFile) {
+                                          const isImage = chatFile.mime_type.startsWith("image/");
+                                          return (
+                                            <div
+                                              className="w-44 -mx-1 -my-0.5 rounded-lg overflow-hidden cursor-pointer"
+                                              onClick={(e) => { e.stopPropagation(); handleFileClick(chatFile); }}
+                                            >
+                                              {isImage ? (
+                                                <div className="aspect-square overflow-hidden bg-muted">
+                                                  <img src={getFileUrl(chatFile.file_path)} alt={chatFile.file_name} className="h-full w-full object-cover" />
+                                                </div>
+                                              ) : (
+                                                <div className="aspect-square bg-muted/50 flex flex-col items-center justify-center gap-2">
+                                                  {getFileIcon(chatFile.mime_type, "lg")}
+                                                  <span className="text-xs text-muted-foreground uppercase font-medium">
+                                                    {chatFile.file_name.split(".").pop()}
+                                                  </span>
+                                                </div>
+                                              )}
+                                              <div className="p-2 min-w-0">
+                                                <p className="text-xs font-medium truncate">{chatFile.file_name}</p>
+                                                <p className="text-[10px] text-muted-foreground">{formatFileSize(chatFile.file_size)}</p>
+                                              </div>
+                                            </div>
+                                          );
+                                        }
                                         return (
-                                          <div
-                                            className={cn("flex items-center gap-1.5", chatFile && "cursor-pointer hover:underline")}
-                                            onClick={(e) => {
-                                              if (chatFile) {
-                                                e.stopPropagation();
-                                                handleFileClick(chatFile);
-                                              }
-                                            }}
-                                          >
+                                          <div className="flex items-center gap-1.5">
                                             <Paperclip className="h-3.5 w-3.5 shrink-0" />
                                             <span>{msg.content.slice(2)}</span>
                                           </div>
