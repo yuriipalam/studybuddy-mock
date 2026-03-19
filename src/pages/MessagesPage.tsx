@@ -275,7 +275,14 @@ export default function MessagesPage() {
                 </AvatarFallback>
               </Avatar>
               <div>
-                <p className="text-sm font-medium">{contact?.user_name || "Unknown"}</p>
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-medium">{contact?.user_name || "Unknown"}</p>
+                  {contact?.user_role === "supervisor" && (
+                    <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 leading-none">
+                      Supervisor
+                    </Badge>
+                  )}
+                </div>
                 <p className="text-xs text-muted-foreground capitalize">
                   {contact?.user_role || ""}
                 </p>
