@@ -194,7 +194,7 @@ export default function MessagesPage() {
   };
 
   const isPreviewable = (mimeType: string) => {
-    return mimeType.startsWith("image/") || mimeType === "application/pdf" || mimeType.startsWith("text/");
+    return mimeType.startsWith("image/");
   };
 
   const getFileIcon = (mimeType: string) => {
