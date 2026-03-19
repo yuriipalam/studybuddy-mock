@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { fetchTopics, getCompany, getUniversity, getExpert, getSupervisor, getFieldNames, fields } from "@/data";
 import type { Topic } from "@/data/types";
 import { FilterBar } from "@/components/FilterBar";
@@ -12,6 +13,7 @@ import { useXpEngine, XP_TRIGGERS } from "@/hooks/useXpEngine";
 import { toast } from "sonner";
 
 export default function TopicsPage() {
+  const navigate = useNavigate();
   const [topicList, setTopics] = useState<Topic[]>([]);
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
@@ -176,7 +178,7 @@ export default function TopicsPage() {
                   {bookmarked.has(selected.id) ? <BookmarkCheck className="size-4" /> : <Bookmark className="size-4" />}
                   {bookmarked.has(selected.id) ? "Bookmarked" : "Bookmark"}
                 </Button>
-                <Button>Apply</Button>
+                <Button onClick={() => navigate(`/topics/${selected.id}/apply`)}>Apply</Button>
               </div>
             </div>
           </ScrollArea>

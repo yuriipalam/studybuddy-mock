@@ -31,6 +31,7 @@ import SettingsPage from "@/pages/SettingsPage";
 import StudentRequestsPage from "@/pages/StudentRequestsPage";
 import OnboardingPage from "@/pages/OnboardingPage";
 import RegisterPage from "@/pages/RegisterPage";
+import TopicApplicationPage from "@/pages/TopicApplicationPage";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -48,6 +49,7 @@ function ProtectedRoutes() {
             <Route path="/messages" element={<MessagesPage />} />
             <Route path="/projects" element={<ProjectsPage />} />
             <Route path="/topics" element={<TopicsPage />} />
+            <Route path="/topics/:topicId/apply" element={<TopicApplicationPage />} />
             <Route path="/jobs" element={<JobsPage />} />
             <Route path="/people/experts" element={<ExpertsPage />} />
             <Route path="/people/experts/:id" element={<ExpertDetailPage />} />

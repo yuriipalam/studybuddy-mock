@@ -328,6 +328,51 @@ export type Database = {
         }
         Relationships: []
       }
+      topic_applications: {
+        Row: {
+          availability: string | null
+          avatar_url: string | null
+          created_at: string
+          cv_file_name: string | null
+          cv_file_path: string | null
+          id: string
+          motivation: string | null
+          scheduling_url: string | null
+          status: string
+          topic_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          availability?: string | null
+          avatar_url?: string | null
+          created_at?: string
+          cv_file_name?: string | null
+          cv_file_path?: string | null
+          id?: string
+          motivation?: string | null
+          scheduling_url?: string | null
+          status?: string
+          topic_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          availability?: string | null
+          avatar_url?: string | null
+          created_at?: string
+          cv_file_name?: string | null
+          cv_file_path?: string | null
+          id?: string
+          motivation?: string | null
+          scheduling_url?: string | null
+          status?: string
+          topic_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_accounts: {
         Row: {
           avatar: string | null
