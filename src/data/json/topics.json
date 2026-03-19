@@ -7,12 +7,18 @@
     "employment": "open",
     "employmentType": "working_student",
     "workplaceType": "hybrid",
-    "degrees": ["msc"],
-    "fieldIds": ["field-02", "field-03"],
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-02"
+    ],
     "companyId": "company-01",
     "universityId": null,
     "supervisorIds": [],
-    "expertIds": ["expert-01"]
+    "expertIds": [
+      "expert-01"
+    ]
   },
   {
     "id": "topic-02",
@@ -22,12 +28,19 @@
     "employment": "no",
     "employmentType": null,
     "workplaceType": null,
-    "degrees": ["msc"],
-    "fieldIds": ["field-08", "field-07"],
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-08",
+      "field-11"
+    ],
     "companyId": "company-01",
     "universityId": null,
     "supervisorIds": [],
-    "expertIds": ["expert-02"]
+    "expertIds": [
+      "expert-02"
+    ]
   },
   {
     "id": "topic-03",
@@ -37,12 +50,20 @@
     "employment": "yes",
     "employmentType": "internship",
     "workplaceType": "on_site",
-    "degrees": ["msc", "phd"],
-    "fieldIds": ["field-11", "field-12"],
+    "degrees": [
+      "msc",
+      "phd"
+    ],
+    "fieldIds": [
+      "field-04",
+      "field-05"
+    ],
     "companyId": "company-02",
     "universityId": null,
     "supervisorIds": [],
-    "expertIds": ["expert-03"]
+    "expertIds": [
+      "expert-03"
+    ]
   },
   {
     "id": "topic-04",
@@ -52,12 +73,19 @@
     "employment": "yes",
     "employmentType": "graduate_program",
     "workplaceType": "hybrid",
-    "degrees": ["msc"],
-    "fieldIds": ["field-12", "field-03"],
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-05",
+      "field-02"
+    ],
     "companyId": "company-02",
     "universityId": null,
     "supervisorIds": [],
-    "expertIds": ["expert-04"]
+    "expertIds": [
+      "expert-04"
+    ]
   },
   {
     "id": "topic-05",
@@ -67,12 +95,18 @@
     "employment": "open",
     "employmentType": "internship",
     "workplaceType": "on_site",
-    "degrees": ["msc"],
-    "fieldIds": ["field-09", "field-10"],
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-01"
+    ],
     "companyId": "company-03",
     "universityId": null,
     "supervisorIds": [],
-    "expertIds": ["expert-05"]
+    "expertIds": [
+      "expert-05"
+    ]
   },
   {
     "id": "topic-06",
@@ -82,12 +116,18 @@
     "employment": "yes",
     "employmentType": "working_student",
     "workplaceType": "on_site",
-    "degrees": ["msc"],
-    "fieldIds": ["field-03", "field-02"],
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-02"
+    ],
     "companyId": "company-03",
     "universityId": null,
     "supervisorIds": [],
-    "expertIds": ["expert-06"]
+    "expertIds": [
+      "expert-06"
+    ]
   },
   {
     "id": "topic-07",
@@ -97,12 +137,18 @@
     "employment": "yes",
     "employmentType": "working_student",
     "workplaceType": "hybrid",
-    "degrees": ["msc"],
-    "fieldIds": ["field-01", "field-03"],
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-02"
+    ],
     "companyId": "company-04",
     "universityId": null,
     "supervisorIds": [],
-    "expertIds": ["expert-07"]
+    "expertIds": [
+      "expert-07"
+    ]
   },
   {
     "id": "topic-08",
@@ -112,12 +158,19 @@
     "employment": "no",
     "employmentType": null,
     "workplaceType": null,
-    "degrees": ["msc"],
-    "fieldIds": ["field-04", "field-15"],
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-13",
+      "field-15"
+    ],
     "companyId": "company-04",
     "universityId": null,
     "supervisorIds": [],
-    "expertIds": ["expert-08"]
+    "expertIds": [
+      "expert-08"
+    ]
   },
   {
     "id": "topic-09",
@@ -127,12 +180,18 @@
     "employment": "yes",
     "employmentType": "internship",
     "workplaceType": "on_site",
-    "degrees": ["msc"],
-    "fieldIds": ["field-02", "field-01"],
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-02"
+    ],
     "companyId": "company-05",
     "universityId": null,
     "supervisorIds": [],
-    "expertIds": ["expert-09"]
+    "expertIds": [
+      "expert-09"
+    ]
   },
   {
     "id": "topic-10",
@@ -142,12 +201,20 @@
     "employment": "no",
     "employmentType": null,
     "workplaceType": null,
-    "degrees": ["msc", "bsc"],
-    "fieldIds": ["field-08", "field-17"],
+    "degrees": [
+      "msc",
+      "bsc"
+    ],
+    "fieldIds": [
+      "field-08",
+      "field-06"
+    ],
     "companyId": "company-05",
     "universityId": null,
     "supervisorIds": [],
-    "expertIds": ["expert-10"]
+    "expertIds": [
+      "expert-10"
+    ]
   },
   {
     "id": "topic-11",
@@ -157,12 +224,19 @@
     "employment": "open",
     "employmentType": "graduate_program",
     "workplaceType": "hybrid",
-    "degrees": ["msc"],
-    "fieldIds": ["field-02", "field-05"],
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-02",
+      "field-14"
+    ],
     "companyId": "company-06",
     "universityId": null,
     "supervisorIds": [],
-    "expertIds": ["expert-11"]
+    "expertIds": [
+      "expert-11"
+    ]
   },
   {
     "id": "topic-12",
@@ -172,12 +246,19 @@
     "employment": "no",
     "employmentType": null,
     "workplaceType": null,
-    "degrees": ["msc"],
-    "fieldIds": ["field-05", "field-17"],
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-14",
+      "field-06"
+    ],
     "companyId": "company-06",
     "universityId": null,
     "supervisorIds": [],
-    "expertIds": ["expert-12"]
+    "expertIds": [
+      "expert-12"
+    ]
   },
   {
     "id": "topic-13",
@@ -187,12 +268,19 @@
     "employment": "yes",
     "employmentType": "internship",
     "workplaceType": "hybrid",
-    "degrees": ["msc"],
-    "fieldIds": ["field-05", "field-01"],
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-14",
+      "field-02"
+    ],
     "companyId": "company-07",
     "universityId": null,
     "supervisorIds": [],
-    "expertIds": ["expert-13"]
+    "expertIds": [
+      "expert-13"
+    ]
   },
   {
     "id": "topic-14",
@@ -202,12 +290,19 @@
     "employment": "yes",
     "employmentType": "working_student",
     "workplaceType": "on_site",
-    "degrees": ["msc"],
-    "fieldIds": ["field-06", "field-02"],
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-15",
+      "field-02"
+    ],
     "companyId": "company-07",
     "universityId": null,
     "supervisorIds": [],
-    "expertIds": ["expert-14"]
+    "expertIds": [
+      "expert-14"
+    ]
   },
   {
     "id": "topic-15",
@@ -217,12 +312,20 @@
     "employment": "yes",
     "employmentType": "internship",
     "workplaceType": "on_site",
-    "degrees": ["msc", "phd"],
-    "fieldIds": ["field-03", "field-11"],
+    "degrees": [
+      "msc",
+      "phd"
+    ],
+    "fieldIds": [
+      "field-02",
+      "field-04"
+    ],
     "companyId": "company-08",
     "universityId": null,
     "supervisorIds": [],
-    "expertIds": ["expert-15"]
+    "expertIds": [
+      "expert-15"
+    ]
   },
   {
     "id": "topic-16",
@@ -232,12 +335,19 @@
     "employment": "yes",
     "employmentType": "graduate_program",
     "workplaceType": "hybrid",
-    "degrees": ["msc"],
-    "fieldIds": ["field-04", "field-12"],
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-13",
+      "field-05"
+    ],
     "companyId": "company-08",
     "universityId": null,
     "supervisorIds": [],
-    "expertIds": ["expert-16"]
+    "expertIds": [
+      "expert-16"
+    ]
   },
   {
     "id": "topic-17",
@@ -247,12 +357,19 @@
     "employment": "no",
     "employmentType": null,
     "workplaceType": null,
-    "degrees": ["msc"],
-    "fieldIds": ["field-16", "field-18"],
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-16",
+      "field-20"
+    ],
     "companyId": "company-09",
     "universityId": null,
     "supervisorIds": [],
-    "expertIds": ["expert-17"]
+    "expertIds": [
+      "expert-17"
+    ]
   },
   {
     "id": "topic-18",
@@ -262,12 +379,20 @@
     "employment": "open",
     "employmentType": "internship",
     "workplaceType": "on_site",
-    "degrees": ["msc", "bsc"],
-    "fieldIds": ["field-08", "field-09"],
+    "degrees": [
+      "msc",
+      "bsc"
+    ],
+    "fieldIds": [
+      "field-08",
+      "field-01"
+    ],
     "companyId": "company-09",
     "universityId": null,
     "supervisorIds": [],
-    "expertIds": ["expert-18"]
+    "expertIds": [
+      "expert-18"
+    ]
   },
   {
     "id": "topic-19",
@@ -277,12 +402,19 @@
     "employment": "yes",
     "employmentType": "direct_entry",
     "workplaceType": "hybrid",
-    "degrees": ["msc"],
-    "fieldIds": ["field-01", "field-18"],
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-02",
+      "field-20"
+    ],
     "companyId": "company-10",
     "universityId": null,
     "supervisorIds": [],
-    "expertIds": ["expert-19"]
+    "expertIds": [
+      "expert-19"
+    ]
   },
   {
     "id": "topic-20",
@@ -292,12 +424,19 @@
     "employment": "no",
     "employmentType": null,
     "workplaceType": null,
-    "degrees": ["msc"],
-    "fieldIds": ["field-09", "field-04"],
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-01",
+      "field-13"
+    ],
     "companyId": "company-10",
     "universityId": null,
     "supervisorIds": [],
-    "expertIds": ["expert-20"]
+    "expertIds": [
+      "expert-20"
+    ]
   },
   {
     "id": "topic-21",
@@ -307,12 +446,19 @@
     "employment": "yes",
     "employmentType": "working_student",
     "workplaceType": "on_site",
-    "degrees": ["msc"],
-    "fieldIds": ["field-10", "field-03"],
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-01",
+      "field-02"
+    ],
     "companyId": "company-11",
     "universityId": null,
     "supervisorIds": [],
-    "expertIds": ["expert-21"]
+    "expertIds": [
+      "expert-21"
+    ]
   },
   {
     "id": "topic-22",
@@ -322,12 +468,19 @@
     "employment": "no",
     "employmentType": null,
     "workplaceType": null,
-    "degrees": ["msc"],
-    "fieldIds": ["field-12", "field-16"],
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-05",
+      "field-16"
+    ],
     "companyId": "company-11",
     "universityId": null,
     "supervisorIds": [],
-    "expertIds": ["expert-22"]
+    "expertIds": [
+      "expert-22"
+    ]
   },
   {
     "id": "topic-23",
@@ -337,12 +490,19 @@
     "employment": "open",
     "employmentType": "working_student",
     "workplaceType": "on_site",
-    "degrees": ["msc"],
-    "fieldIds": ["field-09", "field-08"],
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-01",
+      "field-08"
+    ],
     "companyId": "company-12",
     "universityId": null,
     "supervisorIds": [],
-    "expertIds": ["expert-23"]
+    "expertIds": [
+      "expert-23"
+    ]
   },
   {
     "id": "topic-24",
@@ -352,12 +512,19 @@
     "employment": "yes",
     "employmentType": "internship",
     "workplaceType": "hybrid",
-    "degrees": ["msc"],
-    "fieldIds": ["field-01", "field-04"],
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-02",
+      "field-13"
+    ],
     "companyId": "company-12",
     "universityId": null,
     "supervisorIds": [],
-    "expertIds": ["expert-24"]
+    "expertIds": [
+      "expert-24"
+    ]
   },
   {
     "id": "topic-25",
@@ -367,12 +534,19 @@
     "employment": "no",
     "employmentType": null,
     "workplaceType": null,
-    "degrees": ["msc"],
-    "fieldIds": ["field-18", "field-08"],
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-20",
+      "field-08"
+    ],
     "companyId": "company-13",
     "universityId": null,
     "supervisorIds": [],
-    "expertIds": ["expert-25"]
+    "expertIds": [
+      "expert-25"
+    ]
   },
   {
     "id": "topic-26",
@@ -382,12 +556,18 @@
     "employment": "yes",
     "employmentType": "direct_entry",
     "workplaceType": "hybrid",
-    "degrees": ["msc"],
-    "fieldIds": ["field-07"],
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-11"
+    ],
     "companyId": "company-13",
     "universityId": null,
     "supervisorIds": [],
-    "expertIds": ["expert-26"]
+    "expertIds": [
+      "expert-26"
+    ]
   },
   {
     "id": "topic-27",
@@ -397,12 +577,19 @@
     "employment": "open",
     "employmentType": "working_student",
     "workplaceType": "hybrid",
-    "degrees": ["msc"],
-    "fieldIds": ["field-01", "field-06"],
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-02",
+      "field-15"
+    ],
     "companyId": "company-14",
     "universityId": null,
     "supervisorIds": [],
-    "expertIds": ["expert-27"]
+    "expertIds": [
+      "expert-27"
+    ]
   },
   {
     "id": "topic-28",
@@ -412,12 +599,19 @@
     "employment": "no",
     "employmentType": null,
     "workplaceType": null,
-    "degrees": ["msc", "bsc"],
-    "fieldIds": ["field-08"],
+    "degrees": [
+      "msc",
+      "bsc"
+    ],
+    "fieldIds": [
+      "field-08"
+    ],
     "companyId": "company-14",
     "universityId": null,
     "supervisorIds": [],
-    "expertIds": ["expert-28"]
+    "expertIds": [
+      "expert-28"
+    ]
   },
   {
     "id": "topic-29",
@@ -427,12 +621,18 @@
     "employment": "yes",
     "employmentType": "internship",
     "workplaceType": "on_site",
-    "degrees": ["msc"],
-    "fieldIds": ["field-09", "field-10"],
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-01"
+    ],
     "companyId": "company-15",
     "universityId": null,
     "supervisorIds": [],
-    "expertIds": ["expert-29"]
+    "expertIds": [
+      "expert-29"
+    ]
   },
   {
     "id": "topic-30",
@@ -442,12 +642,20 @@
     "employment": "yes",
     "employmentType": "graduate_program",
     "workplaceType": "on_site",
-    "degrees": ["msc", "bsc"],
-    "fieldIds": ["field-04", "field-19"],
+    "degrees": [
+      "msc",
+      "bsc"
+    ],
+    "fieldIds": [
+      "field-13",
+      "field-12"
+    ],
     "companyId": "company-15",
     "universityId": null,
     "supervisorIds": [],
-    "expertIds": ["expert-30"]
+    "expertIds": [
+      "expert-30"
+    ]
   },
   {
     "id": "topic-31",
@@ -457,11 +665,18 @@
     "employment": "no",
     "employmentType": null,
     "workplaceType": null,
-    "degrees": ["msc", "phd"],
-    "fieldIds": ["field-01", "field-03"],
+    "degrees": [
+      "msc",
+      "phd"
+    ],
+    "fieldIds": [
+      "field-02"
+    ],
     "companyId": null,
     "universityId": "uni-01",
-    "supervisorIds": ["supervisor-01"],
+    "supervisorIds": [
+      "supervisor-01"
+    ],
     "expertIds": []
   },
   {
@@ -472,11 +687,18 @@
     "employment": "no",
     "employmentType": null,
     "workplaceType": null,
-    "degrees": ["msc"],
-    "fieldIds": ["field-09", "field-01"],
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-01",
+      "field-02"
+    ],
     "companyId": null,
     "universityId": "uni-01",
-    "supervisorIds": ["supervisor-02"],
+    "supervisorIds": [
+      "supervisor-02"
+    ],
     "expertIds": []
   },
   {
@@ -487,11 +709,17 @@
     "employment": "no",
     "employmentType": null,
     "workplaceType": null,
-    "degrees": ["msc"],
-    "fieldIds": ["field-01", "field-02"],
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-02"
+    ],
     "companyId": null,
     "universityId": "uni-02",
-    "supervisorIds": ["supervisor-03"],
+    "supervisorIds": [
+      "supervisor-03"
+    ],
     "expertIds": []
   },
   {
@@ -502,11 +730,19 @@
     "employment": "no",
     "employmentType": null,
     "workplaceType": null,
-    "degrees": ["msc", "phd"],
-    "fieldIds": ["field-11", "field-03"],
+    "degrees": [
+      "msc",
+      "phd"
+    ],
+    "fieldIds": [
+      "field-04",
+      "field-02"
+    ],
     "companyId": null,
     "universityId": "uni-02",
-    "supervisorIds": ["supervisor-04"],
+    "supervisorIds": [
+      "supervisor-04"
+    ],
     "expertIds": []
   },
   {
@@ -517,11 +753,19 @@
     "employment": "no",
     "employmentType": null,
     "workplaceType": null,
-    "degrees": ["msc"],
-    "fieldIds": ["field-08", "field-17", "field-13"],
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-08",
+      "field-06",
+      "field-14"
+    ],
     "companyId": null,
     "universityId": "uni-02",
-    "supervisorIds": ["supervisor-05"],
+    "supervisorIds": [
+      "supervisor-05"
+    ],
     "expertIds": []
   },
   {
@@ -532,11 +776,18 @@
     "employment": "no",
     "employmentType": null,
     "workplaceType": null,
-    "degrees": ["msc"],
-    "fieldIds": ["field-06", "field-04"],
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-15",
+      "field-13"
+    ],
     "companyId": null,
     "universityId": "uni-03",
-    "supervisorIds": ["supervisor-06"],
+    "supervisorIds": [
+      "supervisor-06"
+    ],
     "expertIds": []
   },
   {
@@ -547,11 +798,18 @@
     "employment": "no",
     "employmentType": null,
     "workplaceType": null,
-    "degrees": ["msc"],
-    "fieldIds": ["field-15", "field-03"],
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-15",
+      "field-02"
+    ],
     "companyId": null,
     "universityId": "uni-03",
-    "supervisorIds": ["supervisor-07"],
+    "supervisorIds": [
+      "supervisor-07"
+    ],
     "expertIds": []
   },
   {
@@ -562,11 +820,18 @@
     "employment": "no",
     "employmentType": null,
     "workplaceType": null,
-    "degrees": ["msc"],
-    "fieldIds": ["field-07", "field-04"],
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-11",
+      "field-13"
+    ],
     "companyId": null,
     "universityId": "uni-03",
-    "supervisorIds": ["supervisor-08"],
+    "supervisorIds": [
+      "supervisor-08"
+    ],
     "expertIds": []
   },
   {
@@ -577,11 +842,17 @@
     "employment": "no",
     "employmentType": null,
     "workplaceType": null,
-    "degrees": ["msc"],
-    "fieldIds": ["field-01", "field-03"],
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-02"
+    ],
     "companyId": null,
     "universityId": "uni-04",
-    "supervisorIds": ["supervisor-09"],
+    "supervisorIds": [
+      "supervisor-09"
+    ],
     "expertIds": []
   },
   {
@@ -592,11 +863,19 @@
     "employment": "no",
     "employmentType": null,
     "workplaceType": null,
-    "degrees": ["msc", "bsc"],
-    "fieldIds": ["field-13", "field-16"],
+    "degrees": [
+      "msc",
+      "bsc"
+    ],
+    "fieldIds": [
+      "field-14",
+      "field-16"
+    ],
     "companyId": null,
     "universityId": "uni-04",
-    "supervisorIds": ["supervisor-10"],
+    "supervisorIds": [
+      "supervisor-10"
+    ],
     "expertIds": []
   },
   {
@@ -607,11 +886,18 @@
     "employment": "no",
     "employmentType": null,
     "workplaceType": null,
-    "degrees": ["msc"],
-    "fieldIds": ["field-20", "field-08"],
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-17",
+      "field-08"
+    ],
     "companyId": null,
     "universityId": "uni-05",
-    "supervisorIds": ["supervisor-11"],
+    "supervisorIds": [
+      "supervisor-11"
+    ],
     "expertIds": []
   },
   {
@@ -622,11 +908,19 @@
     "employment": "no",
     "employmentType": null,
     "workplaceType": null,
-    "degrees": ["msc", "phd"],
-    "fieldIds": ["field-17", "field-08"],
+    "degrees": [
+      "msc",
+      "phd"
+    ],
+    "fieldIds": [
+      "field-06",
+      "field-08"
+    ],
     "companyId": null,
     "universityId": "uni-05",
-    "supervisorIds": ["supervisor-12"],
+    "supervisorIds": [
+      "supervisor-12"
+    ],
     "expertIds": []
   },
   {
@@ -637,11 +931,19 @@
     "employment": "no",
     "employmentType": null,
     "workplaceType": null,
-    "degrees": ["msc", "phd"],
-    "fieldIds": ["field-11", "field-01"],
+    "degrees": [
+      "msc",
+      "phd"
+    ],
+    "fieldIds": [
+      "field-04",
+      "field-02"
+    ],
     "companyId": null,
     "universityId": "uni-06",
-    "supervisorIds": ["supervisor-13"],
+    "supervisorIds": [
+      "supervisor-13"
+    ],
     "expertIds": []
   },
   {
@@ -652,11 +954,18 @@
     "employment": "no",
     "employmentType": null,
     "workplaceType": null,
-    "degrees": ["msc"],
-    "fieldIds": ["field-12", "field-13"],
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-05",
+      "field-14"
+    ],
     "companyId": null,
     "universityId": "uni-06",
-    "supervisorIds": ["supervisor-14"],
+    "supervisorIds": [
+      "supervisor-14"
+    ],
     "expertIds": []
   },
   {
@@ -667,11 +976,18 @@
     "employment": "no",
     "employmentType": null,
     "workplaceType": null,
-    "degrees": ["msc"],
-    "fieldIds": ["field-04", "field-01"],
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-13",
+      "field-02"
+    ],
     "companyId": null,
     "universityId": "uni-06",
-    "supervisorIds": ["supervisor-15"],
+    "supervisorIds": [
+      "supervisor-15"
+    ],
     "expertIds": []
   },
   {
@@ -682,11 +998,18 @@
     "employment": "no",
     "employmentType": null,
     "workplaceType": null,
-    "degrees": ["msc"],
-    "fieldIds": ["field-03", "field-15"],
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-02",
+      "field-15"
+    ],
     "companyId": null,
     "universityId": "uni-07",
-    "supervisorIds": ["supervisor-16"],
+    "supervisorIds": [
+      "supervisor-16"
+    ],
     "expertIds": []
   },
   {
@@ -697,11 +1020,18 @@
     "employment": "no",
     "employmentType": null,
     "workplaceType": null,
-    "degrees": ["msc"],
-    "fieldIds": ["field-09", "field-07"],
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-01",
+      "field-11"
+    ],
     "companyId": null,
     "universityId": "uni-07",
-    "supervisorIds": ["supervisor-17"],
+    "supervisorIds": [
+      "supervisor-17"
+    ],
     "expertIds": []
   },
   {
@@ -712,11 +1042,18 @@
     "employment": "no",
     "employmentType": null,
     "workplaceType": null,
-    "degrees": ["msc"],
-    "fieldIds": ["field-04", "field-01"],
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-13",
+      "field-02"
+    ],
     "companyId": null,
     "universityId": "uni-07",
-    "supervisorIds": ["supervisor-18"],
+    "supervisorIds": [
+      "supervisor-18"
+    ],
     "expertIds": []
   },
   {
@@ -727,11 +1064,17 @@
     "employment": "no",
     "employmentType": null,
     "workplaceType": null,
-    "degrees": ["msc"],
-    "fieldIds": ["field-02", "field-03"],
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-02"
+    ],
     "companyId": null,
     "universityId": "uni-08",
-    "supervisorIds": ["supervisor-19"],
+    "supervisorIds": [
+      "supervisor-19"
+    ],
     "expertIds": []
   },
   {
@@ -742,11 +1085,17 @@
     "employment": "no",
     "employmentType": null,
     "workplaceType": null,
-    "degrees": ["msc"],
-    "fieldIds": ["field-09", "field-10"],
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-01"
+    ],
     "companyId": null,
     "universityId": "uni-08",
-    "supervisorIds": ["supervisor-20"],
+    "supervisorIds": [
+      "supervisor-20"
+    ],
     "expertIds": []
   },
   {
@@ -757,11 +1106,18 @@
     "employment": "no",
     "employmentType": null,
     "workplaceType": null,
-    "degrees": ["msc"],
-    "fieldIds": ["field-06", "field-02"],
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-15",
+      "field-02"
+    ],
     "companyId": null,
     "universityId": "uni-08",
-    "supervisorIds": ["supervisor-21"],
+    "supervisorIds": [
+      "supervisor-21"
+    ],
     "expertIds": []
   },
   {
@@ -772,11 +1128,17 @@
     "employment": "no",
     "employmentType": null,
     "workplaceType": null,
-    "degrees": ["msc"],
-    "fieldIds": ["field-01"],
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-02"
+    ],
     "companyId": null,
     "universityId": "uni-09",
-    "supervisorIds": ["supervisor-22"],
+    "supervisorIds": [
+      "supervisor-22"
+    ],
     "expertIds": []
   },
   {
@@ -787,11 +1149,19 @@
     "employment": "no",
     "employmentType": null,
     "workplaceType": null,
-    "degrees": ["msc", "bsc"],
-    "fieldIds": ["field-10", "field-17"],
+    "degrees": [
+      "msc",
+      "bsc"
+    ],
+    "fieldIds": [
+      "field-01",
+      "field-06"
+    ],
     "companyId": null,
     "universityId": "uni-09",
-    "supervisorIds": ["supervisor-23"],
+    "supervisorIds": [
+      "supervisor-23"
+    ],
     "expertIds": []
   },
   {
@@ -802,11 +1172,17 @@
     "employment": "no",
     "employmentType": null,
     "workplaceType": null,
-    "degrees": ["msc"],
-    "fieldIds": ["field-01", "field-03"],
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-02"
+    ],
     "companyId": null,
     "universityId": "uni-10",
-    "supervisorIds": ["supervisor-24"],
+    "supervisorIds": [
+      "supervisor-24"
+    ],
     "expertIds": []
   },
   {
@@ -817,11 +1193,18 @@
     "employment": "no",
     "employmentType": null,
     "workplaceType": null,
-    "degrees": ["msc"],
-    "fieldIds": ["field-15", "field-12"],
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-15",
+      "field-05"
+    ],
     "companyId": null,
     "universityId": "uni-10",
-    "supervisorIds": ["supervisor-25"],
+    "supervisorIds": [
+      "supervisor-25"
+    ],
     "expertIds": []
   },
   {
@@ -832,11 +1215,18 @@
     "employment": "no",
     "employmentType": null,
     "workplaceType": null,
-    "degrees": ["msc"],
-    "fieldIds": ["field-09", "field-01"],
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-01",
+      "field-02"
+    ],
     "companyId": null,
     "universityId": "uni-01",
-    "supervisorIds": ["supervisor-02"],
+    "supervisorIds": [
+      "supervisor-02"
+    ],
     "expertIds": []
   },
   {
@@ -847,11 +1237,19 @@
     "employment": "no",
     "employmentType": null,
     "workplaceType": null,
-    "degrees": ["msc", "bsc"],
-    "fieldIds": ["field-20", "field-08"],
+    "degrees": [
+      "msc",
+      "bsc"
+    ],
+    "fieldIds": [
+      "field-17",
+      "field-08"
+    ],
     "companyId": null,
     "universityId": "uni-05",
-    "supervisorIds": ["supervisor-11"],
+    "supervisorIds": [
+      "supervisor-11"
+    ],
     "expertIds": []
   },
   {
@@ -862,11 +1260,18 @@
     "employment": "no",
     "employmentType": null,
     "workplaceType": null,
-    "degrees": ["msc"],
-    "fieldIds": ["field-12", "field-13"],
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-05",
+      "field-14"
+    ],
     "companyId": null,
     "universityId": "uni-06",
-    "supervisorIds": ["supervisor-14"],
+    "supervisorIds": [
+      "supervisor-14"
+    ],
     "expertIds": []
   },
   {
@@ -877,11 +1282,17 @@
     "employment": "no",
     "employmentType": null,
     "workplaceType": null,
-    "degrees": ["msc"],
-    "fieldIds": ["field-02", "field-03"],
+    "degrees": [
+      "msc"
+    ],
+    "fieldIds": [
+      "field-02"
+    ],
     "companyId": null,
     "universityId": "uni-08",
-    "supervisorIds": ["supervisor-19"],
+    "supervisorIds": [
+      "supervisor-19"
+    ],
     "expertIds": []
   },
   {
@@ -892,11 +1303,19 @@
     "employment": "no",
     "employmentType": null,
     "workplaceType": null,
-    "degrees": ["msc", "bsc"],
-    "fieldIds": ["field-10", "field-17"],
+    "degrees": [
+      "msc",
+      "bsc"
+    ],
+    "fieldIds": [
+      "field-01",
+      "field-06"
+    ],
     "companyId": null,
     "universityId": "uni-09",
-    "supervisorIds": ["supervisor-23"],
+    "supervisorIds": [
+      "supervisor-23"
+    ],
     "expertIds": []
   }
 ]
