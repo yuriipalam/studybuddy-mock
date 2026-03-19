@@ -181,9 +181,8 @@ function LeaderboardTable({ users, currentStudentId }: { users: RankedStudent[];
           "text-xs font-semibold text-right flex items-center justify-end gap-0.5",
           user.change > 0 ? "text-emerald-500" : user.change < 0 ? "text-destructive" : "text-muted-foreground"
         )}>
-          {user.change > 0 && <ArrowUp className="h-3 w-3" />}
-          {user.change < 0 && <ArrowDown className="h-3 w-3" />}
-          {user.change === 0 ? "—" : Math.abs(user.change)}
+          {user.change > 0 && <><ArrowUp className="h-3 w-3" />{Math.abs(user.change)}</>}
+          {user.change < 0 && <><ArrowDown className="h-3 w-3" />{Math.abs(user.change)}</>}
         </span>
       </div>
     );
