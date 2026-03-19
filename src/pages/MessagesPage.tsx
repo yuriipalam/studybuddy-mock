@@ -86,6 +86,7 @@ export default function MessagesPage() {
   const [convFiles, setConvFiles] = useState<ChatFile[]>([]);
   const [filesLoading, setFilesLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [previewFile, setPreviewFile] = useState<ChatFile | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
