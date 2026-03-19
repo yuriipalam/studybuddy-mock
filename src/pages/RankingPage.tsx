@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Flame, Trophy, Shield, ArrowUp, ArrowDown, Gift, ChevronRight, CheckCircle, Zap, FileText, UserPlus, MessageCircle, Crown, Medal, Loader2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -93,6 +93,7 @@ const podiumConfig = [
 ];
 
 function Podium({ top3 }: { top3: RankedStudent[] }) {
+  const navigate = useNavigate();
   // Reorder: 2nd, 1st, 3rd
   const ordered = top3.length >= 3 ? [top3[1], top3[0], top3[2]] : top3;
 
@@ -103,7 +104,7 @@ function Podium({ top3 }: { top3: RankedStudent[] }) {
           const config = podiumConfig[i];
           const isFirst = i === 1;
           return (
-            <div key={user.studentId} className={cn("flex flex-col items-center gap-2", isFirst ? "-mt-4" : "mt-4")}>
+            <div key={user.studentId} onClick={() => navigate(`/people/students/${user.studentId}`)} className={cn("flex flex-col items-center gap-2 cursor-pointer", isFirst ? "-mt-4" : "mt-4")}>
               <div className="relative">
                 {isFirst && <Crown className={cn("h-6 w-6 absolute -top-5 left-1/2 -translate-x-1/2", config.iconColor)} />}
                 {!isFirst && <Medal className={cn("h-5 w-5 absolute -top-4 left-1/2 -translate-x-1/2", config.iconColor)} />}
@@ -136,6 +137,7 @@ function Podium({ top3 }: { top3: RankedStudent[] }) {
 }
 
 function LeaderboardTable({ users, currentStudentId }: { users: RankedStudent[]; currentStudentId: string }) {
+  const navigate = useNavigate();
   const isYou = (u: RankedStudent) => u.studentId === currentStudentId;
   const regularUsers = users.filter((u) => !isYou(u));
   const youUser = users.find(isYou);
@@ -152,7 +154,8 @@ function LeaderboardTable({ users, currentStudentId }: { users: RankedStudent[];
       {regularUsers.map((user) => (
         <div
           key={user.studentId}
-          className="grid grid-cols-[48px_1fr_100px_60px] items-center px-4 py-3 border-b border-border/50 last:border-b-0 hover:bg-muted/20 transition-colors"
+          onClick={() => navigate(`/people/students/${user.studentId}`)}
+          className="grid grid-cols-[48px_1fr_100px_60px] items-center px-4 py-3 border-b border-border/50 last:border-b-0 hover:bg-muted/20 transition-colors cursor-pointer"
         >
           <span className="text-sm font-medium text-muted-foreground">#{user.rank}</span>
           <div className="flex items-center gap-3 min-w-0">
@@ -192,7 +195,7 @@ function LeaderboardTable({ users, currentStudentId }: { users: RankedStudent[];
 
       {/* You row */}
       {youUser && (
-        <div className="grid grid-cols-[48px_1fr_100px_60px] items-center px-4 py-3 bg-primary/5 border-t border-primary/20">
+        <div onClick={() => navigate(`/people/students/${youUser.studentId}`)} className="grid grid-cols-[48px_1fr_100px_60px] items-center px-4 py-3 bg-primary/5 border-t border-primary/20 cursor-pointer hover:bg-primary/10 transition-colors">
           <span className="text-sm font-bold text-primary">#{youUser.rank}</span>
           <div className="flex items-center gap-3 min-w-0">
             <Avatar className="h-8 w-8 shrink-0 ring-2 ring-primary ring-offset-1 ring-offset-background">
