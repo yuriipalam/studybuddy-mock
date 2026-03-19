@@ -127,7 +127,7 @@ export function ThesisJourneyTracker({ stages, currentStage }: { stages: Journey
 
                 {/* Connector line */}
                 {!isLast && (
-                  <div className="flex-1 flex items-center pt-4 px-1.5">
+                  <div className="flex-1 flex items-center pt-4">
                     <div
                       className={cn(
                         "h-0.5 w-full rounded-full transition-all duration-500",
