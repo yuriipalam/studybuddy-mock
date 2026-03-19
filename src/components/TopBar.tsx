@@ -42,6 +42,12 @@ export function TopBar({ onToggleChat, chatOpen }: { onToggleChat: () => void; c
   const label = routeLabels[path] || "Page";
   const [notifOpen, setNotifOpen] = useState(false);
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
+  const { awardXp } = useXpEngine();
+
+  const handleInvite = () => {
+    // For demo: award student referral XP
+    awardXp(XP_TRIGGERS.STUDENT_REFERRAL);
+  };
 
   const segments = path.split("/").filter(Boolean);
   const parentLabel = segments.length > 1 ? routeLabels["/" + segments[0]] || segments[0] : null;
