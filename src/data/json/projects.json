@@ -47,17 +47,17 @@
   {
     "id": "project-04",
     "title": "Applying Federated Learning to Telecom Network Optimization",
-    "description": "Investigating privacy-preserving machine learning approaches for mobile network resource allocation at Swisscom.",
+    "description": "Investigating privacy-preserving machine learning approaches for mobile network resource allocation at Swisscom, supervised by Prof. Vechev's Reliable AI group at ETH Zurich.",
     "motivation": "I am fascinated by the challenge of training ML models without centralizing sensitive user data and see Swiss telecom as the ideal testing ground.",
-    "state": "applied",
+    "state": "in_progress",
     "studentId": "student-01",
     "topicId": "topic-07",
     "companyId": "company-04",
     "universityId": "uni-01",
-    "supervisorIds": [],
-    "expertIds": [],
+    "supervisorIds": ["supervisor-01"],
+    "expertIds": ["expert-07"],
     "createdAt": "2026-02-10T11:00:00Z",
-    "updatedAt": "2026-02-18T16:45:00Z"
+    "updatedAt": "2026-03-15T09:30:00Z"
   },
   {
     "id": "project-05",
