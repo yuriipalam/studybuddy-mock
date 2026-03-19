@@ -14,6 +14,7 @@ import { fields } from "@/data";
 import { toast } from "sonner";
 import { useUserProfile } from "@/contexts/UserProfileContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const DEGREE_OPTIONS = [
   { value: "bsc", label: "Bachelor" },
@@ -35,6 +36,7 @@ const INTERNSHIP_OPTIONS = [
 export default function SettingsPage() {
   const { profile, updateProfile } = useUserProfile();
   const { currentUser } = useAuth();
+  const { theme, setTheme } = useTheme();
   const p = profile;
   const set = updateProfile;
 
@@ -391,7 +393,24 @@ export default function SettingsPage() {
             <CardHeader>
               <CardTitle className="ds-title-sm">Display</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium">Theme</p>
+                  <p className="text-xs text-muted-foreground">Choose between light, dark, or system preference.</p>
+                </div>
+                <Select value={theme} onValueChange={(v) => setTheme(v as "light" | "dark" | "system")}>
+                  <SelectTrigger className="w-[120px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="light">Light</SelectItem>
+                    <SelectItem value="dark">Dark</SelectItem>
+                    <SelectItem value="system">System</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <Separator />
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium">Language</p>
