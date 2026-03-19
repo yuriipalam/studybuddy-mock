@@ -927,11 +927,11 @@ export default function MessagesPage() {
                         <div className="flex-1 pb-6 pl-3 min-w-0 flex items-start gap-2">
                           {editingMilestoneId === m.id ? (
                             <form
-                              className="flex items-center gap-2 flex-1"
+                              className="flex flex-col gap-2 flex-1"
                               onSubmit={(e) => {
                                 e.preventDefault();
                                 if (editMilestoneText.trim()) {
-                                  dbEditMilestone(m.id, editMilestoneText.trim());
+                                  dbEditMilestone(m.id, editMilestoneText.trim().slice(0, 150), editMilestoneDesc.trim().slice(0, 300));
                                 }
                                 setEditingMilestoneId(null);
                               }}
@@ -939,21 +939,48 @@ export default function MessagesPage() {
                               <Input
                                 autoFocus
                                 value={editMilestoneText}
-                                onChange={(e) => setEditMilestoneText(e.target.value)}
-                                className="h-7 text-sm flex-1"
+                                onChange={(e) => setEditMilestoneText(e.target.value.slice(0, 150))}
+                                className="h-7 text-sm"
+                                placeholder="Milestone name (max 150 chars)"
+                                maxLength={150}
                                 onKeyDown={(e) => {
                                   if (e.key === "Escape") setEditingMilestoneId(null);
                                 }}
                               />
-                              <Button type="submit" size="sm" className="h-7 px-2">
-                                Save
-                              </Button>
+                              <textarea
+                                value={editMilestoneDesc}
+                                onChange={(e) => setEditMilestoneDesc(e.target.value.slice(0, 300))}
+                                className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-xs text-foreground resize-none focus:outline-none focus:ring-1 focus:ring-ring"
+                                placeholder="Description (max 300 chars)"
+                                maxLength={300}
+                                rows={2}
+                              />
+                              <div className="flex items-center gap-2">
+                                <Button type="submit" size="sm" className="h-7 px-2">Save</Button>
+                                <Button type="button" variant="ghost" size="sm" className="h-7 px-2" onClick={() => setEditingMilestoneId(null)}>Cancel</Button>
+                                <span className="text-[10px] text-muted-foreground ml-auto">{editMilestoneDesc.length}/300</span>
+                              </div>
                             </form>
                           ) : (
                             <>
-                              <p className={cn("text-sm flex-1", m.completed && "line-through text-muted-foreground")}>
-                                {m.text}
-                              </p>
+                              <div
+                                className="flex-1 min-w-0 cursor-pointer"
+                                onClick={() => !milestonesEditMode && setExpandedMilestoneId(expandedMilestoneId === m.id ? null : m.id)}
+                              >
+                                <p className={cn("text-sm", m.completed && "line-through text-muted-foreground")}>
+                                  {m.text}
+                                </p>
+                                {expandedMilestoneId === m.id && m.description && (
+                                  <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                                    {m.description}
+                                  </p>
+                                )}
+                                {!expandedMilestoneId && m.description && !milestonesEditMode && (
+                                  <p className="text-[10px] text-muted-foreground/60 mt-0.5 truncate">
+                                    {m.description}
+                                  </p>
+                                )}
+                              </div>
                               {milestonesEditMode && (
                                 <div className="flex items-center gap-1 shrink-0">
                                   <button
@@ -961,6 +988,7 @@ export default function MessagesPage() {
                                     onClick={() => {
                                       setEditingMilestoneId(m.id);
                                       setEditMilestoneText(m.text);
+                                      setEditMilestoneDesc(m.description);
                                     }}
                                   >
                                     <Pencil className="h-3 w-3 text-muted-foreground" />
