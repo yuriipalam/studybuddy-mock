@@ -1,10 +1,12 @@
 import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { fetchExperts, getCompany, getFieldNames, fields } from "@/data";
 import type { Expert } from "@/data/types";
 import { FilterBar } from "@/components/FilterBar";
 import { EntityCard } from "@/components/EntityCard";
 
 export default function ExpertsPage() {
+  const navigate = useNavigate();
   const [expertList, setExperts] = useState<Expert[]>([]);
   const [search, setSearch] = useState("");
   const [fieldFilter, setFieldFilter] = useState("all");
@@ -50,6 +52,7 @@ export default function ExpertsPage() {
               avatar={`https://api.dicebear.com/7.x/avataaars/svg?seed=${expert.firstName}`}
               subtitle={`${company?.name ?? ""} · ${expert.title}`}
               tags={fieldNames}
+              onClick={() => navigate(`/people/experts/${expert.id}`)}
             />
           );
         })}
