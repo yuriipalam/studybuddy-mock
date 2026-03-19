@@ -66,6 +66,7 @@ export default function MessagesPage() {
     setActiveConversationId,
     messages,
     sendMessage,
+    sendMessageWithFiles,
     editMessage,
     deleteMessage,
     deleteConversation,
