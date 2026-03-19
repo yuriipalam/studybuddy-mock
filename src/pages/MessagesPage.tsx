@@ -978,10 +978,7 @@ export default function MessagesPage() {
                             onSubmit={(e) => {
                               e.preventDefault();
                               if (newMilestoneText.trim()) {
-                                setMilestones((prev) => [
-                                  ...prev,
-                                  { id: crypto.randomUUID(), text: newMilestoneText.trim(), completed: false },
-                                ]);
+                                dbAddMilestone(newMilestoneText.trim());
                                 setNewMilestoneText("");
                                 setAddingMilestone(false);
                               }
