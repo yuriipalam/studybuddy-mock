@@ -84,7 +84,7 @@ export default function MessagesPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editInput, setEditInput] = useState("");
   const [deleteConvId, setDeleteConvId] = useState<string | null>(null);
-  const [chatTab, setChatTab] = useState<"messages" | "files">("messages");
+  const [chatTab, setChatTab] = useState<"messages" | "files" | "milestones">("messages");
   const [convFiles, setConvFiles] = useState<ChatFile[]>([]);
   const [filesLoading, setFilesLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
