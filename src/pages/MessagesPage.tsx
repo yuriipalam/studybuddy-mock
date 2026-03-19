@@ -70,6 +70,7 @@ export default function MessagesPage() {
     setTyping,
     typingUsers,
     loading,
+    messagesLoading,
   } = useMessaging();
 
   const [search, setSearch] = useState("");
