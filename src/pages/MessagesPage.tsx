@@ -387,7 +387,7 @@ export default function MessagesPage() {
                     <p className="text-sm font-medium">{contact?.user_name || "Unknown"}</p>
                     {contact?.user_role === "supervisor" && (
                       <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 leading-none">
-                        Your Supervisor
+                        Supervisor
                       </Badge>
                     )}
                   </div>
