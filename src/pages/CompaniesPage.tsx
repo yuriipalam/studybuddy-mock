@@ -44,7 +44,7 @@ export default function CompaniesPage() {
           const expertCount = allExperts.filter((e) => e.companyId === company.id).length;
           const topicCount = allTopics.filter((t) => t.companyId === company.id).length;
           return (
-            <Card key={company.id} className="group overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
+            <Card key={company.id} className="group overflow-hidden hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate(`/organizations/companies/${company.id}`)}>
               <CardContent className="p-5 space-y-3">
                 <div className="flex items-center gap-3">
                   <Avatar className="h-12 w-12 rounded-lg">
