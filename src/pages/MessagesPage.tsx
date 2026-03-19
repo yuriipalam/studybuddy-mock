@@ -99,6 +99,12 @@ export default function MessagesPage() {
     getConversationFiles,
   } = useMessaging();
 
+  const allContactIds = conversations.map((c) => {
+    const ct = c.participants.find((p: any) => p.user_id !== currentUser?.id);
+    return ct?.user_id || "";
+  }).filter(Boolean);
+  const isOnline = useOnlineStatus(allContactIds);
+
   const [search, setSearch] = useState("");
   const [input, setInput] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
