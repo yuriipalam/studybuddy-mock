@@ -712,6 +712,55 @@ export default function MessagesPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      {/* File preview dialog */}
+      <AlertDialog open={!!previewFile} onOpenChange={(open) => !open && setPreviewFile(null)}>
+        <AlertDialogContent className="max-w-3xl max-h-[85vh] flex flex-col">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 truncate">
+              {previewFile && getFileIcon(previewFile.mime_type)}
+              <span className="truncate">{previewFile?.file_name}</span>
+            </AlertDialogTitle>
+          </AlertDialogHeader>
+          <div className="flex-1 overflow-auto min-h-0">
+            {previewFile?.mime_type.startsWith("image/") && (
+              <img
+                src={getFileUrl(previewFile.file_path)}
+                alt={previewFile.file_name}
+                className="w-full h-auto rounded-md"
+              />
+            )}
+            {previewFile?.mime_type === "application/pdf" && (
+              <iframe
+                src={getFileUrl(previewFile.file_path)}
+                className="w-full h-[60vh] rounded-md border border-border"
+                title={previewFile.file_name}
+              />
+            )}
+            {previewFile?.mime_type.startsWith("text/") && (
+              <iframe
+                src={getFileUrl(previewFile.file_path)}
+                className="w-full h-[60vh] rounded-md border border-border bg-background"
+                title={previewFile.file_name}
+              />
+            )}
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Close</AlertDialogCancel>
+            <AlertDialogAction asChild>
+              <a
+                href={getFileUrl(previewFile?.file_path || "")}
+                download={previewFile?.file_name}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5"
+              >
+                <Download className="h-4 w-4" />
+                Download
+              </a>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
