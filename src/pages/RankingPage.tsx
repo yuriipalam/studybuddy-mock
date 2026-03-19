@@ -93,6 +93,7 @@ const podiumConfig = [
 ];
 
 function Podium({ top3 }: { top3: RankedStudent[] }) {
+  const navigate = useNavigate();
   // Reorder: 2nd, 1st, 3rd
   const ordered = top3.length >= 3 ? [top3[1], top3[0], top3[2]] : top3;
 
