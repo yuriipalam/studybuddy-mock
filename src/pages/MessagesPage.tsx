@@ -90,15 +90,18 @@ export default function MessagesPage() {
   const [uploading, setUploading] = useState(false);
   const [previewFile, setPreviewFile] = useState<ChatFile | null>(null);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
-  const [milestones, setMilestones] = useState<{ id: string; text: string; completed: boolean }[]>([]);
+  const [milestones, setMilestones] = useState<{ id: string; text: string; description: string; completed: boolean }[]>([]);
   const [newMilestoneText, setNewMilestoneText] = useState("");
+  const [newMilestoneDesc, setNewMilestoneDesc] = useState("");
   const [addingMilestone, setAddingMilestone] = useState(false);
   const [milestonesEditMode, setMilestonesEditMode] = useState(false);
   const [editingMilestoneId, setEditingMilestoneId] = useState<string | null>(null);
   const [editMilestoneText, setEditMilestoneText] = useState("");
+  const [editMilestoneDesc, setEditMilestoneDesc] = useState("");
   const [milestonesLoading, setMilestonesLoading] = useState(false);
+  const [expandedMilestoneId, setExpandedMilestoneId] = useState<string | null>(null);
 
-  // Load milestones from DB when conversation changes
+  // Load milestones from DB when conversation changes; seed defaults if empty
   useEffect(() => {
     if (!activeConversationId) { setMilestones([]); return; }
     let cancelled = false;
@@ -109,8 +112,27 @@ export default function MessagesPage() {
         .select("*")
         .eq("conversation_id", activeConversationId)
         .order("position", { ascending: true });
-      if (!cancelled && data) {
-        setMilestones(data.map((r: any) => ({ id: r.id, text: r.text, completed: r.completed })));
+      if (cancelled) return;
+      if (data && data.length > 0) {
+        setMilestones(data.map((r: any) => ({ id: r.id, text: r.text, description: r.description || "", completed: r.completed })));
+      } else {
+        // Auto-seed with default milestones
+        const { getDefaultMilestones } = await import("@/data/topicMilestones");
+        const defaults = getDefaultMilestones(); // generic for now
+        const rows = defaults.map((m, i) => ({
+          conversation_id: activeConversationId,
+          text: m.text.slice(0, 150),
+          description: m.description.slice(0, 300),
+          position: i,
+          completed: false,
+        }));
+        const { data: inserted } = await supabase
+          .from("milestones")
+          .insert(rows)
+          .select();
+        if (!cancelled && inserted) {
+          setMilestones(inserted.map((r: any) => ({ id: r.id, text: r.text, description: r.description || "", completed: r.completed })));
+        }
       }
       setMilestonesLoading(false);
     };
@@ -118,15 +140,15 @@ export default function MessagesPage() {
     return () => { cancelled = true; };
   }, [activeConversationId]);
 
-  const dbAddMilestone = async (text: string) => {
+  const dbAddMilestone = async (text: string, description: string = "") => {
     if (!activeConversationId) return;
     const position = milestones.length;
     const { data } = await supabase
       .from("milestones")
-      .insert({ conversation_id: activeConversationId, text, position, completed: false })
+      .insert({ conversation_id: activeConversationId, text: text.slice(0, 150), description: description.slice(0, 300), position, completed: false })
       .select()
       .single();
-    if (data) setMilestones((prev) => [...prev, { id: data.id, text: data.text, completed: data.completed }]);
+    if (data) setMilestones((prev) => [...prev, { id: data.id, text: data.text, description: data.description || "", completed: data.completed }]);
   };
 
   const dbToggleMilestone = async (id: string, completed: boolean) => {
@@ -134,9 +156,9 @@ export default function MessagesPage() {
     await supabase.from("milestones").update({ completed }).eq("id", id);
   };
 
-  const dbEditMilestone = async (id: string, text: string) => {
-    setMilestones((prev) => prev.map((m) => (m.id === id ? { ...m, text } : m)));
-    await supabase.from("milestones").update({ text }).eq("id", id);
+  const dbEditMilestone = async (id: string, text: string, description: string) => {
+    setMilestones((prev) => prev.map((m) => (m.id === id ? { ...m, text, description } : m)));
+    await supabase.from("milestones").update({ text: text.slice(0, 150), description: description.slice(0, 300) }).eq("id", id);
   };
 
   const dbDeleteMilestone = async (id: string) => {
@@ -905,11 +927,11 @@ export default function MessagesPage() {
                         <div className="flex-1 pb-6 pl-3 min-w-0 flex items-start gap-2">
                           {editingMilestoneId === m.id ? (
                             <form
-                              className="flex items-center gap-2 flex-1"
+                              className="flex flex-col gap-2 flex-1"
                               onSubmit={(e) => {
                                 e.preventDefault();
                                 if (editMilestoneText.trim()) {
-                                  dbEditMilestone(m.id, editMilestoneText.trim());
+                                  dbEditMilestone(m.id, editMilestoneText.trim().slice(0, 150), editMilestoneDesc.trim().slice(0, 300));
                                 }
                                 setEditingMilestoneId(null);
                               }}
@@ -917,21 +939,48 @@ export default function MessagesPage() {
                               <Input
                                 autoFocus
                                 value={editMilestoneText}
-                                onChange={(e) => setEditMilestoneText(e.target.value)}
-                                className="h-7 text-sm flex-1"
+                                onChange={(e) => setEditMilestoneText(e.target.value.slice(0, 150))}
+                                className="h-7 text-sm"
+                                placeholder="Milestone name (max 150 chars)"
+                                maxLength={150}
                                 onKeyDown={(e) => {
                                   if (e.key === "Escape") setEditingMilestoneId(null);
                                 }}
                               />
-                              <Button type="submit" size="sm" className="h-7 px-2">
-                                Save
-                              </Button>
+                              <textarea
+                                value={editMilestoneDesc}
+                                onChange={(e) => setEditMilestoneDesc(e.target.value.slice(0, 300))}
+                                className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-xs text-foreground resize-none focus:outline-none focus:ring-1 focus:ring-ring"
+                                placeholder="Description (max 300 chars)"
+                                maxLength={300}
+                                rows={2}
+                              />
+                              <div className="flex items-center gap-2">
+                                <Button type="submit" size="sm" className="h-7 px-2">Save</Button>
+                                <Button type="button" variant="ghost" size="sm" className="h-7 px-2" onClick={() => setEditingMilestoneId(null)}>Cancel</Button>
+                                <span className="text-[10px] text-muted-foreground ml-auto">{editMilestoneDesc.length}/300</span>
+                              </div>
                             </form>
                           ) : (
                             <>
-                              <p className={cn("text-sm flex-1", m.completed && "line-through text-muted-foreground")}>
-                                {m.text}
-                              </p>
+                              <div
+                                className="flex-1 min-w-0 cursor-pointer"
+                                onClick={() => !milestonesEditMode && setExpandedMilestoneId(expandedMilestoneId === m.id ? null : m.id)}
+                              >
+                                <p className={cn("text-sm", m.completed && "line-through text-muted-foreground")}>
+                                  {m.text}
+                                </p>
+                                {expandedMilestoneId === m.id && m.description && (
+                                  <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                                    {m.description}
+                                  </p>
+                                )}
+                                {!expandedMilestoneId && m.description && !milestonesEditMode && (
+                                  <p className="text-[10px] text-muted-foreground/60 mt-0.5 truncate">
+                                    {m.description}
+                                  </p>
+                                )}
+                              </div>
                               {milestonesEditMode && (
                                 <div className="flex items-center gap-1 shrink-0">
                                   <button
@@ -939,6 +988,7 @@ export default function MessagesPage() {
                                     onClick={() => {
                                       setEditingMilestoneId(m.id);
                                       setEditMilestoneText(m.text);
+                                      setEditMilestoneDesc(m.description);
                                     }}
                                   >
                                     <Pencil className="h-3 w-3 text-muted-foreground" />
@@ -974,12 +1024,13 @@ export default function MessagesPage() {
                       <div className="flex-1 pl-3 min-w-0">
                         {addingMilestone ? (
                           <form
-                            className="flex items-center gap-2"
+                            className="flex flex-col gap-2"
                             onSubmit={(e) => {
                               e.preventDefault();
                               if (newMilestoneText.trim()) {
-                                dbAddMilestone(newMilestoneText.trim());
+                                dbAddMilestone(newMilestoneText.trim(), newMilestoneDesc.trim());
                                 setNewMilestoneText("");
+                                setNewMilestoneDesc("");
                                 setAddingMilestone(false);
                               }
                             }}
@@ -987,19 +1038,35 @@ export default function MessagesPage() {
                             <Input
                               autoFocus
                               value={newMilestoneText}
-                              onChange={(e) => setNewMilestoneText(e.target.value)}
-                              placeholder="New milestone..."
+                              onChange={(e) => setNewMilestoneText(e.target.value.slice(0, 150))}
+                              placeholder="Milestone name (max 150 chars)"
+                              maxLength={150}
                               className="h-7 text-sm"
                               onKeyDown={(e) => {
                                 if (e.key === "Escape") {
                                   setAddingMilestone(false);
                                   setNewMilestoneText("");
+                                  setNewMilestoneDesc("");
                                 }
                               }}
                             />
-                            <Button type="submit" size="sm" className="h-7 px-2" disabled={!newMilestoneText.trim()}>
-                              Add
-                            </Button>
+                            <textarea
+                              value={newMilestoneDesc}
+                              onChange={(e) => setNewMilestoneDesc(e.target.value.slice(0, 300))}
+                              className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-xs text-foreground resize-none focus:outline-none focus:ring-1 focus:ring-ring"
+                              placeholder="Description (optional, max 300 chars)"
+                              maxLength={300}
+                              rows={2}
+                            />
+                            <div className="flex items-center gap-2">
+                              <Button type="submit" size="sm" className="h-7 px-2" disabled={!newMilestoneText.trim()}>
+                                Add
+                              </Button>
+                              <Button type="button" variant="ghost" size="sm" className="h-7 px-2" onClick={() => { setAddingMilestone(false); setNewMilestoneText(""); setNewMilestoneDesc(""); }}>
+                                Cancel
+                              </Button>
+                              <span className="text-[10px] text-muted-foreground ml-auto">{newMilestoneDesc.length}/300</span>
+                            </div>
                           </form>
                         ) : (
                           <button
