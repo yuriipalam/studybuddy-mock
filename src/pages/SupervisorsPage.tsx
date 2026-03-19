@@ -52,6 +52,7 @@ export default function SupervisorsPage() {
               subtitle={uni?.name ?? ""}
               secondaryText={supervisor.researchInterests.slice(0, 3).join(", ")}
               tags={fieldNames}
+              onClick={() => navigate(`/people/supervisors/${supervisor.id}`)}
             />
           );
         })}
