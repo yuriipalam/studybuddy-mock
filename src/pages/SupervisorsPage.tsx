@@ -6,6 +6,7 @@ import { FilterBar } from "@/components/FilterBar";
 import { EntityCard } from "@/components/EntityCard";
 
 export default function SupervisorsPage() {
+  const navigate = useNavigate();
   const [supervisorList, setSupervisors] = useState<Supervisor[]>([]);
   const [search, setSearch] = useState("");
   const [fieldFilter, setFieldFilter] = useState("all");
