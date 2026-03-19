@@ -827,7 +827,7 @@ export default function MessagesPage() {
                                         if (chatFiles.length > 0) {
                                           return (
                                             <div className="space-y-1.5">
-                                              <div className="flex flex-wrap gap-1.5 -mx-1 -my-0.5">
+                                              <div className="flex flex-wrap gap-1.5">
                                                 {chatFiles.map((chatFile) => {
                                                   const isImage = chatFile.mime_type.startsWith("image/");
                                                   return (
