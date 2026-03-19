@@ -104,7 +104,7 @@ function Podium({ top3 }: { top3: RankedStudent[] }) {
           const config = podiumConfig[i];
           const isFirst = i === 1;
           return (
-            <div key={user.studentId} className={cn("flex flex-col items-center gap-2", isFirst ? "-mt-4" : "mt-4")}>
+            <div key={user.studentId} onClick={() => navigate(`/people/students/${user.studentId}`)} className={cn("flex flex-col items-center gap-2 cursor-pointer", isFirst ? "-mt-4" : "mt-4")}>
               <div className="relative">
                 {isFirst && <Crown className={cn("h-6 w-6 absolute -top-5 left-1/2 -translate-x-1/2", config.iconColor)} />}
                 {!isFirst && <Medal className={cn("h-5 w-5 absolute -top-4 left-1/2 -translate-x-1/2", config.iconColor)} />}
