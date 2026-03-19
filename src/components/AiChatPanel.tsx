@@ -412,20 +412,32 @@ export function AiChatPanel({
                   <div className="space-y-1.5">
                     <div className="text-sm leading-relaxed">
                       {(() => {
-                        const segments = parseTopicBlocks(msg.content);
-                        return segments.map((seg, si) =>
-                          seg.type === "text" ? (
+                        const segments = parseChatBlocks(msg.content);
+                        return segments.map((seg, si) => {
+                          if (seg.type === "topics") {
+                            return (
+                              <div key={si} className="flex flex-col gap-2 my-3">
+                                {seg.topics.map((topic) => (
+                                  <ChatTopicCard key={topic.id} topic={topic} />
+                                ))}
+                              </div>
+                            );
+                          }
+                          if (seg.type === "supervisors") {
+                            return (
+                              <div key={si} className="flex flex-col gap-2 my-3">
+                                {seg.supervisors.map((sup) => (
+                                  <ChatSupervisorCard key={sup.id} supervisor={sup} />
+                                ))}
+                              </div>
+                            );
+                          }
+                          return (
                             <div key={si} className="prose prose-sm dark:prose-invert max-w-none prose-p:my-1.5 prose-headings:my-2 prose-ul:my-1.5 prose-ol:my-1.5 prose-li:my-0.5 prose-pre:my-2 prose-blockquote:my-2 [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
                               <ReactMarkdown>{seg.content}</ReactMarkdown>
                             </div>
-                          ) : (
-                            <div key={si} className="flex flex-col gap-2 my-3">
-                              {seg.topics.map((topic) => (
-                                <ChatTopicCard key={topic.id} topic={topic} />
-                              ))}
-                            </div>
-                          )
-                        );
+                          );
+                        });
                       })()}
                     </div>
                     {(!isLoading || i !== messages.length - 1) && (
