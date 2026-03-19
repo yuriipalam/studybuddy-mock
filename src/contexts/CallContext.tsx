@@ -450,8 +450,11 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
   const toggleCamera = useCallback(() => {
     const videoTrack = localStreamRef.current?.getVideoTracks()[0];
     if (videoTrack) {
-      videoTrack.enabled = !videoTrack.enabled;
-      setIsCameraOff(!videoTrack.enabled);
+      const newEnabled = !videoTrack.enabled;
+      videoTrack.enabled = newEnabled;
+      setIsCameraOff(!newEnabled);
+      // When enabling video in a voice call, switch to video mode
+      if (newEnabled) setIsVideo(true);
     }
   }, []);
 
