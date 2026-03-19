@@ -830,6 +830,7 @@ export default function MessagesPage() {
                                       (() => {
                                         const chatFiles = findFilesForMessage(msg.content, msg.id);
                                         const accompanyingText = getFileMessageText(msg.content);
+                                        const isTemp = msg.id.startsWith("temp-");
                                         if (chatFiles.length > 0) {
                                           return (
                                             <div className="space-y-1.5">
@@ -840,26 +841,19 @@ export default function MessagesPage() {
                                                     <div
                                                       key={chatFile.id}
                                                       className={cn(
-                                                        "rounded-lg overflow-hidden cursor-pointer border border-border",
-                                                        isImage ? "w-20 h-20" : "w-44"
+                                                        "rounded-lg overflow-hidden cursor-pointer w-20 h-20"
                                                       )}
                                                       onClick={(e) => { e.stopPropagation(); handleFileClick(chatFile); }}
                                                     >
                                                       {isImage ? (
                                                         <img src={getFileUrl(chatFile.file_path)} alt={chatFile.file_name} className="w-full h-full object-cover" />
                                                       ) : (
-                                                        <>
-                                                          <div className="aspect-square bg-muted/50 flex flex-col items-center justify-center gap-2">
-                                                            {getFileIcon(chatFile.mime_type, "lg")}
-                                                            <span className="text-xs text-muted-foreground uppercase font-medium">
-                                                              {chatFile.file_name.split(".").pop()}
-                                                            </span>
-                                                          </div>
-                                                          <div className="p-2 min-w-0">
-                                                            <p className={cn("text-xs font-medium truncate", isMe ? "text-primary-foreground" : "text-foreground")}>{chatFile.file_name}</p>
-                                                            <p className={cn("text-[10px]", isMe ? "text-primary-foreground/60" : "text-muted-foreground")}>{formatFileSize(chatFile.file_size)}</p>
-                                                          </div>
-                                                        </>
+                                                        <div className="w-full h-full bg-muted/50 flex flex-col items-center justify-center gap-1 p-1">
+                                                          {getFileIcon(chatFile.mime_type, "lg")}
+                                                          <span className="text-[9px] text-muted-foreground uppercase font-medium truncate w-full text-center">
+                                                            {chatFile.file_name.split(".").pop()}
+                                                          </span>
+                                                        </div>
                                                       )}
                                                     </div>
                                                   );
@@ -871,16 +865,22 @@ export default function MessagesPage() {
                                             </div>
                                           );
                                         }
-                                        // Fallback: files not yet loaded
+                                        // Fallback: files not yet loaded (optimistic / uploading)
                                         const fileNames = msg.content.split("\n").filter((l) => l.startsWith("📎")).map((l) => l.slice(2).trim());
                                         return (
-                                          <div className="space-y-1">
-                                            {fileNames.map((name, j) => (
-                                              <div key={j} className="flex items-center gap-1.5">
-                                                <Paperclip className="h-3.5 w-3.5 shrink-0" />
-                                                <span>{name}</span>
-                                              </div>
-                                            ))}
+                                          <div className="space-y-1.5">
+                                            <div className="flex flex-wrap gap-1.5">
+                                              {fileNames.map((name, j) => (
+                                                <div key={j} className="w-20 h-20 rounded-lg bg-muted/50 flex flex-col items-center justify-center gap-1 p-1">
+                                                  {isTemp ? (
+                                                    <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                                                  ) : (
+                                                    <Paperclip className="h-5 w-5 text-muted-foreground" />
+                                                  )}
+                                                  <span className="text-[9px] text-muted-foreground truncate w-full text-center">{name}</span>
+                                                </div>
+                                              ))}
+                                            </div>
                                             {accompanyingText && (
                                               <span className="whitespace-pre-wrap [overflow-wrap:anywhere]">{accompanyingText}</span>
                                             )}
