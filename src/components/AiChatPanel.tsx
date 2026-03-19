@@ -511,7 +511,7 @@ export function AiChatPanel({
             type="button"
             variant="ghost"
             size="icon"
-            className="absolute left-2 top-2 h-7 w-7 text-muted-foreground hover:text-foreground"
+            className="absolute left-2 top-1 h-7 w-7 text-muted-foreground hover:text-foreground"
             onClick={() => fileInputRef.current?.click()}
             disabled={isLoading}
           >
