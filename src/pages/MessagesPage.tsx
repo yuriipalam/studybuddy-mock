@@ -512,11 +512,6 @@ export default function MessagesPage() {
                           )}
                         </div>
                         <div className="flex items-center gap-1.5 shrink-0">
-                          {conv.lastMessage && (
-                            <span className="text-xs text-muted-foreground whitespace-nowrap">
-                              {formatTime(conv.lastMessage.created_at)}
-                            </span>
-                          )}
                           <button
                             className="opacity-0 group-hover/conv:opacity-100 transition-opacity p-0.5 rounded hover:bg-muted"
                             onClick={(e) => {
@@ -543,18 +538,27 @@ export default function MessagesPage() {
                         </div>
                       </div>
                       <div className="flex items-center justify-between">
-                        {convTyping.length > 0 ? (
-                          <span className="text-xs text-primary italic">typing...</span>
-                        ) : (
-                          <p className="text-xs text-muted-foreground truncate max-w-[180px]">
-                            {conv.lastMessage?.content || "No messages yet"}
-                          </p>
-                        )}
-                        {conv.unreadCount > 0 && (
-                          <Badge className="h-5 min-w-[20px] rounded-full text-[10px] px-1.5">
-                            {conv.unreadCount}
-                          </Badge>
-                        )}
+                        <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                          {convTyping.length > 0 ? (
+                            <span className="text-xs text-primary italic">typing...</span>
+                          ) : (
+                            <p className="text-xs text-muted-foreground truncate max-w-[180px]">
+                              {conv.lastMessage?.content || "No messages yet"}
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          {conv.lastMessage && (
+                            <span className="text-xs text-muted-foreground whitespace-nowrap">
+                              {formatTime(conv.lastMessage.created_at)}
+                            </span>
+                          )}
+                          {conv.unreadCount > 0 && (
+                            <Badge className="h-5 min-w-[20px] rounded-full text-[10px] px-1.5">
+                              {conv.unreadCount}
+                            </Badge>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
