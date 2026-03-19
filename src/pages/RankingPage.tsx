@@ -220,7 +220,7 @@ const RankingPage = () => {
   const [activeTab, setActiveTab] = useState<RankingTab>("my-status");
   const { data: xpRows, isLoading } = useStudentXp();
 
-  const currentStudentId = "student-02"; // Sarah Brunner (mock logged-in student)
+  const currentStudentId = currentUser?.id ?? "";
   const currentUniId = "uni-01";
 
   const globalRanked = useMemo(() => buildRankedList(xpRows ?? []), [xpRows]);
