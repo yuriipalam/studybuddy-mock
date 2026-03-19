@@ -1,10 +1,12 @@
 import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { fetchSupervisors, getUniversity, getFieldNames, fields } from "@/data";
 import type { Supervisor } from "@/data/types";
 import { FilterBar } from "@/components/FilterBar";
 import { EntityCard } from "@/components/EntityCard";
 
 export default function SupervisorsPage() {
+  const navigate = useNavigate();
   const [supervisorList, setSupervisors] = useState<Supervisor[]>([]);
   const [search, setSearch] = useState("");
   const [fieldFilter, setFieldFilter] = useState("all");
@@ -50,6 +52,7 @@ export default function SupervisorsPage() {
               subtitle={uni?.name ?? ""}
               secondaryText={supervisor.researchInterests.slice(0, 3).join(", ")}
               tags={fieldNames}
+              onClick={() => navigate(`/people/supervisors/${supervisor.id}`)}
             />
           );
         })}
