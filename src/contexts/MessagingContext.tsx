@@ -583,6 +583,24 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
     async (conversationId: string, file: File) => {
       if (!userId) return;
 
+      // Optimistic: add temp message immediately
+      const tempId = `temp-${crypto.randomUUID()}`;
+      const tempMsg: DbMessage = {
+        id: tempId,
+        conversation_id: conversationId,
+        sender_id: userId,
+        content: `📎 ${file.name}`,
+        created_at: new Date().toISOString(),
+        read_at: null,
+        edited_at: null,
+      };
+      setMessages((prev) => [...prev, tempMsg]);
+      setConversations((prev) =>
+        prev.map((c) =>
+          c.id === conversationId ? { ...c, lastMessage: tempMsg } : c
+        )
+      );
+
       const filePath = `${conversationId}/${crypto.randomUUID()}-${file.name}`;
 
       const { error: uploadError } = await supabase.storage
@@ -590,12 +608,13 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
         .upload(filePath, file);
 
       if (uploadError) {
+        setMessages((prev) => prev.filter((m) => m.id !== tempId));
         toast.error("Failed to upload file");
         return;
       }
 
       // Send a message referencing the file
-      const { data: msgData } = await supabase
+      const { data: msgData, error: msgError } = await supabase
         .from("messages")
         .insert({
           conversation_id: conversationId,
@@ -604,6 +623,19 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
         })
         .select()
         .single();
+
+      if (msgError) {
+        setMessages((prev) => prev.filter((m) => m.id !== tempId));
+        toast.error("Failed to send file message");
+        return;
+      }
+
+      // Replace temp message with real one
+      if (msgData) {
+        setMessages((prev) =>
+          prev.map((m) => (m.id === tempId ? (msgData as DbMessage) : m))
+        );
+      }
 
       // Track in chat_files table
       await supabase.from("chat_files").insert({
