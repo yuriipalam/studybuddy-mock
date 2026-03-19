@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      call_history: {
+        Row: {
+          call_type: string
+          caller_id: string
+          caller_name: string
+          conversation_id: string
+          created_at: string
+          duration: number
+          ended_at: string | null
+          id: string
+          receiver_id: string
+          receiver_name: string
+          started_at: string
+          status: string
+        }
+        Insert: {
+          call_type?: string
+          caller_id: string
+          caller_name?: string
+          conversation_id: string
+          created_at?: string
+          duration?: number
+          ended_at?: string | null
+          id?: string
+          receiver_id: string
+          receiver_name?: string
+          started_at?: string
+          status?: string
+        }
+        Update: {
+          call_type?: string
+          caller_id?: string
+          caller_name?: string
+          conversation_id?: string
+          created_at?: string
+          duration?: number
+          ended_at?: string | null
+          id?: string
+          receiver_id?: string
+          receiver_name?: string
+          started_at?: string
+          status?: string
+        }
+        Relationships: []
+      }
       chat_files: {
         Row: {
           conversation_id: string
