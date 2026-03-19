@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { mockUser } from "@/data/mockUser";
+import { useAuth } from "@/contexts/AuthContext";
 import { Sparkles, Users, BookOpen, FileText, Video, Bookmark } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
