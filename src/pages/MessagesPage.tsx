@@ -993,7 +993,7 @@ export default function MessagesPage() {
                       setEditingMilestoneId(null);
                     }}
                   >
-                    <Pencil className="h-3 w-3" />
+                    {milestonesEditMode ? <Check className="h-3 w-3" /> : <Pencil className="h-3 w-3" />}
                     {milestonesEditMode ? "Done" : "Edit"}
                   </Button>
                 </div>
