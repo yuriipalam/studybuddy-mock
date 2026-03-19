@@ -15,9 +15,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { MessageSquare, Send, Check, CheckCheck, Pencil, X, Trash2 } from "lucide-react";
-import { useMessaging } from "@/contexts/MessagingContext";
+import { MessageSquare, Send, Check, CheckCheck, Pencil, X, Trash2, Paperclip, FileText, Image as ImageIcon, File as FileIcon, Download } from "lucide-react";
+import { useMessaging, ChatFile } from "@/contexts/MessagingContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
 function formatTime(dateStr: string) {
@@ -71,6 +72,8 @@ export default function MessagesPage() {
     typingUsers,
     loading,
     messagesLoading,
+    uploadFile,
+    getConversationFiles,
   } = useMessaging();
 
   const [search, setSearch] = useState("");
@@ -78,7 +81,12 @@ export default function MessagesPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editInput, setEditInput] = useState("");
   const [deleteConvId, setDeleteConvId] = useState<string | null>(null);
+  const [chatTab, setChatTab] = useState<"messages" | "files">("messages");
+  const [convFiles, setConvFiles] = useState<ChatFile[]>([]);
+  const [filesLoading, setFilesLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
   const userId = currentUser?.id;
@@ -125,6 +133,68 @@ export default function MessagesPage() {
     setInput("");
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     await sendMessage(activeConversationId, content);
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || !activeConversationId) return;
+    setUploading(true);
+    for (const file of Array.from(files)) {
+      await uploadFile(activeConversationId, file);
+    }
+    setUploading(false);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    // Refresh files if on files tab
+    if (chatTab === "files") loadFiles();
+  };
+
+  const loadFiles = useCallback(async () => {
+    if (!activeConversationId) return;
+    setFilesLoading(true);
+    const files = await getConversationFiles(activeConversationId);
+    setConvFiles(files);
+    setFilesLoading(false);
+  }, [activeConversationId, getConversationFiles]);
+
+  useEffect(() => {
+    if (chatTab === "files" && activeConversationId) {
+      loadFiles();
+    }
+  }, [chatTab, activeConversationId, loadFiles]);
+
+  // Reset tab when switching conversations
+  useEffect(() => {
+    setChatTab("messages");
+  }, [activeConversationId]);
+
+  const getFileUrl = (filePath: string) => {
+    const { data } = supabase.storage.from("chat-files").getPublicUrl(filePath);
+    return data.publicUrl;
+  };
+
+  const getFileIcon = (mimeType: string) => {
+    if (mimeType.startsWith("image/")) return <ImageIcon className="h-4 w-4 text-primary" />;
+    if (mimeType.includes("pdf")) return <FileText className="h-4 w-4 text-destructive" />;
+    return <FileIcon className="h-4 w-4 text-muted-foreground" />;
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
+
+  // Group files by date
+  const groupedFiles: { date: string; files: ChatFile[] }[] = [];
+  let currentFileDate = "";
+  for (const f of convFiles) {
+    const d = formatDate(f.created_at);
+    if (d !== currentFileDate) {
+      currentFileDate = d;
+      groupedFiles.push({ date: d, files: [f] });
+    } else {
+      groupedFiles[groupedFiles.length - 1].files.push(f);
+    }
   };
 
   const activeTyping = activeConversationId
@@ -272,205 +342,311 @@ export default function MessagesPage() {
         ) : (
           <>
             {/* Chat header */}
-            <div className="flex items-center gap-3 px-4 py-3 border-b border-border">
-              <Avatar className="h-9 w-9">
-                {contact?.user_avatar ? (
-                  <AvatarImage src={contact.user_avatar} />
-                ) : null}
-                <AvatarFallback className="text-xs font-semibold">
-                  {contactInitials}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <div className="flex items-center gap-2">
-                  <p className="text-sm font-medium">{contact?.user_name || "Unknown"}</p>
-                  {contact?.user_role === "supervisor" && (
-                    <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 leading-none">
-                      Your Supervisor
-                    </Badge>
+            <div className="border-b border-border">
+              <div className="flex items-center gap-3 px-4 py-3">
+                <Avatar className="h-9 w-9">
+                  {contact?.user_avatar ? (
+                    <AvatarImage src={contact.user_avatar} />
+                  ) : null}
+                  <AvatarFallback className="text-xs font-semibold">
+                    {contactInitials}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-medium">{contact?.user_name || "Unknown"}</p>
+                    {contact?.user_role === "supervisor" && (
+                      <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 leading-none">
+                        Your Supervisor
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground capitalize">
+                    {contact?.user_role || ""}
+                  </p>
+                </div>
+              </div>
+              <div className="flex px-4 gap-4">
+                <button
+                  className={cn(
+                    "pb-2 text-sm font-medium border-b-2 transition-colors",
+                    chatTab === "messages"
+                      ? "border-primary text-foreground"
+                      : "border-transparent text-muted-foreground hover:text-foreground"
                   )}
-                </div>
-                <p className="text-xs text-muted-foreground capitalize">
-                  {contact?.user_role || ""}
-                </p>
+                  onClick={() => setChatTab("messages")}
+                >
+                  Messages
+                </button>
+                <button
+                  className={cn(
+                    "pb-2 text-sm font-medium border-b-2 transition-colors",
+                    chatTab === "files"
+                      ? "border-primary text-foreground"
+                      : "border-transparent text-muted-foreground hover:text-foreground"
+                  )}
+                  onClick={() => setChatTab("files")}
+                >
+                  Files
+                </button>
               </div>
             </div>
 
-            {/* Messages */}
-            <ScrollArea className="flex-1 px-4 py-3">
-              {messagesLoading ? (
-                <div className="flex items-center justify-center h-full py-16">
-                  <div className="flex flex-col items-center gap-2">
-                    <div className="h-6 w-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                    <span className="text-sm text-muted-foreground">Loading messages...</span>
-                  </div>
-                </div>
-              ) : (
-              <div className="space-y-1 max-w-2xl mx-auto">
-                {groupedMessages.map((group) => (
-                  <div key={group.date}>
-                    <div className="flex items-center justify-center my-4">
-                      <span className="text-[10px] text-muted-foreground bg-muted px-3 py-0.5 rounded-full">
-                        {group.date}
-                      </span>
+            {chatTab === "messages" ? (
+              <>
+                {/* Messages */}
+                <ScrollArea className="flex-1 px-4 py-3">
+                  {messagesLoading ? (
+                    <div className="flex items-center justify-center h-full py-16">
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="h-6 w-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                        <span className="text-sm text-muted-foreground">Loading messages...</span>
+                      </div>
                     </div>
-                    <div className="space-y-1">
-                      {group.msgs.map((msg, i) => {
-                        const isMe = msg.sender_id === userId;
-                        const showAvatar =
-                          !isMe &&
-                          (i === 0 || group.msgs[i - 1].sender_id !== msg.sender_id);
+                  ) : (
+                  <div className="space-y-1 max-w-2xl mx-auto">
+                    {groupedMessages.map((group) => (
+                      <div key={group.date}>
+                        <div className="flex items-center justify-center my-4">
+                          <span className="text-[10px] text-muted-foreground bg-muted px-3 py-0.5 rounded-full">
+                            {group.date}
+                          </span>
+                        </div>
+                        <div className="space-y-1">
+                          {group.msgs.map((msg, i) => {
+                            const isMe = msg.sender_id === userId;
+                            const showAvatar =
+                              !isMe &&
+                              (i === 0 || group.msgs[i - 1].sender_id !== msg.sender_id);
 
-                        return (
-                          <div key={msg.id} className={cn("flex group", isMe ? "justify-end" : "justify-start")}>
-                            {!isMe && (
-                              <div className="w-7 mr-2 shrink-0">
-                                {showAvatar && (
-                                  <Avatar className="h-7 w-7">
-                                    {contact?.user_avatar ? <AvatarImage src={contact.user_avatar} /> : null}
-                                    <AvatarFallback className="text-[10px]">
-                                      {contactInitials}
-                                    </AvatarFallback>
-                                  </Avatar>
+                            // Check if message is a file attachment
+                            const isFileMsg = msg.content.startsWith("📎 ");
+
+                            return (
+                              <div key={msg.id} className={cn("flex group", isMe ? "justify-end" : "justify-start")}>
+                                {!isMe && (
+                                  <div className="w-7 mr-2 shrink-0">
+                                    {showAvatar && (
+                                      <Avatar className="h-7 w-7">
+                                        {contact?.user_avatar ? <AvatarImage src={contact.user_avatar} /> : null}
+                                        <AvatarFallback className="text-[10px]">
+                                          {contactInitials}
+                                        </AvatarFallback>
+                                      </Avatar>
+                                    )}
+                                  </div>
                                 )}
-                              </div>
-                            )}
-                            <div className={cn("flex items-center gap-1 max-w-[75%]", isMe && "flex-row-reverse")}>
-                              <div
-                                className={cn(
-                                  "rounded-2xl px-3.5 py-2 text-sm",
-                                  isMe
-                                    ? "bg-primary text-primary-foreground rounded-br-md"
-                                    : "bg-muted rounded-bl-md"
-                                )}
-                              >
-                                {editingId === msg.id ? (
-                                  <form
-                                    className="flex items-center gap-1.5"
-                                    onSubmit={(e) => {
-                                      e.preventDefault();
-                                      if (editInput.trim() && editInput.trim() !== msg.content) {
-                                        editMessage(msg.id, editInput.trim());
-                                      }
-                                      setEditingId(null);
-                                    }}
+                                <div className={cn("flex items-center gap-1 max-w-[75%]", isMe && "flex-row-reverse")}>
+                                  <div
+                                    className={cn(
+                                      "rounded-2xl px-3.5 py-2 text-sm",
+                                      isMe
+                                        ? "bg-primary text-primary-foreground rounded-br-md"
+                                        : "bg-muted rounded-bl-md"
+                                    )}
                                   >
-                                    <input
-                                      autoFocus
-                                      className="bg-transparent outline-none flex-1 min-w-0 text-sm"
-                                      value={editInput}
-                                      onChange={(e) => setEditInput(e.target.value)}
-                                      onKeyDown={(e) => {
-                                        if (e.key === "Escape") setEditingId(null);
-                                      }}
-                                    />
-                                    <Button type="submit" size="icon" variant="ghost" className="h-5 w-5 shrink-0">
-                                      <Check className="h-3 w-3" />
-                                    </Button>
-                                    <Button type="button" size="icon" variant="ghost" className="h-5 w-5 shrink-0" onClick={() => setEditingId(null)}>
-                                      <X className="h-3 w-3" />
-                                    </Button>
-                                  </form>
-                                ) : (
-                                  msg.content
-                                )}
-                                <div className={cn(
-                                  "flex items-center gap-1 mt-0.5",
-                                  isMe ? "justify-end" : "justify-start"
-                                )}>
-                                  {msg.edited_at && (
-                                    <span className={cn(
-                                      "text-[10px] italic",
-                                      isMe ? "text-primary-foreground/40" : "text-muted-foreground/60"
+                                    {editingId === msg.id ? (
+                                      <form
+                                        className="flex items-center gap-1.5"
+                                        onSubmit={(e) => {
+                                          e.preventDefault();
+                                          if (editInput.trim() && editInput.trim() !== msg.content) {
+                                            editMessage(msg.id, editInput.trim());
+                                          }
+                                          setEditingId(null);
+                                        }}
+                                      >
+                                        <input
+                                          autoFocus
+                                          className="bg-transparent outline-none flex-1 min-w-0 text-sm"
+                                          value={editInput}
+                                          onChange={(e) => setEditInput(e.target.value)}
+                                          onKeyDown={(e) => {
+                                            if (e.key === "Escape") setEditingId(null);
+                                          }}
+                                        />
+                                        <Button type="submit" size="icon" variant="ghost" className="h-5 w-5 shrink-0">
+                                          <Check className="h-3 w-3" />
+                                        </Button>
+                                        <Button type="button" size="icon" variant="ghost" className="h-5 w-5 shrink-0" onClick={() => setEditingId(null)}>
+                                          <X className="h-3 w-3" />
+                                        </Button>
+                                      </form>
+                                    ) : isFileMsg ? (
+                                      <div className="flex items-center gap-1.5">
+                                        <Paperclip className="h-3.5 w-3.5 shrink-0" />
+                                        <span>{msg.content.slice(2)}</span>
+                                      </div>
+                                    ) : (
+                                      msg.content
+                                    )}
+                                    <div className={cn(
+                                      "flex items-center gap-1 mt-0.5",
+                                      isMe ? "justify-end" : "justify-start"
                                     )}>
-                                      edited
-                                    </span>
+                                      {msg.edited_at && (
+                                        <span className={cn(
+                                          "text-[10px] italic",
+                                          isMe ? "text-primary-foreground/40" : "text-muted-foreground/60"
+                                        )}>
+                                          edited
+                                        </span>
+                                      )}
+                                      <span className={cn(
+                                        "text-[10px] whitespace-nowrap",
+                                        isMe ? "text-primary-foreground/60" : "text-muted-foreground"
+                                      )}>
+                                        {formatTime(msg.created_at)}
+                                      </span>
+                                      <ReadReceipt isMe={isMe} readAt={msg.read_at} />
+                                    </div>
+                                  </div>
+                                  {/* Edit/delete buttons - only for own messages */}
+                                  {isMe && !msg.id.startsWith("temp-") && editingId !== msg.id && (
+                                    <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5">
+                                      <button
+                                        className="p-1 rounded hover:bg-muted"
+                                        onClick={() => {
+                                          setEditingId(msg.id);
+                                          setEditInput(msg.content);
+                                        }}
+                                      >
+                                        <Pencil className="h-3 w-3 text-muted-foreground" />
+                                      </button>
+                                      <button
+                                        className="p-1 rounded hover:bg-destructive/10"
+                                        onClick={() => deleteMessage(msg.id)}
+                                      >
+                                        <Trash2 className="h-3 w-3 text-destructive" />
+                                      </button>
+                                    </div>
                                   )}
-                                  <span className={cn(
-                                    "text-[10px] whitespace-nowrap",
-                                    isMe ? "text-primary-foreground/60" : "text-muted-foreground"
-                                  )}>
-                                    {formatTime(msg.created_at)}
-                                  </span>
-                                  <ReadReceipt isMe={isMe} readAt={msg.read_at} />
                                 </div>
                               </div>
-                              {/* Edit/delete buttons - only for own messages */}
-                              {isMe && !msg.id.startsWith("temp-") && editingId !== msg.id && (
-                                <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5">
-                                  <button
-                                    className="p-1 rounded hover:bg-muted"
-                                    onClick={() => {
-                                      setEditingId(msg.id);
-                                      setEditInput(msg.content);
-                                    }}
-                                  >
-                                    <Pencil className="h-3 w-3 text-muted-foreground" />
-                                  </button>
-                                  <button
-                                    className="p-1 rounded hover:bg-destructive/10"
-                                    onClick={() => deleteMessage(msg.id)}
-                                  >
-                                    <Trash2 className="h-3 w-3 text-destructive" />
-                                  </button>
-                                </div>
-                              )}
-                            </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))}
+
+                    {/* Typing indicator */}
+                    {activeTyping.length > 0 && (() => {
+                      const lastMsg = messages[messages.length - 1];
+                      const showAvatar = !lastMsg || lastMsg.sender_id === userId;
+                      return (
+                        <div className="flex items-center gap-2 pt-1">
+                          <div className="w-7 mr-2 shrink-0">
+                            {showAvatar && (
+                              <Avatar className="h-7 w-7">
+                                {contact?.user_avatar ? <AvatarImage src={contact.user_avatar} /> : null}
+                                <AvatarFallback className="text-[10px]">
+                                  {contactInitials}
+                                </AvatarFallback>
+                              </Avatar>
+                            )}
                           </div>
-                        );
-                      })}
+                          <div className="bg-muted rounded-2xl rounded-bl-md px-4 py-2.5">
+                            <TypingIndicator />
+                          </div>
+                        </div>
+                      );
+                    })()}
+
+                    <div ref={bottomRef} />
+                  </div>
+                  )}
+                </ScrollArea>
+
+                {/* Input */}
+                <div className="border-t border-border p-3">
+                  <form
+                    className="flex items-center gap-2 max-w-2xl mx-auto"
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      handleSend();
+                    }}
+                  >
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      multiple
+                      className="hidden"
+                      onChange={handleFileUpload}
+                    />
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="ghost"
+                      disabled={uploading}
+                      onClick={() => fileInputRef.current?.click()}
+                      className="shrink-0"
+                    >
+                      <Paperclip className={cn("h-4 w-4", uploading && "animate-pulse")} />
+                    </Button>
+                    <Input
+                      value={input}
+                      onChange={(e) => handleInputChange(e.target.value)}
+                      placeholder="Type a message..."
+                      className="flex-1"
+                    />
+                    <Button type="submit" size="icon" disabled={!input.trim()}>
+                      <Send className="h-4 w-4" />
+                    </Button>
+                  </form>
+                </div>
+              </>
+            ) : (
+              /* Files tab */
+              <ScrollArea className="flex-1 px-4 py-3">
+                {filesLoading ? (
+                  <div className="flex items-center justify-center py-16">
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="h-6 w-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                      <span className="text-sm text-muted-foreground">Loading files...</span>
                     </div>
                   </div>
-                ))}
-
-                {/* Typing indicator */}
-                {activeTyping.length > 0 && (() => {
-                  const lastMsg = messages[messages.length - 1];
-                  const showAvatar = !lastMsg || lastMsg.sender_id === userId;
-                  return (
-                    <div className="flex items-center gap-2 pt-1">
-                      <div className="w-7 mr-2 shrink-0">
-                        {showAvatar && (
-                          <Avatar className="h-7 w-7">
-                            {contact?.user_avatar ? <AvatarImage src={contact.user_avatar} /> : null}
-                            <AvatarFallback className="text-[10px]">
-                              {contactInitials}
-                            </AvatarFallback>
-                          </Avatar>
-                        )}
+                ) : convFiles.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-16 text-center">
+                    <FileIcon className="h-10 w-10 text-muted-foreground mb-3" />
+                    <p className="text-sm text-muted-foreground">No files shared in this conversation yet.</p>
+                  </div>
+                ) : (
+                  <div className="max-w-2xl mx-auto space-y-4">
+                    {groupedFiles.map((group) => (
+                      <div key={group.date}>
+                        <div className="flex items-center justify-center my-3">
+                          <span className="text-[10px] text-muted-foreground bg-muted px-3 py-0.5 rounded-full">
+                            {group.date}
+                          </span>
+                        </div>
+                        <div className="space-y-2">
+                          {group.files.map((f) => (
+                            <a
+                              key={f.id}
+                              href={getFileUrl(f.file_path)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors group"
+                            >
+                              <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                                {getFileIcon(f.mime_type)}
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <p className="text-sm font-medium truncate">{f.file_name}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  {formatFileSize(f.file_size)} · {formatTime(f.created_at)}
+                                </p>
+                              </div>
+                              <Download className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                            </a>
+                          ))}
+                        </div>
                       </div>
-                      <div className="bg-muted rounded-2xl rounded-bl-md px-4 py-2.5">
-                        <TypingIndicator />
-                      </div>
-                    </div>
-                  );
-                })()}
-
-                <div ref={bottomRef} />
-              </div>
-              )}
-            </ScrollArea>
-
-            {/* Input */}
-            <div className="border-t border-border p-3">
-              <form
-                className="flex items-center gap-2 max-w-2xl mx-auto"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  handleSend();
-                }}
-              >
-                <Input
-                  value={input}
-                  onChange={(e) => handleInputChange(e.target.value)}
-                  placeholder="Type a message..."
-                  className="flex-1"
-                />
-                <Button type="submit" size="icon" disabled={!input.trim()}>
-                  <Send className="h-4 w-4" />
-                </Button>
-              </form>
-            </div>
+                    ))}
+                  </div>
+                )}
+              </ScrollArea>
+            )}
           </>
         )}
       </div>
