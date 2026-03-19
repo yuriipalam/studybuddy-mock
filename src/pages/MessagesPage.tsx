@@ -54,6 +54,7 @@ export default function MessagesPage() {
     setActiveConversationId,
     messages,
     sendMessage,
+    editMessage,
     markAsRead,
     setTyping,
     typingUsers,
@@ -62,6 +63,8 @@ export default function MessagesPage() {
 
   const [search, setSearch] = useState("");
   const [input, setInput] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editInput, setEditInput] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
