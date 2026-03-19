@@ -133,16 +133,26 @@ export default function MessagesPage() {
   );
 
   const handleSend = async () => {
-    if (!input.trim() || !activeConversationId) return;
+    if (!input.trim() && pendingFiles.length === 0) return;
+    if (!activeConversationId) return;
     const content = input.trim();
     setInput("");
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-    await sendMessage(activeConversationId, content);
+
+    if (pendingFiles.length > 0) {
+      setUploading(true);
+      await sendMessageWithFiles(activeConversationId, content, pendingFiles);
+      setPendingFiles([]);
+      setUploading(false);
+      if (chatTab === "files") loadFiles();
+    } else {
+      await sendMessage(activeConversationId, content);
+    }
   };
 
   const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || !activeConversationId) return;
     const validFiles = Array.from(files).filter((file) => {
@@ -152,14 +162,10 @@ export default function MessagesPage() {
       }
       return true;
     });
-    if (validFiles.length === 0) return;
-    setUploading(true);
-    for (const file of validFiles) {
-      await uploadFile(activeConversationId, file);
+    if (validFiles.length > 0) {
+      setPendingFiles((prev) => [...prev, ...validFiles]);
     }
-    setUploading(false);
     if (fileInputRef.current) fileInputRef.current.value = "";
-    if (chatTab === "files") loadFiles();
   };
 
   const loadFiles = useCallback(async () => {
