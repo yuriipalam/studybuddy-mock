@@ -111,11 +111,6 @@ export default function LoginPage() {
                 <SelectValue placeholder="Choose an account…" />
               </SelectTrigger>
               <SelectContent>
-            <Select value={selectedId} onValueChange={setSelectedId}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Choose an account…" />
-              </SelectTrigger>
-              <SelectContent>
                 {allAccounts.map((account) => (
                   <SelectItem key={account.id} value={account.id}>
                     <div className="flex items-center gap-2">
