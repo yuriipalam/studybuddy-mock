@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useCallback, useEffect, use
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { RealtimeChannel } from "@supabase/supabase-js";
+import { toast } from "sonner";
 
 export interface DbMessage {
   id: string;
@@ -55,7 +56,7 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
   const [typingUsers, setTypingUsers] = useState<TypingState>({});
   const [loading, setLoading] = useState(true);
   const channelRef = useRef<RealtimeChannel | null>(null);
-  const typingChannelsRef = useRef<Map<string, RealtimeChannel>>(new Map());
+  const typingChannelRef = useRef<RealtimeChannel | null>(null);
 
   const userId = currentUser?.id;
 
@@ -64,7 +65,6 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
     if (!userId) return;
     setLoading(true);
 
-    // Get all conversation IDs where current user is a participant
     const { data: participations } = await supabase
       .from("conversation_participants")
       .select("conversation_id")
@@ -78,7 +78,6 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
 
     const convIds = participations.map((p: any) => p.conversation_id);
 
-    // Get conversations with participants
     const { data: convs } = await supabase
       .from("conversations")
       .select("*")
@@ -90,7 +89,6 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
       .select("*")
       .in("conversation_id", convIds);
 
-    // Get last message per conversation and unread counts
     const conversationsWithMeta: Conversation[] = [];
 
     for (const conv of convs || []) {
@@ -126,7 +124,6 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
       });
     }
 
-    // Sort by last message time
     conversationsWithMeta.sort((a, b) => {
       const aTime = a.lastMessage?.created_at || a.created_at;
       const bTime = b.lastMessage?.created_at || b.created_at;
@@ -174,17 +171,32 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
           if (payload.eventType === "INSERT") {
             const newMsg = payload.new as DbMessage;
 
-            // If it's in the active conversation, add to messages
             setMessages((prev) => {
-              if (prev.length > 0 && prev[0].conversation_id === newMsg.conversation_id) {
-                // Avoid duplicates
-                if (prev.find((m) => m.id === newMsg.id)) return prev;
-                return [...prev, newMsg];
+              // Check if this is for the active conversation
+              const isActiveConv =
+                (prev.length > 0 && prev[0].conversation_id === newMsg.conversation_id) ||
+                (prev.length === 0 && activeConversationId === newMsg.conversation_id);
+
+              if (!isActiveConv) return prev;
+
+              // Replace optimistic temp message if it matches
+              const tempIdx = prev.findIndex(
+                (m) =>
+                  m.id.startsWith("temp-") &&
+                  m.sender_id === newMsg.sender_id &&
+                  m.content === newMsg.content &&
+                  m.conversation_id === newMsg.conversation_id
+              );
+
+              if (tempIdx !== -1) {
+                const updated = [...prev];
+                updated[tempIdx] = newMsg;
+                return updated;
               }
-              if (prev.length === 0 && activeConversationId === newMsg.conversation_id) {
-                return [newMsg];
-              }
-              return prev;
+
+              // Avoid duplicates
+              if (prev.find((m) => m.id === newMsg.id)) return prev;
+              return [...prev, newMsg];
             });
 
             // Update conversation list
@@ -204,55 +216,48 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
     };
   }, [userId, activeConversationId, loadConversations]);
 
-  // Typing indicator channels per conversation
-  const setTyping = useCallback(
-    (conversationId: string, isTyping: boolean) => {
-      if (!userId || !currentUser) return;
+  // Subscribe to typing channel for active conversation
+  useEffect(() => {
+    if (!activeConversationId || !userId) return;
 
-      let channel = typingChannelsRef.current.get(conversationId);
-      if (!channel) {
-        channel = supabase.channel(`typing-${conversationId}`);
+    const channel = supabase.channel(`typing-${activeConversationId}`);
 
-        channel.on("broadcast", { event: "typing" }, (payload: any) => {
-          const { userId: typerId, userName, isTyping: typing } = payload.payload;
-          if (typerId === userId) return;
+    channel.on("broadcast", { event: "typing" }, (payload: any) => {
+      const { userId: typerId, userName, isTyping: typing } = payload.payload;
+      if (typerId === userId) return;
 
-          setTypingUsers((prev) => {
-            const current = prev[conversationId] || [];
-            if (typing) {
-              const exists = current.find((t) => t.userId === typerId);
-              if (exists) {
-                return {
-                  ...prev,
-                  [conversationId]: current.map((t) =>
-                    t.userId === typerId ? { ...t, timestamp: Date.now() } : t
-                  ),
-                };
-              }
-              return {
-                ...prev,
-                [conversationId]: [...current, { userId: typerId, userName, timestamp: Date.now() }],
-              };
-            }
+      setTypingUsers((prev) => {
+        const current = prev[activeConversationId] || [];
+        if (typing) {
+          const exists = current.find((t) => t.userId === typerId);
+          if (exists) {
             return {
               ...prev,
-              [conversationId]: current.filter((t) => t.userId !== typerId),
+              [activeConversationId]: current.map((t) =>
+                t.userId === typerId ? { ...t, timestamp: Date.now() } : t
+              ),
             };
-          });
-        });
-
-        channel.subscribe();
-        typingChannelsRef.current.set(conversationId, channel);
-      }
-
-      channel.send({
-        type: "broadcast",
-        event: "typing",
-        payload: { userId, userName: `${currentUser.firstName} ${currentUser.lastName}`, isTyping },
+          }
+          return {
+            ...prev,
+            [activeConversationId]: [...current, { userId: typerId, userName, timestamp: Date.now() }],
+          };
+        }
+        return {
+          ...prev,
+          [activeConversationId]: current.filter((t) => t.userId !== typerId),
+        };
       });
-    },
-    [userId, currentUser]
-  );
+    });
+
+    channel.subscribe();
+    typingChannelRef.current = channel;
+
+    return () => {
+      channel.unsubscribe();
+      typingChannelRef.current = null;
+    };
+  }, [activeConversationId, userId]);
 
   // Clean up stale typing indicators
   useEffect(() => {
@@ -272,26 +277,62 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
     return () => clearInterval(interval);
   }, []);
 
-  // Cleanup typing channels
-  useEffect(() => {
-    return () => {
-      typingChannelsRef.current.forEach((ch) => ch.unsubscribe());
-      typingChannelsRef.current.clear();
-    };
-  }, []);
+  const setTyping = useCallback(
+    (conversationId: string, isTyping: boolean) => {
+      if (!userId || !currentUser) return;
+
+      // Use the already-subscribed channel for active conversation
+      const channel = typingChannelRef.current;
+      if (!channel) return;
+
+      channel.send({
+        type: "broadcast",
+        event: "typing",
+        payload: { userId, userName: `${currentUser.firstName} ${currentUser.lastName}`, isTyping },
+      });
+    },
+    [userId, currentUser]
+  );
 
   const sendMessage = useCallback(
     async (conversationId: string, content: string) => {
       if (!userId) return;
 
-      await supabase.from("messages").insert({
+      // Optimistic message
+      const tempMsg: DbMessage = {
+        id: `temp-${crypto.randomUUID()}`,
+        conversation_id: conversationId,
+        sender_id: userId,
+        content,
+        created_at: new Date().toISOString(),
+        read_at: null,
+      };
+
+      // Add to messages immediately
+      setMessages((prev) => [...prev, tempMsg]);
+
+      // Optimistically update conversation lastMessage
+      setConversations((prev) =>
+        prev.map((c) =>
+          c.id === conversationId ? { ...c, lastMessage: tempMsg } : c
+        )
+      );
+
+      // Stop typing indicator
+      setTyping(conversationId, false);
+
+      // Actually send
+      const { error } = await supabase.from("messages").insert({
         conversation_id: conversationId,
         sender_id: userId,
         content,
       });
 
-      // Stop typing indicator
-      setTyping(conversationId, false);
+      if (error) {
+        // Remove optimistic message on error
+        setMessages((prev) => prev.filter((m) => m.id !== tempMsg.id));
+        toast.error("Failed to send message");
+      }
     },
     [userId, setTyping]
   );
@@ -300,7 +341,7 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
     async (contact: { id: string; name: string; role: string; avatar?: string }) => {
       if (!userId || !currentUser) return "";
 
-      // Check if conversation already exists between these two users
+      // Check if conversation already exists
       const { data: myParticipations } = await supabase
         .from("conversation_participants")
         .select("conversation_id")
@@ -348,13 +389,6 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
         },
       ]);
 
-      // Send initial greeting from contact
-      await supabase.from("messages").insert({
-        conversation_id: conv.id,
-        sender_id: contact.id,
-        content: `Hi! Thanks for connecting with me on StudyOnd. How can I help you?`,
-      });
-
       await loadConversations();
       setActiveConversationId(conv.id);
       return conv.id;
@@ -372,7 +406,6 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
     async (conversationId: string) => {
       if (!userId) return;
 
-      // Mark all unread messages from other users as read
       const { data: unread } = await supabase
         .from("messages")
         .select("id")
@@ -387,14 +420,12 @@ export function MessagingProvider({ children }: { children: React.ReactNode }) {
           .update({ read_at: new Date().toISOString() })
           .in("id", ids);
 
-        // Update local state
         setMessages((prev) =>
           prev.map((m) =>
             ids.includes(m.id) ? { ...m, read_at: new Date().toISOString() } : m
           )
         );
 
-        // Update conversation unread count
         setConversations((prev) =>
           prev.map((c) => (c.id === conversationId ? { ...c, unreadCount: 0 } : c))
         );

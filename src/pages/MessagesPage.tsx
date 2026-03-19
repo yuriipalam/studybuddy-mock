@@ -27,9 +27,9 @@ function formatDate(dateStr: string) {
 function ReadReceipt({ isMe, readAt }: { isMe: boolean; readAt: string | null }) {
   if (!isMe) return null;
   return readAt ? (
-    <CheckCheck className="h-3 w-3 text-primary shrink-0" />
+    <CheckCheck className="h-3 w-3 text-blue-400 shrink-0" />
   ) : (
-    <Check className="h-3 w-3 text-muted-foreground/60 shrink-0" />
+    <Check className="h-3 w-3 text-primary-foreground/50 shrink-0" />
   );
 }
 
