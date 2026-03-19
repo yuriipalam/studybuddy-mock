@@ -129,6 +129,9 @@ export default function MessagesPage() {
   const [editMilestoneDesc, setEditMilestoneDesc] = useState("");
   const [milestonesLoading, setMilestonesLoading] = useState(false);
   const [expandedMilestoneId, setExpandedMilestoneId] = useState<string | null>(null);
+  const [improving, setImproving] = useState(false);
+  const [improvedText, setImprovedText] = useState<string | null>(null);
+  const [originalText, setOriginalText] = useState<string | null>(null);
 
   // Load milestones from DB when conversation changes; seed defaults if empty
   useEffect(() => {
