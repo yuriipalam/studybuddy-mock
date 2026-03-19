@@ -600,17 +600,15 @@ export default function MessagesPage() {
             {/* Chat header */}
             <div className="border-b border-border">
               <div className="flex items-center gap-3 px-4 py-3">
-                {contact?.user_avatar && (
-                  <div className="relative">
-                    <Avatar className="h-9 w-9">
-                      <AvatarImage src={contact.user_avatar} />
-                      <AvatarFallback className="text-xs font-semibold">
-                        {contactInitials}
-                      </AvatarFallback>
-                    </Avatar>
-                    {isOnline(contact.user_id) && <OnlineIndicator size="sm" />}
-                  </div>
-                )}
+                <div className="relative">
+                  <Avatar className="h-9 w-9">
+                    {contact?.user_avatar ? <AvatarImage src={contact.user_avatar} /> : null}
+                    <AvatarFallback className="text-xs font-semibold">
+                      {contactInitials}
+                    </AvatarFallback>
+                  </Avatar>
+                  {contact && isOnline(contact.user_id) && <OnlineIndicator size="sm" />}
+                </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
                     <p className="text-base font-semibold">{contact?.user_name || "Unknown"}</p>
