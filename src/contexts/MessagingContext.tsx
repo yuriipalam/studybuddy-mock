@@ -48,6 +48,7 @@ interface MessagingContextType {
   setTyping: (conversationId: string, isTyping: boolean) => void;
   typingUsers: TypingState;
   loading: boolean;
+  messagesLoading: boolean;
 }
 
 const MessagingContext = createContext<MessagingContextType | null>(null);
