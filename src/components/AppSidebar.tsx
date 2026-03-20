@@ -58,6 +58,8 @@ export function AppSidebar() {
   const { currentUser, logout } = useAuth();
   const { resolvedTheme } = useTheme();
   const logo = resolvedTheme === "dark" ? studyondLogoLight : studyondLogo;
+  const { conversations } = useMessaging();
+  const totalUnread = conversations.reduce((sum, c) => sum + c.unreadCount, 0);
 
   const handleLogout = () => {
     logout();
