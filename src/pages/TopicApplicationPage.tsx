@@ -289,6 +289,30 @@ export default function TopicApplicationPage() {
           await supabase.from("notifications").insert(notificationInserts);
         }
 
+        // Advance thesis journey: topic_selection → supervisor_approval
+        try {
+          const { data: journey } = await supabase
+            .from("thesis_journeys")
+            .select("*")
+            .eq("user_id", currentUser.id)
+            .maybeSingle();
+
+          if (journey && journey.current_stage === "topic_selection") {
+            const stages = (journey.stages as any[]).map((s: any) => {
+              if (s.id === "topic_selection") return { ...s, status: "completed" };
+              if (s.id === "supervisor_approval") return { ...s, status: "in_progress" };
+              if (s.id === "literature_review") return { ...s, status: "up_next" };
+              return s;
+            });
+            await supabase
+              .from("thesis_journeys")
+              .update({ current_stage: "supervisor_approval", stages, updated_at: new Date().toISOString() })
+              .eq("user_id", currentUser.id);
+          }
+        } catch (e) {
+          console.error("Journey update failed:", e);
+        }
+
         navigate("/topics");
       }
     } catch (e: any) {
