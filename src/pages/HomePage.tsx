@@ -1,10 +1,11 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { Sparkles, Users, BookOpen, FileText, Video, Bookmark, Loader2 } from "lucide-react";
+import { Sparkles, Users, BookOpen, FileText, Video, Bookmark, Loader2, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { ThesisJourneyTracker } from "@/components/ThesisJourneyTracker";
 import { useThesisJourney } from "@/hooks/useThesisJourney";
+import { useStudentXp } from "@/hooks/useStudentXp";
 
 type ActionCard = {
   title: string;
@@ -27,8 +28,11 @@ export default function HomePage() {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
   const { data: journey, isLoading: journeyLoading } = useThesisJourney();
+  const { data: xpRows } = useStudentXp();
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+
+  const myXp = xpRows?.find((r) => r.student_id === currentUser?.id)?.total_xp ?? 0;
 
   const handleCardClick = (card: ActionCard) => {
     if (card.action === "external") {
@@ -41,9 +45,18 @@ export default function HomePage() {
   return (
     <div className="scroll-area">
       <div className="scroll-area-content space-y-8">
-        <div>
-          <h1 className="ds-title-lg">{greeting}, {currentUser?.firstName ?? "there"}! ☕</h1>
-          <p className="ds-body text-muted-foreground mt-1">What would you like to do today?</p>
+        <div className="flex items-start justify-between">
+          <div>
+            <h1 className="ds-title-lg">{greeting}, {currentUser?.firstName ?? "there"}! ☕</h1>
+            <p className="ds-body text-muted-foreground mt-1">What would you like to do today?</p>
+          </div>
+          {currentUser?.role === "student" && (
+            <div className="flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-full px-4 py-2 shadow-lg shadow-amber-500/25 shrink-0">
+              <Star className="size-5 fill-white" />
+              <span className="font-bold text-lg">{myXp.toLocaleString()}</span>
+              <span className="text-sm font-medium opacity-90">XP</span>
+            </div>
+          )}
         </div>
 
         {/* Thesis Journey Tracker */}
