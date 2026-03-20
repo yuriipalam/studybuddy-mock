@@ -29,7 +29,14 @@ import { ChevronRight } from "lucide-react";
 const personalItems = [
   { title: "Home", url: "/", icon: Home },
   { title: "Messages", url: "/messages", icon: MessageSquare },
+];
+
+const studentPersonalItems = [
   { title: "My Projects", url: "/projects", icon: FolderKanban },
+];
+
+const supervisorPersonalItems = [
+  { title: "My Topics", url: "/projects", icon: BookOpen },
 ];
 
 const exploreItems = [
@@ -86,7 +93,7 @@ export function AppSidebar() {
           <SidebarGroupLabel>Personal</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {personalItems.map((item) => (
+              {[...personalItems, ...(currentUser?.role === "supervisor" ? supervisorPersonalItems : studentPersonalItems)].map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={isActive(item.url)}>
                     <NavLink to={item.url} end>

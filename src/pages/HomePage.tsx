@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { Sparkles, Users, BookOpen, FileText, Video, Bookmark, Loader2, Star } from "lucide-react";
+import { Sparkles, Users, BookOpen, FileText, Video, Bookmark, Loader2, Star, GraduationCap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { ThesisJourneyTracker } from "@/components/ThesisJourneyTracker";
 import { useThesisJourney } from "@/hooks/useThesisJourney";
@@ -16,11 +16,19 @@ type ActionCard = {
   path: string;
 };
 
-const actionCards: ActionCard[] = [
+const studentActionCards: ActionCard[] = [
   { title: "AI Topic Finder", description: "Get AI-powered topic suggestions", icon: Sparkles, color: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300", action: "navigate", path: "/topics" },
   { title: "Find Experts", description: "Connect with industry experts", icon: Users, color: "bg-secondary text-secondary-foreground", action: "navigate", path: "/people/experts" },
   { title: "Discover Topics", description: "Browse available thesis topics", icon: BookOpen, color: "bg-secondary text-secondary-foreground", action: "navigate", path: "/topics" },
   { title: "Propose Topic", description: "Submit your own research idea", icon: FileText, color: "bg-secondary text-secondary-foreground", action: "navigate", path: "/topics" },
+  { title: "Videos", description: "Watch expert talks and tutorials", icon: Video, color: "bg-secondary text-secondary-foreground", action: "external", path: "https://www.youtube.com/playlist?list=PLb9ITwylb5mYB6oni61mV0FrYU4AS8ntt" },
+];
+
+const supervisorActionCards: ActionCard[] = [
+  { title: "AI Helper", description: "Get AI-powered assistance", icon: Sparkles, color: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300", action: "navigate", path: "/topics" },
+  { title: "Find Students", description: "Discover motivated students", icon: GraduationCap, color: "bg-secondary text-secondary-foreground", action: "navigate", path: "/people/students" },
+  { title: "Discover Topics", description: "Browse available thesis topics", icon: BookOpen, color: "bg-secondary text-secondary-foreground", action: "navigate", path: "/topics" },
+  { title: "Student Requests", description: "Review pending applications", icon: FileText, color: "bg-secondary text-secondary-foreground", action: "navigate", path: "/requests" },
   { title: "Videos", description: "Watch expert talks and tutorials", icon: Video, color: "bg-secondary text-secondary-foreground", action: "external", path: "https://www.youtube.com/playlist?list=PLb9ITwylb5mYB6oni61mV0FrYU4AS8ntt" },
 ];
 
@@ -71,7 +79,7 @@ export default function HomePage() {
         )}
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-          {actionCards.map((card) => (
+          {(currentUser?.role === "supervisor" ? supervisorActionCards : studentActionCards).map((card) => (
             <Card
               key={card.title}
               className="group overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"

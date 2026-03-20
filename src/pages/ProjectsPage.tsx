@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { FolderKanban, Clock, CheckCircle2, XCircle, BookOpen, ArrowRight, MessageSquare } from "lucide-react";
+import { FolderKanban, Clock, CheckCircle2, XCircle, BookOpen, ArrowRight, MessageSquare, Users } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { topics, getSupervisor, getField } from "@/data";
+import { topics, getSupervisor, getField, getStudent } from "@/data";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -28,7 +28,88 @@ const TAB_CONFIG: { id: TabId; label: string; icon: React.ReactNode; statuses: s
   { id: "rejected", label: "Rejected", icon: <XCircle className="h-4 w-4" />, statuses: ["rejected"] },
 ];
 
-export default function ProjectsPage() {
+/* ------------------------------------------------------------------ */
+/*  Supervisor: My Topics view                                         */
+/* ------------------------------------------------------------------ */
+function SupervisorTopicsView() {
+  const navigate = useNavigate();
+  const { currentUser } = useAuth();
+
+  // Find topics where this supervisor is listed
+  const myTopics = topics.filter((t) =>
+    t.supervisorIds.includes(currentUser?.id ?? "")
+  );
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <h1 className="text-2xl font-bold mb-6">My Topics</h1>
+
+      {myTopics.length === 0 ? (
+        <EmptyState
+          icon={<BookOpen className="h-12 w-12" />}
+          title="No Topics Yet"
+          description="You are not listed as a supervisor on any topics yet."
+          actionLabel="Browse Topics"
+          onAction={() => navigate("/topics")}
+        />
+      ) : (
+        <div className="space-y-3">
+          {myTopics.map((topic) => {
+            const fieldNames = topic.fieldIds
+              .map((id) => getField(id)?.name)
+              .filter(Boolean);
+
+            return (
+              <Card key={topic.id} className="hover:shadow-md transition-shadow">
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <BookOpen className="h-4 w-4 text-muted-foreground shrink-0" />
+                        <h3 className="font-semibold text-sm truncate">{topic.title}</h3>
+                        <Badge variant="outline" className="shrink-0 capitalize text-xs">
+                          {topic.type}
+                        </Badge>
+                      </div>
+
+                      <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
+                        {topic.description}
+                      </p>
+
+                      <div className="flex flex-wrap gap-2 items-center text-xs text-muted-foreground">
+                        {fieldNames.length > 0 &&
+                          fieldNames.map((f) => (
+                            <Badge key={f} variant="outline" className="text-xs py-0">
+                              {f}
+                            </Badge>
+                          ))}
+                        <span>·</span>
+                        <span>{topic.degrees.map((d) => d.toUpperCase()).join(", ")}</span>
+                      </div>
+                    </div>
+
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => navigate(`/topics`)}
+                    >
+                      View <ArrowRight className="h-3 w-3 ml-1" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Student: My Projects view (original)                               */
+/* ------------------------------------------------------------------ */
+function StudentProjectsView() {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
   const [applications, setApplications] = useState<ApplicationRow[]>([]);
@@ -206,4 +287,17 @@ export default function ProjectsPage() {
       )}
     </div>
   );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Main export — delegates based on role                              */
+/* ------------------------------------------------------------------ */
+export default function ProjectsPage() {
+  const { currentUser } = useAuth();
+
+  if (currentUser?.role === "supervisor") {
+    return <SupervisorTopicsView />;
+  }
+
+  return <StudentProjectsView />;
 }
