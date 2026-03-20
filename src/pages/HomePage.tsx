@@ -51,10 +51,10 @@ export default function HomePage() {
             <p className="ds-body text-muted-foreground mt-1">What would you like to do today?</p>
           </div>
           {currentUser?.role === "student" && (
-            <div className="flex items-center gap-2 bg-primary text-primary-foreground rounded-lg px-6 py-3 shadow-lg shrink-0">
-              <Star className="size-5 fill-current" />
-              <span className="font-bold text-lg">{myXp.toLocaleString()}</span>
-              <span className="text-sm font-medium opacity-90">XP</span>
+            <div className="flex items-center gap-1.5 border-2 border-primary text-primary rounded-md px-4 py-2 shrink-0">
+              <Star className="size-4 fill-primary" />
+              <span className="font-bold text-base">{myXp.toLocaleString()}</span>
+              <span className="text-xs font-medium opacity-80">XP</span>
             </div>
           )}
         </div>
