@@ -93,7 +93,7 @@ export function AppSidebar() {
           <SidebarGroupLabel>Personal</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {personalItems.map((item) => (
+              {[...personalItems, ...(currentUser?.role === "supervisor" ? supervisorPersonalItems : studentPersonalItems)].map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={isActive(item.url)}>
                     <NavLink to={item.url} end>
