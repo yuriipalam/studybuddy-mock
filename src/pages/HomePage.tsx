@@ -51,11 +51,11 @@ export default function HomePage() {
             <p className="ds-body text-muted-foreground mt-1">What would you like to do today?</p>
           </div>
           {currentUser?.role === "student" && (
-            <div className="flex items-center gap-1.5 text-primary rounded-md px-4 py-2 shrink-0">
+            <Button variant="ghost" className="flex items-center gap-1.5 text-primary shrink-0" onClick={() => navigate("/ranking")}>
               <Star className="size-4 fill-primary" />
               <span className="font-bold text-base">{myXp.toLocaleString()}</span>
               <span className="text-xs font-medium opacity-80">XP</span>
-            </div>
+            </Button>
           )}
         </div>
 
