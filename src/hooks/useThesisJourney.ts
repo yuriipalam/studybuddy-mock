@@ -50,16 +50,20 @@ export function useThesisJourney() {
 
         if (createError) throw createError;
 
-        return {
+        const journey = {
           ...created,
           stages: created.stages as unknown as JourneyStage[],
         } as ThesisJourney;
+
+        return await reconcileJourney(journey, userId!);
       }
 
-      return {
+      const journey = {
         ...data,
         stages: data.stages as unknown as JourneyStage[],
       } as ThesisJourney;
+
+      return await reconcileJourney(journey, userId!);
     },
   });
 }
