@@ -17,7 +17,7 @@ type ActionCard = {
 };
 
 const actionCards: ActionCard[] = [
-  { title: "AI Topic Finder", description: "Get AI-powered topic suggestions", icon: Sparkles, color: "bg-ai text-white", action: "navigate", path: "/topics" },
+  { title: "AI Topic Finder", description: "Get AI-powered topic suggestions", icon: Sparkles, color: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300", action: "navigate", path: "/topics" },
   { title: "Find Experts", description: "Connect with industry experts", icon: Users, color: "bg-secondary text-secondary-foreground", action: "navigate", path: "/people/experts" },
   { title: "Discover Topics", description: "Browse available thesis topics", icon: BookOpen, color: "bg-secondary text-secondary-foreground", action: "navigate", path: "/topics" },
   { title: "Propose Topic", description: "Submit your own research idea", icon: FileText, color: "bg-secondary text-secondary-foreground", action: "navigate", path: "/topics" },
