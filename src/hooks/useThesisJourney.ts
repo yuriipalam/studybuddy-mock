@@ -32,7 +32,29 @@ export function useThesisJourney() {
         .maybeSingle();
 
       if (error) throw error;
-      if (!data) return null;
+
+      // Auto-create a default journey for new users
+      if (!data) {
+        const defaultStages = buildStagesFromOnboarding("starting");
+        const currentStage = defaultStages.find((s) => s.status === "in_progress")?.id ?? "topic_selection";
+
+        const { data: created, error: createError } = await supabase
+          .from("thesis_journeys")
+          .insert({
+            user_id: userId!,
+            current_stage: currentStage,
+            stages: defaultStages as any,
+          })
+          .select()
+          .single();
+
+        if (createError) throw createError;
+
+        return {
+          ...created,
+          stages: created.stages as unknown as JourneyStage[],
+        } as ThesisJourney;
+      }
 
       return {
         ...data,
