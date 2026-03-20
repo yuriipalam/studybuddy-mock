@@ -19,42 +19,48 @@ export interface ThesisJourney {
 
 
 async function reconcileJourney(journey: ThesisJourney, userId: string): Promise<ThesisJourney> {
-  if (journey.current_stage !== "topic_selection") return journey;
+  if (["research", "writing", "submission"].includes(journey.current_stage)) {
+    return journey;
+  }
 
-  // Check if user has any submitted/accepted applications
+  const rawUserId = userId.startsWith("db-") ? userId.slice(3) : userId;
+  const relatedUserIds = Array.from(new Set([rawUserId, `db-${rawUserId}`]));
+
   const { data: apps } = await supabase
     .from("topic_applications")
     .select("status")
-    .eq("user_id", userId)
+    .in("user_id", relatedUserIds)
     .in("status", ["submitted", "accepted"]);
 
   if (!apps || apps.length === 0) return journey;
 
   const hasAccepted = apps.some((a) => a.status === "accepted");
+  const nextStage = hasAccepted ? "literature_review" : "supervisor_approval";
 
-  const newStages = journey.stages.map((s) => {
-    if (s.id === "topic_selection") return { ...s, status: "completed" as const };
-    if (s.id === "supervisor_approval") {
-      return { ...s, status: hasAccepted ? ("completed" as const) : ("in_progress" as const) };
-    }
-    if (s.id === "literature_review") {
-      return { ...s, status: hasAccepted ? ("in_progress" as const) : ("up_next" as const) };
-    }
-    if (s.id === "research" && hasAccepted) {
-      return { ...s, status: "up_next" as const };
-    }
-    return s;
-  });
+  const labels = {
+    topic_selection: journey.stages.find((s) => s.id === "topic_selection")?.label ?? "Topic Selection",
+    supervisor_approval: journey.stages.find((s) => s.id === "supervisor_approval")?.label ?? "Supervisor Approval",
+    literature_review: journey.stages.find((s) => s.id === "literature_review")?.label ?? "Literature Review",
+    research: journey.stages.find((s) => s.id === "research")?.label ?? "Research",
+    writing: journey.stages.find((s) => s.id === "writing")?.label ?? "Writing",
+    submission: journey.stages.find((s) => s.id === "submission")?.label ?? "Submission",
+  };
 
-  const newCurrentStage = hasAccepted ? "literature_review" : "supervisor_approval";
+  const newStages: JourneyStage[] = [
+    { id: "topic_selection", label: labels.topic_selection, status: "completed" },
+    { id: "supervisor_approval", label: labels.supervisor_approval, status: hasAccepted ? "completed" : "in_progress" },
+    { id: "literature_review", label: labels.literature_review, status: hasAccepted ? "in_progress" : "up_next" },
+    { id: "research", label: labels.research, status: hasAccepted ? "up_next" : "locked" },
+    { id: "writing", label: labels.writing, status: "locked" },
+    { id: "submission", label: labels.submission, status: "locked" },
+  ];
 
-  // Persist the reconciled state
   await supabase
     .from("thesis_journeys")
-    .update({ current_stage: newCurrentStage, stages: newStages as any, updated_at: new Date().toISOString() })
-    .eq("user_id", userId);
+    .update({ current_stage: nextStage, stages: newStages as any, updated_at: new Date().toISOString() })
+    .in("user_id", relatedUserIds);
 
-  return { ...journey, current_stage: newCurrentStage, stages: newStages };
+  return { ...journey, current_stage: nextStage, stages: newStages };
 }
 
 export function useThesisJourney() {

@@ -123,18 +123,42 @@ export default function StudentRequestsPage() {
   );
 
   const handleAccept = async (app: ApplicationRow) => {
+    const acceptedAt = new Date().toISOString();
+
     const { error } = await supabase
       .from("topic_applications")
-      .update({ status: "accepted", updated_at: new Date().toISOString() } as any)
+      .update({ status: "accepted", updated_at: acceptedAt } as any)
       .eq("id", app.id);
     if (error) {
       toast.error("Failed to accept request");
       return;
     }
+
+    const rawUserId = app.user_id.startsWith("db-") ? app.user_id.slice(3) : app.user_id;
+    const relatedUserIds = Array.from(new Set([rawUserId, `db-${rawUserId}`]));
+    const acceptedJourneyStages = [
+      { id: "topic_selection", label: "Topic Selection", status: "completed" },
+      { id: "supervisor_approval", label: "Supervisor Approval", status: "completed" },
+      { id: "literature_review", label: "Literature Review", status: "in_progress" },
+      { id: "research", label: "Research", status: "up_next" },
+      { id: "writing", label: "Writing", status: "locked" },
+      { id: "submission", label: "Submission", status: "locked" },
+    ];
+
+    await supabase
+      .from("thesis_journeys")
+      .update({
+        current_stage: "literature_review",
+        stages: acceptedJourneyStages as any,
+        updated_at: acceptedAt,
+      } as any)
+      .in("user_id", relatedUserIds);
+
     // Award XP to the student
     if (app.user_id) {
       awardXp(XP_TRIGGERS.SUPERVISOR_INTERACTION, app.user_id);
     }
+
     // Notify the student
     await supabase.from("notifications").insert({
       user_id: app.user_id,
@@ -143,6 +167,8 @@ export default function StudentRequestsPage() {
       type: "success",
       xp_amount: 0,
     });
+
+    queryClient.invalidateQueries({ queryKey: ["thesis-journey"] });
     toast.success("Request accepted");
     fetchApplications();
   };
