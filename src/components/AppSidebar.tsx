@@ -92,6 +92,11 @@ export function AppSidebar() {
                     <NavLink to={item.url} end>
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
+                      {item.title === "Messages" && totalUnread > 0 && (
+                        <Badge className="ml-auto h-5 min-w-[20px] rounded-full text-[10px] px-1.5">
+                          {totalUnread}
+                        </Badge>
+                      )}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
