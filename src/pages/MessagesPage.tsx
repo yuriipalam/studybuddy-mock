@@ -74,7 +74,8 @@ function OnlineIndicator({ size = "md" }: { size?: "sm" | "md" }) {
 }
 
 // Real online status based on last_seen_at (online if seen within 5 minutes)
-function useOnlineStatus(userIds: string[]) {
+// Supervisors are always shown as online.
+function useOnlineStatus(userIds: string[], roleMap: Record<string, string>) {
   const [onlineMap, setOnlineMap] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
@@ -99,11 +100,15 @@ function useOnlineStatus(userIds: string[]) {
     };
 
     fetchStatus();
-    const interval = setInterval(fetchStatus, 30_000); // refresh every 30s
+    const interval = setInterval(fetchStatus, 30_000);
     return () => clearInterval(interval);
   }, [userIds.join(",")]);
 
-  return (userId: string) => !!onlineMap[userId];
+  return (userId: string) => {
+    // Supervisors always appear online
+    if (roleMap[userId] === "supervisor") return true;
+    return !!onlineMap[userId];
+  };
 }
 
 export default function MessagesPage() {
