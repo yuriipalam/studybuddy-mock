@@ -413,6 +413,48 @@ export default function MessagesPage() {
     }
   }, [activeConversationId, loadFiles]);
 
+  // Realtime subscription for chat_files so receiver sees attachments without refresh
+  useEffect(() => {
+    if (!activeConversationId) return;
+    const channel = supabase
+      .channel(`chat-files-${activeConversationId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "chat_files",
+          filter: `conversation_id=eq.${activeConversationId}`,
+        },
+        (payload) => {
+          const newFile = payload.new as ChatFile;
+          setConvFiles((prev) => {
+            if (prev.find((f) => f.id === newFile.id)) return prev;
+            return [newFile, ...prev];
+          });
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "DELETE",
+          schema: "public",
+          table: "chat_files",
+          filter: `conversation_id=eq.${activeConversationId}`,
+        },
+        (payload) => {
+          const deletedId = (payload.old as any).id;
+          if (deletedId) {
+            setConvFiles((prev) => prev.filter((f) => f.id !== deletedId));
+          }
+        }
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [activeConversationId]);
+
   // Reset tab when switching conversations
   useEffect(() => {
     setChatTab("messages");
