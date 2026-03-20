@@ -136,11 +136,13 @@ export default function MessagesPage() {
     getConversationByContact,
   } = useMessaging();
 
+  const contactRoleMap: Record<string, string> = {};
   const allContactIds = conversations.map((c) => {
     const ct = c.participants.find((p: any) => p.user_id !== currentUser?.id);
+    if (ct) contactRoleMap[ct.user_id] = ct.user_role || "";
     return ct?.user_id || "";
   }).filter(Boolean);
-  const isOnline = useOnlineStatus(allContactIds);
+  const isOnline = useOnlineStatus(allContactIds, contactRoleMap);
 
   const [search, setSearch] = useState("");
   const [input, setInput] = useState("");
