@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Badge } from "@/components/ui/badge";
+import { useMessaging } from "@/contexts/MessagingContext";
 import {
   Sidebar,
   SidebarContent,
@@ -57,6 +58,8 @@ export function AppSidebar() {
   const { currentUser, logout } = useAuth();
   const { resolvedTheme } = useTheme();
   const logo = resolvedTheme === "dark" ? studyondLogoLight : studyondLogo;
+  const { conversations } = useMessaging();
+  const totalUnread = conversations.reduce((sum, c) => sum + c.unreadCount, 0);
 
   const handleLogout = () => {
     logout();
@@ -89,6 +92,11 @@ export function AppSidebar() {
                     <NavLink to={item.url} end>
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
+                      {item.title === "Messages" && totalUnread > 0 && (
+                        <Badge className="ml-auto h-5 min-w-[20px] rounded-full text-[10px] px-1.5">
+                          {totalUnread}
+                        </Badge>
+                      )}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
