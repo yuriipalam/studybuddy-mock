@@ -1,10 +1,11 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { Sparkles, Users, BookOpen, FileText, Video, Bookmark, Loader2 } from "lucide-react";
+import { Sparkles, Users, BookOpen, FileText, Video, Bookmark, Loader2, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { ThesisJourneyTracker } from "@/components/ThesisJourneyTracker";
 import { useThesisJourney } from "@/hooks/useThesisJourney";
+import { useStudentXp } from "@/hooks/useStudentXp";
 
 type ActionCard = {
   title: string;
