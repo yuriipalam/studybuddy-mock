@@ -17,6 +17,46 @@ export interface ThesisJourney {
   updated_at: string;
 }
 
+
+async function reconcileJourney(journey: ThesisJourney, userId: string): Promise<ThesisJourney> {
+  if (journey.current_stage !== "topic_selection") return journey;
+
+  // Check if user has any submitted/accepted applications
+  const { data: apps } = await supabase
+    .from("topic_applications")
+    .select("status")
+    .eq("user_id", userId)
+    .in("status", ["submitted", "accepted"]);
+
+  if (!apps || apps.length === 0) return journey;
+
+  const hasAccepted = apps.some((a) => a.status === "accepted");
+
+  const newStages = journey.stages.map((s) => {
+    if (s.id === "topic_selection") return { ...s, status: "completed" as const };
+    if (s.id === "supervisor_approval") {
+      return { ...s, status: hasAccepted ? ("completed" as const) : ("in_progress" as const) };
+    }
+    if (s.id === "literature_review") {
+      return { ...s, status: hasAccepted ? ("in_progress" as const) : ("up_next" as const) };
+    }
+    if (s.id === "research" && hasAccepted) {
+      return { ...s, status: "up_next" as const };
+    }
+    return s;
+  });
+
+  const newCurrentStage = hasAccepted ? "literature_review" : "supervisor_approval";
+
+  // Persist the reconciled state
+  await supabase
+    .from("thesis_journeys")
+    .update({ current_stage: newCurrentStage, stages: newStages as any, updated_at: new Date().toISOString() })
+    .eq("user_id", userId);
+
+  return { ...journey, current_stage: newCurrentStage, stages: newStages };
+}
+
 export function useThesisJourney() {
   const { currentUser } = useAuth();
   const userId = currentUser?.id;
@@ -50,16 +90,20 @@ export function useThesisJourney() {
 
         if (createError) throw createError;
 
-        return {
+        const journey = {
           ...created,
           stages: created.stages as unknown as JourneyStage[],
         } as ThesisJourney;
+
+        return await reconcileJourney(journey, userId!);
       }
 
-      return {
+      const journey = {
         ...data,
         stages: data.stages as unknown as JourneyStage[],
       } as ThesisJourney;
+
+      return await reconcileJourney(journey, userId!);
     },
   });
 }
